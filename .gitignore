@@ -44,7 +44,6 @@ gradle*
 bot.iml
 *.gradle
 mvnw*
-.gitignore
 
 
 # End of https://www.gitignore.io/api/java,maven
