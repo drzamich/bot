@@ -2,22 +2,40 @@ package bot;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 @Data
 public class InformationSchema {
+    private Station station;
+    private Platform platform;
+    private Optional<ArrayList<Departure>> departuresOpt;
+
     private String stationName;
-    private int platformId;
     private String platformMainDir;
 
-    public InformationSchema(Station station, Platform platform) {
-        this.stationName = station.getStationName();
-        this.platformId = platform.getPlatformId();
+
+    public InformationSchema(Station station, Platform platform, Optional<ArrayList<Departure>> departuresOpt) {
+        this.station = station;
+        this.platform = platform;
+        this.departuresOpt = departuresOpt;
         this.platformMainDir = platform.getMainDir();
+        this.stationName = station.getStationName();
     }
 
-    @Override
-    public String toString() {
-        return "Station name: " + this.stationName + "\n" +
-                "Direction: " + this.platformMainDir + "\n" +
-                "Platform ID:" + this.platformId;
+    public String getInfo(){
+        String res = "";
+        res = res + "Station "+ this.stationName+":\n"+
+                "Departures from platform in direction of "+this.platformMainDir;
+        if(departuresOpt.isPresent()) {
+            ArrayList<Departure> departures = departuresOpt.get();
+            for (Departure departure : departures) {
+                res = res + "\n" + departure.getLine() + " | " + departure.getDestination() + " | " + departure.getTimeMinutes();
+            }
+        }
+        else {
+            res = res + "\n Could not fetch departure times. Please try again.";
+        }
+        return res;
     }
 }
