@@ -1,5 +1,6 @@
-package bot;
+package bot.data;
 
+import bot.data.Departure;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 

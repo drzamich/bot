@@ -1,5 +1,8 @@
-package bot;
+package bot.data;
 
+import bot.data.Departure;
+import bot.data.Platform;
+import bot.data.Station;
 import lombok.Data;
 
 import java.util.ArrayList;

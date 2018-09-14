@@ -1,4 +1,4 @@
-package bot;
+package bot.data;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;

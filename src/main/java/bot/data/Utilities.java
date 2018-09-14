@@ -1,4 +1,4 @@
-package bot;
+package bot.data;
 
 import java.text.Normalizer;
 
