@@ -38,7 +38,7 @@ public class Curl {
         String urlParameters = "action=sip_get_llegadas_parada&id="+String.valueOf(platformId);
         URL obj = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
 
