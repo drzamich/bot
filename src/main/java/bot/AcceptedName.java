@@ -18,7 +18,6 @@ public class AcceptedName {
 
     @Column(name="name_accepted")
     private String nameAccepted;
-    //private String stationNamePkey;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="station_name_pkey")

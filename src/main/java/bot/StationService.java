@@ -12,22 +12,7 @@ public class StationService {
 
     @Autowired
     AcceptedNameRepository acceptedNameRepository;
-    private boolean platformGiven = false;
 
-//    public String getInfo(String name, String dir) {
-//        name = Utilities.parseInput(name);
-//        dir = Utilities.parseInput(dir);
-//        Optional<AcceptedName> acceptedName = acceptedNameRepository.findByNameAccepted(name);
-//
-//        if (!acceptedName.isPresent()) {
-//            return "Wrong input";
-//        }
-//
-//        Station station = acceptedName.get().getStation();
-//        Platform searchedPlatform = Utilities.getPlatformByDirection(station.getPlatforms(), dir);
-//        InformationSchema schema = new InformationSchema(station, searchedPlatform);
-//        return schema.toString();
-//    }
 
     public String getInformation(String msg) {
         msg = Utilities.parseInput(msg);

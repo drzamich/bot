@@ -1,13 +1,8 @@
 package bot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import jdk.internal.org.objectweb.asm.TypeReference;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -16,7 +11,6 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class Curl {
@@ -54,9 +48,6 @@ public class Curl {
             wr.close();
 
             int responseCode = conn.getResponseCode();
-//        System.out.println("\nSending 'POST' request to URL : " + url);
-//        System.out.println("Post parameters : " + urlParameters);
-//        System.out.println("Response Code : " + responseCode);
 
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(conn.getInputStream()));
