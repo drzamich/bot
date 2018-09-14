@@ -9,12 +9,17 @@ import java.util.List;
 public class MyController {
 
 
-   // @Autowired
+   @Autowired
     StationService stationService;
 
     @RequestMapping(value = "/find/{name}/{dir}", method = RequestMethod.GET)
     public String find(@PathVariable("name") String name, @PathVariable("dir") String dir) {
         return stationService.getInfo(name,dir);
+    }
+
+    @RequestMapping(value= "msg/{msg}", method = RequestMethod.GET)
+    public String giveInfo(@PathVariable("msg") String msg){
+        return stationService.getInformation(msg);
     }
 
 }

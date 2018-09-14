@@ -23,4 +23,8 @@ public class Utilities {
         }
         return null;
     }
+
+    public static boolean isNumeric(String s) {
+        return s != null && s.matches("[-+]?\\d*\\.?\\d+");
+    }
 }
