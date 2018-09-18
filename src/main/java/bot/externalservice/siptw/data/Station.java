@@ -1,4 +1,4 @@
-package bot.data;
+package bot.externalservice.siptw.data;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;

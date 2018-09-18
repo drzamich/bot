@@ -1,26 +1,32 @@
-package bot.data;
+package bot.externalservice.siptw;
 
+import bot.externalservice.siptw.data.*;
+import bot.processor.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class StationService {
+public class SipTwProcessor {
 
     @Autowired
     AcceptedNameRepository acceptedNameRepository;
 
+    @Autowired
+    SipService sipService;
 
-    public String getInformation(String msg) {
-        msg = Utilities.parseInput(msg);
-        String[] parts = msg.split(" ");
-        Optional<Station> stationOptional = matchStation(parts);
+    private String[] parts;
+    Optional<Station> stationOptional;
+    SipServiceResponse sipServiceResponse;
+
+    public void processQuery(Query query){
+        parts = query.getBodyExploded();
+        stationOptional = matchStation(parts);
         if (!stationOptional.isPresent()) {
             //station not given
-            return "Wrong station name";
+            System.out.println("Wrong station name");
         }
         Station station = stationOptional.get();
         List<Platform> platforms = station.getPlatforms();
@@ -35,23 +41,29 @@ public class StationService {
         else {
             platform = platformOptional.get();
         }
-        Curl curl = new Curl();
-        Optional<ArrayList<Departure>> departuresListOptional = curl.getDepartureInformation(platform.getPlatformId());
+        int platformId = platform.getPlatformId();
 
-        InformationSchema schema = new InformationSchema(station,platform,departuresListOptional);
-        return schema.getInfo();
+        try {
+            sipServiceResponse = sipService.getTimetableForPlatform(platformId);
+            System.out.println(sipServiceResponse);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
+
 
     private Optional<Station> matchStation(String[] parts) {
         int elements = parts.length;
 
         String testedName = parts[0];
+        Optional<AcceptedName> acceptedName;
         for (int i = 0; i < elements; i++) {
             if (i != 0) {
                 testedName = testedName + " " + parts[i];
             }
-            Optional<AcceptedName> acceptedName = acceptedNameRepository.findByNameAccepted(testedName);
+            acceptedName = acceptedNameRepository.findByNameAccepted(testedName);
             if (acceptedName.isPresent()) {
                 return Optional.of(acceptedName.get().getStation());
             }
@@ -73,5 +85,4 @@ public class StationService {
         }
         return Optional.empty();
     }
-
 }

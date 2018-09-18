@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>Setting the text content of elements: jsoup Java HTML parser</title> 
+  <meta name="keywords" content="set text"> 
+  <meta name="description" content="Guide to setting the text content of document elements"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="Setting the text content of elements"> 
+  <meta name="twitter:description" content="Guide to setting the text content of document elements"> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-cookbook"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/cookbook/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">Cookbook</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/cookbook/modifying-data/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">Modifying data</span></a> </span> 
+    <span class="seperator">&raquo;</span> Setting the text content of elements 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <div class="recipe"> 
+      <h1>Setting the text content of elements</h1> 
+      <h2>Problem</h2> 
+      <p>You need to modify the text content of a HTML document.</p> 
+      <h2>Solution</h2> 
+      <p>Use the text setter methods of <code><a href="/apidocs/org/jsoup/nodes/Element.html" title="A HTML element consists of a tag name, attributes, and child nodes (including text nodes and other elements).">Element</a></code>:</p> 
+      <pre><code class="prettyprint">Element div = doc.select("div").first(); // &lt;div&gt;&lt;/div&gt;
+div.text("five &gt; four"); // &lt;div&gt;five &amp;gt; four&lt;/div&gt;
+div.prepend("First ");
+div.append(" Last");
+// now: &lt;div&gt;First five &amp;gt; four Last&lt;/div&gt;
+</code></pre> 
+      <h2>Discussion</h2> 
+      <p>The text setter methods mirror the <a href="./set-html">HTML setter</a> methods:</p> 
+      <ul> 
+       <li><code><a href="/apidocs/org/jsoup/nodes/Element.html#text-java.lang.String-" title="Set the text of this element.">Element.text(String text)</a></code> clears any existing inner HTML in an element, and replaces it with the supplied text.</li> 
+       <li><code><a href="/apidocs/org/jsoup/nodes/Element.html#prepend-java.lang.String-" title="Add inner HTML into this element.">Element.prepend(String first)</a></code> and <code><a href="/apidocs/org/jsoup/nodes/Element.html#append-java.lang.String-" title="Add inner HTML to this element.">Element.append(String last)</a></code> add text nodes to the start or end of an element's inner HTML, respectively</li> 
+      </ul> 
+      <p>The text should be supplied unencoded: characters like <code>&lt;</code>, <code>&gt;</code> etc will be treated as literals, not HTML.</p> 
+     </div> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+     <div class="toc box"> 
+      <h2><a href="/cookbook"></a>Cookbook contents</h2> 
+      <h3>Introduction</h3> 
+      <ol start="1"> 
+       <li><a href="/cookbook/introduction/parsing-a-document">Parsing and traversing a Document</a></li> 
+      </ol> 
+      <h3>Input</h3> 
+      <ol start="2"> 
+       <li><a href="/cookbook/input/parse-document-from-string">Parse a document from a String</a></li> 
+       <li><a href="/cookbook/input/parse-body-fragment">Parsing a body fragment</a></li> 
+       <li><a href="/cookbook/input/load-document-from-url">Load a Document from a URL</a></li> 
+       <li><a href="/cookbook/input/load-document-from-file">Load a Document from a File</a></li> 
+      </ol> 
+      <h3>Extracting data</h3> 
+      <ol start="6"> 
+       <li><a href="/cookbook/extracting-data/dom-navigation">Use DOM methods to navigate a document</a></li> 
+       <li><a href="/cookbook/extracting-data/selector-syntax">Use selector-syntax to find elements</a></li> 
+       <li><a href="/cookbook/extracting-data/attributes-text-html">Extract attributes, text, and HTML from elements</a></li> 
+       <li><a href="/cookbook/extracting-data/working-with-urls">Working with URLs</a></li> 
+       <li><a href="/cookbook/extracting-data/example-list-links">Example program: list links</a></li> 
+      </ol> 
+      <h3>Modifying data</h3> 
+      <ol start="11"> 
+       <li><a href="/cookbook/modifying-data/set-attributes">Set attribute values</a></li> 
+       <li><a href="/cookbook/modifying-data/set-html">Set the HTML of an element</a></li> 
+       <li class="activePage">Setting the text content of elements</li> 
+      </ol> 
+      <h3>Cleaning HTML</h3> 
+      <ol start="14"> 
+       <li><a href="/cookbook/cleaning-html/whitelist-sanitizer">Sanitize untrusted HTML (to prevent XSS)</a></li> 
+      </ol> 
+     </div> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2018 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

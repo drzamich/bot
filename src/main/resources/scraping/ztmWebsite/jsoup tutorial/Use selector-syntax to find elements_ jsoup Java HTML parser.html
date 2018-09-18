@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>Use selector-syntax to find elements: jsoup Java HTML parser</title> 
+  <meta name="keywords" content="select, selector, css, jquery"> 
+  <meta name="description" content=""> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="Use selector-syntax to find elements"> 
+  <meta name="twitter:description" content=""> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-cookbook"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/cookbook/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">Cookbook</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/cookbook/extracting-data/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">Extracting data</span></a> </span> 
+    <span class="seperator">&raquo;</span> Use selector-syntax to find elements 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <div class="recipe"> 
+      <h1>Use selector-syntax to find elements</h1> 
+      <h2>Problem</h2> 
+      <p>You want to find or manipulate elements using a CSS or jquery-like selector syntax.</p> 
+      <h2>Solution</h2> 
+      <p>Use the <code><a href="/apidocs/org/jsoup/nodes/Element.html#select-java.lang.String-" title="Find elements that match the Selector CSS query, with this element as the starting context.">Element.select(String selector)</a></code> and <code><a href="/apidocs/org/jsoup/select/Elements.html#select-java.lang.String-" title="Find matching elements within this element list.">Elements.select(String selector)</a></code> methods:</p> 
+      <pre><code class="prettyprint">File input = new File("/tmp/input.html");
+Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
+
+Elements links = doc.select("a[href]"); // a with href
+Elements pngs = doc.select("img[src$=.png]");
+  // img with src ending .png
+
+Element masthead = doc.select("div.masthead").first();
+  // div with class=masthead
+
+Elements resultLinks = doc.select("h3.r &gt; a"); // direct a after h3
+</code></pre> 
+      <h2>Description</h2> 
+      <p>jsoup elements support a <a href="http://www.w3.org/TR/2009/PR-css3-selectors-20091215/">CSS</a> (or <a href="http://jquery.com">jquery</a>) like selector syntax to find matching elements, that allows very powerful and robust queries.</p> 
+      <p>The <code>select</code> method is available in a <code><a href="/apidocs/org/jsoup/nodes/Document.html" title="A HTML Document.">Document</a></code>, <code><a href="/apidocs/org/jsoup/nodes/Element.html" title="A HTML element consists of a tag name, attributes, and child nodes (including text nodes and other elements).">Element</a></code>, or in <code><a href="/apidocs/org/jsoup/select/Elements.html" title="A list of Elements, with methods that act on every element in the list.">Elements</a></code>. It is contextual, so you can filter by selecting from a specific element, or by chaining select calls.</p> 
+      <p>Select returns a list of Elements (as <code><a href="/apidocs/org/jsoup/select/Elements.html" title="A list of Elements, with methods that act on every element in the list.">Elements</a></code>), which provides a range of methods to extract and manipulate the results.</p> 
+      <h3>Selector overview</h3> 
+      <ul> 
+       <li><code>tagname</code>: find elements by tag, e.g. <code><a href="/apidocs/org/jsoup/select/Evaluator.CssNthEvaluator.html#a">a</a></code></li> 
+       <li><code>ns|tag</code>: find elements by tag in a namespace, e.g. <code>fb|name</code> finds <code>&lt;fb:name&gt;</code> elements</li> 
+       <li><code>#id</code>: find elements by ID, e.g. <code>#logo</code></li> 
+       <li><code>.class</code>: find elements by class name, e.g. <code>.masthead</code></li> 
+       <li><code>[attribute]</code>: elements with attribute, e.g. <code>[href]</code></li> 
+       <li><code>[^attr]</code>: elements with an attribute name prefix, e.g. <code>[^data-]</code> finds elements with HTML5 dataset attributes</li> 
+       <li><code>[attr=value]</code>: elements with attribute value, e.g. <code>[width=500]</code> (also quotable, like <code>[data-name='launch sequence']</code>)</li> 
+       <li><code>[attr^=value]</code>, <code>[attr$=value]</code>, <code>[attr*=value]</code>: elements with attributes that start with, end with, or contain the value, e.g. <code>[href*=/path/]</code></li> 
+       <li><code>[attr~=regex]</code>: elements with attribute values that match the regular expression; e.g. <code>img[src~=(?i)\.(png|jpe?g)]</code></li> 
+       <li><code>*</code>: all elements, e.g. <code>*</code></li> 
+      </ul> 
+      <h3>Selector combinations</h3> 
+      <ul> 
+       <li><code>el#id</code>: elements with ID, e.g. <code>div#logo</code></li> 
+       <li><code>el.class</code>: elements with class, e.g. <code>div.masthead</code></li> 
+       <li><code>el[attr]</code>: elements with attribute, e.g. <code>a[href]</code></li> 
+       <li>Any combination, e.g. <code>a[href].highlight</code></li> 
+       <li><code>ancestor child</code>: child elements that descend from ancestor, e.g. <code>.body p</code> finds <code>p</code> elements anywhere under a block with class "body"</li> 
+       <li><code>parent &gt; child</code>: child elements that descend directly from parent, e.g. <code>div.content &gt; p</code> finds <code>p</code> elements; and <code>body &gt; *</code> finds the direct children of the body tag</li> 
+       <li><code>siblingA + siblingB</code>: finds sibling B element immediately preceded by sibling A, e.g. <code>div.head + div</code></li> 
+       <li><code>siblingA ~ siblingX</code>: finds sibling X element preceded by sibling A, e.g. <code>h1 ~ p</code></li> 
+       <li><code>el, el, el</code>: group multiple selectors, find unique elements that match any of the selectors; e.g. <code>div.masthead, div.logo</code></li> 
+      </ul> 
+      <h3>Pseudo selectors</h3> 
+      <ul> 
+       <li><code>:lt(n)</code>: find elements whose sibling index (i.e. its position in the DOM tree relative to its parent) is less than <code>n</code>; e.g. <code>td:lt(3)</code></li> 
+       <li><code>:gt(n)</code>: find elements whose sibling index is greater than <code>n</code>; e.g. <code>div p:gt(2)</code></li> 
+       <li><code>:eq(n)</code>: find elements whose sibling index is equal to <code>n</code>; e.g. <code>form input:eq(1)</code></li> 
+       <li><code>:has(selector)</code>: find elements that contain elements matching the selector; e.g. <code>div:has(p)</code></li> 
+       <li><code>:not(selector)</code>: find elements that do not match the selector; e.g. <code>div:not(.logo)</code></li> 
+       <li><code>:contains(text)</code>: find elements that contain the given text. The search is case-insensitive; e.g. <code>p:contains(jsoup)</code></li> 
+       <li><code>:containsOwn(text)</code>: find elements that directly contain the given text</li> 
+       <li><code>:matches(regex)</code>: find elements whose text matches the specified regular expression; e.g. <code>div:matches((?i)login)</code></li> 
+       <li><code>:matchesOwn(regex)</code>: find elements whose own text matches the specified regular expression</li> 
+       <li>Note that the above indexed pseudo-selectors are 0-based, that is, the first element is at index 0, the second at 1, etc</li> 
+      </ul> 
+      <p>See the <code><a href="/apidocs/org/jsoup/select/Selector.html" title="CSS-like element selector, that finds elements matching a query.">Selector</a></code> API reference for the full supported list and details.</p> 
+     </div> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+     <div class="toc box"> 
+      <h2><a href="/cookbook"></a>Cookbook contents</h2> 
+      <h3>Introduction</h3> 
+      <ol start="1"> 
+       <li><a href="/cookbook/introduction/parsing-a-document">Parsing and traversing a Document</a></li> 
+      </ol> 
+      <h3>Input</h3> 
+      <ol start="2"> 
+       <li><a href="/cookbook/input/parse-document-from-string">Parse a document from a String</a></li> 
+       <li><a href="/cookbook/input/parse-body-fragment">Parsing a body fragment</a></li> 
+       <li><a href="/cookbook/input/load-document-from-url">Load a Document from a URL</a></li> 
+       <li><a href="/cookbook/input/load-document-from-file">Load a Document from a File</a></li> 
+      </ol> 
+      <h3>Extracting data</h3> 
+      <ol start="6"> 
+       <li><a href="/cookbook/extracting-data/dom-navigation">Use DOM methods to navigate a document</a></li> 
+       <li class="activePage">Use selector-syntax to find elements</li> 
+       <li><a href="/cookbook/extracting-data/attributes-text-html">Extract attributes, text, and HTML from elements</a></li> 
+       <li><a href="/cookbook/extracting-data/working-with-urls">Working with URLs</a></li> 
+       <li><a href="/cookbook/extracting-data/example-list-links">Example program: list links</a></li> 
+      </ol> 
+      <h3>Modifying data</h3> 
+      <ol start="11"> 
+       <li><a href="/cookbook/modifying-data/set-attributes">Set attribute values</a></li> 
+       <li><a href="/cookbook/modifying-data/set-html">Set the HTML of an element</a></li> 
+       <li><a href="/cookbook/modifying-data/set-text">Setting the text content of elements</a></li> 
+      </ol> 
+      <h3>Cleaning HTML</h3> 
+      <ol start="14"> 
+       <li><a href="/cookbook/cleaning-html/whitelist-sanitizer">Sanitize untrusted HTML (to prevent XSS)</a></li> 
+      </ol> 
+     </div> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2018 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

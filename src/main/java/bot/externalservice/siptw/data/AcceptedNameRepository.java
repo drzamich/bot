@@ -1,4 +1,4 @@
-package bot.data;
+package bot.externalservice.siptw.data;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

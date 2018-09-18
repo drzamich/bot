@@ -1,8 +1,8 @@
-package bot.data;
+package bot.processor;
 
-import bot.data.Departure;
-import bot.data.Platform;
-import bot.data.Station;
+import bot.externalservice.siptw.data.Platform;
+import bot.externalservice.siptw.data.Station;
+import bot.externalservice.siptw.data.Departure;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -32,9 +32,9 @@ public class InformationSchema {
                 "Departures from platform in direction of "+this.platformMainDir;
         if(departuresOpt.isPresent()) {
             ArrayList<Departure> departures = departuresOpt.get();
-            for (Departure departure : departures) {
-                res = res + "\n" + departure.getLine() + " | " + departure.getDestination() + " | " + departure.getTimeMinutes();
-            }
+//            for (Departure departure : departures) {
+//                res = res + "\n" + departure.getLine() + " | " + departure.getDestination() + " | " + departure.getTimeMinutes();
+//            }
         }
         else {
             res = res + "\n Could not fetch departure times. Please try again.";

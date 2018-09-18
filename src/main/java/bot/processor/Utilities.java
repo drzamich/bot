@@ -1,8 +1,11 @@
-package bot.data;
+package bot.processor;
 
 import java.text.Normalizer;
 
-public class Utilities {
+public final class Utilities {
+    private Utilities() {
+        throw new UnsupportedOperationException();
+    }
     public static String parseInput(String input) {
         input = input.toLowerCase();
         input = Normalizer.normalize(input, Normalizer.Form.NFD);
