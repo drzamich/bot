@@ -44,6 +44,6 @@ gradle*
 bot.iml
 *.gradle
 mvnw*
-resources/scraping/
+resources/scraping/*
 
 # End of https://www.gitignore.io/api/java,maven
