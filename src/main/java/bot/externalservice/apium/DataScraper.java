@@ -1,7 +1,8 @@
 package bot.externalservice.apium;
 
+import bot.externalservice.apium.data.Platform;
 import bot.externalservice.apium.data.Station;
-import bot.processor.Utilities;
+import bot.externalservice.general.NameProcessor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,91 +12,84 @@ import java.io.File;
 import java.util.*;
 
 public class DataScraper {
-    private File input = new File("E:\\java\\bot\\src\\main\\resources\\scraping\\ztmWebsite\\station_list.html");
     private List<Station> stations = new ArrayList<>();
     private final List<String> EXCLUDED_IDS = Arrays.asList("2306");
     private final String BASE_URL = "";
 
     public DataScraper() throws Exception {
-        Document doc = Jsoup.parse(this.input, "UTF-8", "http://example.com/");
-        this.fillStationList(doc);+
+        this.fillStationList();
+        this.fillPlatformInformation();
     }
 
 
-    private void fillPlatformInformation(){
-        for(Station station : this.stations){
-            String id = station.getId();
+    private void fillPlatformInformation() throws Exception {
+        for (Station station : this.stations) {
+            String url = station.getUrlToPlatforms();
+
+            Document doc = Jsoup.connect(url).get();
+            Elements links = doc.select(".PrzystanekKierunek p:contains(przystanek)>a>strong");
+            Elements directions = doc.select(".PrzystanekKierunek p:contains(przystanek)>strong");
+            Elements linesContainers = doc.select(".PrzystanekLineList");
+
+            List<Platform> platforms = generatePlatformList(links,directions,linesContainers);
+            station.setPlatforms(platforms);
+
+            System.out.println(station);
         }
     }
 
-    private void fillPlatformInformationTest(){
-        String id = 4009;
-        File input = new File("E:\\java\\bot\\src\\main\\resources\\scraping\\ztmWebsite\\sample_station.html");
+    private List<Platform> generatePlatformList(Elements links, Elements directions, Elements linesContainers){
+        List<Platform> res = new ArrayList<>();
+        for (int i = 0; i < links.size(); i++) {
+            String[] platformNumberWrapper = links.get(i).text().split(" ");
+            String platformNumber = platformNumberWrapper[platformNumberWrapper.length-1];
+
+            String direction = directions.get(i).text();
+
+            Elements linesLinks = linesContainers.get(i).select("a");
+            List<String> lines = new ArrayList<>();
+            for (Element linesLink : linesLinks) {
+                lines.add(linesLink.text());
+            }
+
+            res.add(new Platform(platformNumber,direction,lines));
+        }
+        return res;
     }
 
+    private void fillStationList() throws Exception {
+        File input = new File("E:\\java\\bot\\src\\main\\resources\\scraping\\ztmWebsite\\station_list.html");
+        Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
+        Elements links = doc.select("a:contains(Warszawa)");
+        this.generateStations(links);
+    }
 
-    private void fillStationList(Document doc) {
-        Elements links = doc.getElementsByTag("a");
+    private void generateStations(Elements links){
         for (Element link : links) {
             String stationName = link.text();
-            if (stationName.contains("Warszawa")) {
-                String id = link.attr("href");
-                int pos = id.indexOf("&a=");
-                id = id.substring(pos + 3);
-                stationName = stationName.replaceAll("\\(Warszawa\\)", "");
-                if (!EXCLUDED_IDS.contains(id)) {
-                    Station station = this.generateStation(stationName, id);
-                    this.stations.add(station);
-                }
+            String url = link.attr("href");
+
+            int pos = url.indexOf("&a=");
+            String id = url.substring(pos + 3);
+
+            stationName = stationName.replaceAll("\\(Warszawa\\)", "");
+
+            if (!EXCLUDED_IDS.contains(id)) {
+                Station station = this.makeStation(stationName, id, url);
+                this.stations.add(station);
             }
         }
         this.checkForNameRepetittions();
     }
 
-    private Station generateStation(String stationName, String id) {
-        Station station = new Station(id, stationName.trim());
-        List<String> acceptedNames = this.generateAcceptedNames(stationName);
+    private Station makeStation(String stationName, String id, String url) {
+        Station station = new Station(id, stationName.trim(), url);
+
+        NameProcessor nameProcessor = new NameProcessor(stationName);
+        List<String> acceptedNames = nameProcessor.getAcceptedNames();
         station.setAcceptedNames(acceptedNames);
+
         return station;
-    }
-
-    private List<String> generateAcceptedNames(String str) {
-        List<String> shortcutsShort = Arrays.asList("^al", "^os", "^gen", "im ", "dw", "^zaj", "^ks", "pld", "pln", "zach", "wsch",
-                "ii", "iii", "vi", "jana pawla ii", "jana pawla 2", "zajezdnia");
-        List<String> shortcutsLong = Arrays.asList("aleja", "osiedle", "generala", "imienia ", "dworzec", "zajezdnia",
-                "ksiedza", "poludnie", "polnoc", "zachodnia", "wschodni", "2", "3", "6", "jp2",
-                "jp2", "zaj");
-        List<String> repetitiveNames = Arrays.asList("metro", "pl", "al", "aleja", "plac", "dworzec");
-
-        str = Utilities.parseInput(str);
-        List<String> res = new ArrayList<>();
-        res.add(str);
-        String str3 = str;
-        int len = shortcutsLong.size();
-        for (int i = 0; i < len; i++) {
-            String key = shortcutsShort.get(i);
-            String val = shortcutsLong.get(i);
-            String str2 = str.replaceAll(key, val);
-            str3 = str3.replaceAll(key, val);
-            if (!res.contains(str2)) {
-                res.add(str2);
-            }
-            if (!res.contains(str3)) {
-                res.add(str3);
-            }
-        }
-
-        int len2 = res.size();
-        for (int i = 0; i < len2; i++) {
-            for (String key : repetitiveNames) {
-                String str2 = res.get(i).replaceAll(key + " ", "").trim();
-                if (!res.contains(str2) && !str.equals(str2)) {
-                    res.add(str2);
-                }
-            }
-        }
-
-        return res;
     }
 
     private void checkForNameRepetittions() {
@@ -118,11 +112,6 @@ public class DataScraper {
         }
     }
 
-    private <T> void random(List<T> a, T b){
-        if(a.contains(b)){
-            a.add(b);
-        }
-    }
 }
 
 

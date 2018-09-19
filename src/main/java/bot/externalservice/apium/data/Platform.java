@@ -1,6 +1,18 @@
 package bot.externalservice.apium.data;
 
+import lombok.Data;
+
+import java.util.List;
+
+@Data
 public class Platform {
-    private int number;
+    private String number;
     private String direction;
+    private List<String> lines;
+
+    public Platform(String number, String direction, List<String> lines) {
+        this.number = number;
+        this.direction = direction;
+        this.lines = lines;
+    }
 }

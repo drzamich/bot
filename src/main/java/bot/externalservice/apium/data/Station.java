@@ -10,10 +10,12 @@ public class Station {
     private String mainName;
     private List<String> acceptedNames;
     private List<Platform> platforms;
+    private String urlToPlatforms;
 
-    public Station(String id, String mainName) {
+    public Station(String id, String mainName, String url) {
         this.id = id;
         this.mainName = mainName;
+        this.urlToPlatforms = url;
     }
 
     public void addAcceptedName(String acceptedName){

@@ -1,9 +1,6 @@
 package bot;
 
 import bot.externalservice.apium.DataScraper;
-import bot.externalservice.apium.data.DataScraper2;
-import bot.processor.Utilities;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
