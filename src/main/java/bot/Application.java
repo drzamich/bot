@@ -10,7 +10,7 @@ public class Application {
         //SpringApplication.run(Application.class, args);
         //DataScraper dataScraper = new DataScraper();
         StationService stationService = new StationService();
-        stationService.processMsg("MURANOW");
+        stationService.processMsg("borowiecka");
     }
 }
 
