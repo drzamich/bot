@@ -13,7 +13,7 @@ public final class Utilities {
         input = input.replaceAll("ł","l");
         input = input.replaceAll("[()]","");
         input = input.replaceAll("[.+-]"," ");
-        input = input.replaceAll(".$","");
+        input = input.replaceAll("\\.$","");
         input = removeExcessiveWhitespaces(input);
         input = input.trim();
         return input;

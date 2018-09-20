@@ -2,10 +2,11 @@ package bot.externalservice.apium.data;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class Platform {
+public class Platform implements Serializable {
     private String number;
     private String direction;
     private List<String> lines;

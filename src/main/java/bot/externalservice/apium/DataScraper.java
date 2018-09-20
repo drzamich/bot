@@ -1,29 +1,41 @@
 package bot.externalservice.apium;
 
+import bot.externalservice.apium.data.DataManager;
 import bot.externalservice.apium.data.Platform;
 import bot.externalservice.apium.data.Station;
+import bot.externalservice.apium.data.StationsMap;
 import bot.externalservice.general.NameProcessor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
-public class DataScraper {
-    private List<Station> stations = new ArrayList<>();
+public class DataScraper extends DataManager {
+    private List<Station> stationList = new ArrayList<>();
     private final List<String> EXCLUDED_IDS = Arrays.asList("2306");
     private final String BASE_URL = "";
 
     public DataScraper() throws Exception {
         this.fillStationList();
         this.fillPlatformInformation();
+        this.convertListToHashMap();
+        this.serializeStationMap();
     }
 
 
+    private void convertListToHashMap(){
+        for(Station station: this.stationList){
+            for(String accName : station.getAcceptedNames()){
+                this.stationsMap.put(accName,station);
+            }
+        }
+    }
+
     private void fillPlatformInformation() throws Exception {
-        for (Station station : this.stations) {
+        for (Station station : this.stationList) {
             String url = station.getUrlToPlatforms();
 
             Document doc = Jsoup.connect(url).get();
@@ -76,7 +88,7 @@ public class DataScraper {
 
             if (!EXCLUDED_IDS.contains(id)) {
                 Station station = this.makeStation(stationName, id, url);
-                this.stations.add(station);
+                this.stationList.add(station);
             }
         }
         this.checkForNameRepetittions();
@@ -95,7 +107,7 @@ public class DataScraper {
     private void checkForNameRepetittions() {
         List<String> names = new ArrayList<>();
         boolean noRepetitions = true;
-        for (Station station : this.stations) {
+        for (Station station : this.stationList) {
             List<String> namess = station.getAcceptedNames();
             for (String name : namess) {
                 if (!names.contains(name)) {
