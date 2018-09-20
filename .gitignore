@@ -45,6 +45,6 @@ bot.iml
 *.gradle
 mvnw*
 src/main/resources/scraping/
-src/main/java/bot/externalservice/apium/Propierties*
+src/main/java/bot/externalservice/apium/Properties.java
 
 # End of https://www.gitignore.io/api/java,maven
