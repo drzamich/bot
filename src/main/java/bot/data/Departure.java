@@ -2,8 +2,10 @@ package bot.data;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class Departure {
+public class Departure implements Serializable {
     private String line;
     private String direction;
     private String time;

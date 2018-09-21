@@ -1,19 +1,17 @@
 package bot.data;
 
+import bot.externalservice.apium.data.Platform;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Optional;
 
 @Data
 public class PlatformDepartureInfo {
-    private String number;
-    private String direction;
-    private Optional<List<Departure>> departures;
+    private List<Departure> departures;
+    private Platform platform;
 
-    public PlatformDepartureInfo(String number, String direction, Optional<List<Departure>> departures) {
-        this.number = number;
-        this.direction = direction;
+    public PlatformDepartureInfo(Platform platform, List<Departure> departures) {
+        this.platform = platform;
         this.departures = departures;
     }
 }

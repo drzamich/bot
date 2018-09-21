@@ -12,7 +12,7 @@ public class DataCollector extends DataManager {
 
     public DataCollector() {
         getStationList();
-        generateTimetables();
+        //generateTimetables();
         System.out.println("Data collected.");
     }
 

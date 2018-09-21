@@ -86,6 +86,7 @@ public final class Utilities {
             objectInputStream.close();
         }
         catch (Exception e){
+            e.printStackTrace();
             return null;
         }
         return o;

@@ -16,4 +16,9 @@ public class Platform implements Serializable {
         this.direction = direction;
         this.lines = lines;
     }
+
+    public Platform(String number, String direction) {
+        this.number = number;
+        this.direction = direction;
+    }
 }

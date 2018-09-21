@@ -4,11 +4,7 @@ import bot.data.Departure;
 import bot.data.PlatformDepartureInfo;
 import bot.externalservice.apium.data.*;
 import bot.processor.Utilities;
-import com.sun.media.sound.UlawCodec;
 import lombok.Data;
-import org.apache.commons.collections4.map.MultiValueMap;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,155 +13,68 @@ import java.util.*;
 @Data
 public class StationService extends DataManager {
     private Station station;
-    private String stationName;
-    private String stationId;
-    private List<Platform> platforms = new ArrayList<>();
+    private List<Platform> platforms;
     private List<PlatformDepartureInfo> platformDepartureInfos = new ArrayList<>();
-    private final int MAX_MINUTES = 20;
-    private String[] msg;
-
-    private boolean stationExists = false;
-    private boolean platformExists = false;
-    private boolean departuresExist = false;
+    private List<String> msg;
 
 
-    public StationService(String[] msg) {
+    public StationService(List<String> msg) {
         super();
-        this.stationsMap = Utilities.deserializeObject(this.pathToStationMap);
         this.msg = msg;
         this.findStation();
         this.findPlatforms();
         this.processPlatforms();
-        this.prepare();
     }
 
     public StationService(Station station) {
         super();
         this.station = station;
-        this.stationId = station.getId();
         this.platforms = station.getPlatforms();
-        this.prepare();
         this.processPlatforms();
     }
 
-    private void prepare() {
-        this.stationName = this.station.getMainName();
-    }
-
-    @Autowired
-    ApiUmService apiUmService = new ApiUmService(new RestTemplateBuilder());
-
     public void findStation() {
-        String proposedName = this.msg[0];
-        Optional<Station> stationOptSaved = Optional.empty(); //this is to ensure that the name is not matched too early
-        for (int i = 0; i < this.msg.length; i++) {
-            Optional<Station> stationOpt = Optional.ofNullable(this.stationsMap.get(proposedName));
+        Map<String,Station> stationMap = (Map<String,Station>) Utilities.deserializeObject(this.pathToStationMap);
+        Station stationSaved = null; //this is to ensure that the name is not matched too early
+        StringBuilder s = new StringBuilder(this.msg.get(0));
+        for (int i = 0; i < this.msg.size(); i++) {
+            if (i != 0) s.append(this.msg.get(i));
+            Optional<Station> stationOpt = Optional.ofNullable(stationMap.get(s.toString()));
             if (stationOpt.isPresent()) {
-                stationOptSaved = stationOpt;
+                stationSaved = stationOpt.get();
             }
         }
-        if (stationOptSaved.isPresent()) {
-            this.station = stationOptSaved.get();
-            this.stationId = this.station.getId();
-            this.stationExists = true;
-        }
+        this.station = stationSaved;
     }
 
     public void findPlatforms() {
-        if (this.stationExists) {
-            for (Platform platform : this.station.getPlatforms()) {
-                for (String s : this.msg) {
-                    if (s.equals("all")) {
-                        this.platforms = this.station.getPlatforms();
-                        this.platformExists = true;
-                        return;
-                    }
-                    if (s.equals(platform.getNumber()) || s.equals(Utilities.parseInput(platform.getDirection()))) {
-                        this.platforms.add(platform);
-                        this.platformExists = true;
-                    }
+        if (this.station != null) {
+            List<Platform> platforms = this.station.getPlatforms();
+            List<Platform> res = new ArrayList<>();
+            for (Platform platform : platforms) {
+                String platformNumber = platform.getNumber();
+                String direction = Utilities.parseInput(platform.getDirection());
+
+                if (this.msg.contains("all")) {
+                    res = platforms;
+                }
+                if (this.msg.contains(platformNumber) || this.msg.contains(direction)) {
+                    res.add(platform);
                 }
             }
+            this.platforms = res;
         }
     }
+
 
     public void processPlatforms() {
-        if (this.platformExists) {
-            for (Platform platform : this.platforms) {
-                Optional<List<Departure>> departureList = getDeparturesForPlatform(platform);
-                this.platformDepartureInfos.add(new PlatformDepartureInfo(platform.getNumber(), platform.getDirection(), departureList));
-                this.departuresExist = true;
-            }
+        DepartureService departureService = new DepartureService(this.station);
+        for (Platform platform : this.platforms) {
+            List<Departure> departureList = departureService.getDeparturesForPlatform(platform);
+            Platform pl = new Platform(platform.getNumber(), platform.getDirection());
+            this.platformDepartureInfos.add(new PlatformDepartureInfo(pl, departureList));
         }
     }
 
-
-    private Optional<List<Departure>> getDeparturesForPlatform(Platform platform) {
-        String platformNumber = platform.getNumber();
-
-        String identifier = this.date + "_" + this.stationId + "_" + platformNumber;
-        String path = PATH_TO_OBJECTS + identifier;
-        Optional<DeparturesListRaw> departuresListRaw;
-
-        if (Utilities.objectExists(path)) {
-            departuresListRaw = Optional.of(Utilities.deserializeObject(path));
-        } else {
-            departuresListRaw = getDeparturesListRaw(platform, path);
-        }
-
-        if (departuresListRaw.isPresent()) {
-            return Optional.of(this.sortDeparturesList(departuresListRaw.get()));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-
-    private List<Departure> sortDeparturesList(DeparturesListRaw departuresListRaw) {
-        List<Departure> departuresListSorted = new ArrayList<>();
-
-        List<String> times = departuresListRaw.getTimes();
-        MultiValueMap<String, DepartureDetail> mappedDepartures = departuresListRaw.getMappedDepartures();
-        String currTime = Utilities.getTime(TIME_PATTERN);
-        for (String time : times) {
-            int timeDiff = Math.round(Utilities.compareTimes(currTime, time, TIME_PATTERN) / 60000);
-            if (timeDiff >= 0) {
-                List<DepartureDetail> deps = (List<DepartureDetail>) mappedDepartures.get(time);
-                for (DepartureDetail dep : deps) {
-                    Departure departure = new Departure(dep.getLine(), dep.getDirection(), Integer.toString(timeDiff));
-                    departuresListSorted.add(departure);
-                }
-            }
-        }
-        return departuresListSorted;
-    }
-
-    private Optional<DeparturesListRaw> getDeparturesListRaw(Platform platform, String path) {
-        String platformNumber = platform.getNumber();
-        List<String> lines = platform.getLines();
-        MultiValueMap<String, DepartureDetail> mappedDepartures = new MultiValueMap<>();
-        List<String> times = new ArrayList<>();
-
-        for (String line : lines) {
-            Optional<List<DepartureDetail>> list = apiUmService.getDepartureDetails(this.stationId, platformNumber, line);
-            if (list.isPresent()) {
-                for (DepartureDetail departureDetail : list.get()) {
-                    String time = departureDetail.getTime();
-                    mappedDepartures.put(time, departureDetail);
-                    if (!times.contains(time)) {
-                        times.add(time);
-                    }
-                }
-            }
-        }
-
-        if (mappedDepartures.isEmpty() || times.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Collections.sort(times);
-        DeparturesListRaw departuresListRaw = new DeparturesListRaw(times, mappedDepartures);
-        Utilities.serializeObject(departuresListRaw, path);
-        return Optional.of(departuresListRaw);
-    }
 }
+

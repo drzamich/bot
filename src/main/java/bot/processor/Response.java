@@ -1,9 +1,9 @@
 package bot.processor;
 
 import bot.data.Departure;
-import bot.data.Platform;
 import bot.data.PlatformDepartureInfo;
-import bot.data.Station;
+import bot.externalservice.apium.data.Platform;
+import bot.externalservice.apium.data.Station;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -17,59 +17,44 @@ public class Response {
     private List<String> messages = new ArrayList<>();
     private int maxDepartures = 7;
 
-    public Response() {
-        System.out.println("Wrong station");
-    }
-
-    public Response(Station station) {
-        this.station = station;
-    }
-
-    public Response(Station station, List<Platform> platforms) {
-        this(station);
-        this.platforms = platforms;
-    }
 
     public Response(Station station, List<Platform> platforms, List<PlatformDepartureInfo> platformDepartureInfo) {
-        this(station, platforms);
+        this.station = station;
+        this.platforms = platforms;
         this.platformDepartureInfos = platformDepartureInfo;
     }
 
     public void prepareMsg() {
-        if (station != null) {
-            String msg = "Departures for: " + station.getName();
-            messages.add(msg);
-        } else {
+        if (station == null) {
             messages.add("Wrong station.");
             return;
         }
 
-        if (platformDepartureInfos != null) {
-            for (PlatformDepartureInfo platform : platformDepartureInfos) {
-                messages.add("Leaving from platform " + platform.getNumber() + ". Direction: " + platform.getDirection());
-                if (platform.getDepartures().isPresent()) {
-                    String msg = "";
-                    for (int i = 0; i <= this.maxDepartures; i++) {
-                        Departure departure = platform.getDepartures().get().get(i);
-                        msg = msg + departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime() + "\n";
-                    }
-                    messages.add(msg);
-                } else {
-                    messages.add("Not able to present departures for this platform.");
-                }
-            }
-        }
-        else {
-            String msg = "Choose platform:";
-            messages.add(msg);
+        messages.add("Departures for: " + station.getMainName());
+
+        if (platforms.isEmpty()) {
+            messages.add("Choose platform:");
             List<Button> buttons = prepareButtons(station);
             for (Button button : buttons) {
-                msg = button.toString();
-                messages.add(msg);
+                messages.add(button.toString());
             }
+            return;
         }
 
-
+        for (PlatformDepartureInfo plDep : platformDepartureInfos) {
+            Platform pl = plDep.getPlatform();
+            messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getDirection());
+            if (!plDep.getDepartures().isEmpty()) {
+                String msg = "";
+                for (int i = 0; i <= this.maxDepartures; i++) {
+                    Departure departure = plDep.getDepartures().get(i);
+                    msg = msg + departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime() + "\n";
+                }
+                messages.add(msg);
+            } else {
+                messages.add("Not able to present departures for this platform.");
+            }
+        }
     }
 
 
@@ -78,7 +63,7 @@ public class Response {
         List<Button> res = new ArrayList<>();
         for (Platform platform : platforms) {
             String textVis = "Platform: " + platform.getNumber() + ". Direction: " + platform.getDirection();
-            String textHid = station.getName() + " " + platform.getNumber();
+            String textHid = station.getMainName() + " " + platform.getNumber();
             res.add(new Button(textVis, textHid));
         }
         return res;

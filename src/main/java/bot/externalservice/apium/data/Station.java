@@ -13,6 +13,9 @@ public class Station implements Serializable {
     private List<Platform> platforms;
     private String urlToPlatforms;
 
+    public Station() {
+    }
+
     public Station(String id, String mainName, String url) {
         this.id = id;
         this.mainName = mainName;
