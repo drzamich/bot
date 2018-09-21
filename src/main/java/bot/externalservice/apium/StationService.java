@@ -20,7 +20,6 @@ public class StationService extends DataManager {
     private String stationId;
     private List<Platform> platforms = new ArrayList<>();
     private List<PlatformDepartureInfo> platformDepartureInfos = new ArrayList<>();
-    private String date;
     private final int MAX_MINUTES = 20;
     private String[] msg;
 
@@ -35,6 +34,14 @@ public class StationService extends DataManager {
         this.msg = msg;
         this.findStation();
         this.findPlatforms();
+        this.processPlatforms();
+    }
+
+    public StationService(Station station){
+        super();
+        this.station = station;
+        this.stationId = station.getId();
+        this.platforms = station.getPlatforms();
         this.processPlatforms();
     }
 
@@ -76,12 +83,15 @@ public class StationService extends DataManager {
     }
 
     public void processPlatforms(){
-        if(this.isPlatformExists()) {
+        if(this.platforms != null) {
             for (Platform platform : this.platforms) {
-                Optional<List<Departure>> departureList = getDeparturesForPlatform(platform);
-                if (departureList.isPresent()) {
-                    this.platformDepartureInfos.add(new PlatformDepartureInfo(platform.getNumber(), platform.getDirection(), departureList.get()));
-                    this.departuesExist = true;
+                String path = PATH_TO_OBJECTS+this.date+"_"+stationId+"_"+platform.getNumber();
+                if(!Utilities.objectExists(path)) {
+                    Optional<List<Departure>> departureList = getDeparturesForPlatform(platform);
+                    if (departureList.isPresent()) {
+                        this.platformDepartureInfos.add(new PlatformDepartureInfo(platform.getNumber(), platform.getDirection(), departureList.get()));
+                        this.departuesExist = true;
+                    }
                 }
             }
         }

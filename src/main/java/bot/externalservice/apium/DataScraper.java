@@ -23,6 +23,7 @@ public class DataScraper extends DataManager {
             this.fillPlatformInformation();
             this.convertListToHashMap();
             Utilities.serializeObject(this.stationsMap, this.pathToStationMap);
+            Utilities.serializeObject(this.stationList, this.pathToStationList);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -41,20 +42,19 @@ public class DataScraper extends DataManager {
 
     private void fillPlatformInformation() throws Exception {
         for (Station station : this.stationList) {
-            String url = station.getUrlToPlatforms();
-            Document doc = Jsoup.connect(url).get();
-            Elements links = doc.select(".PrzystanekKierunek p:contains(przystanek)>a>strong");
-            Elements directions = doc.select(".PrzystanekKierunek p:contains(przystanek)>strong");
-            Elements linesContainers = doc.select(".PrzystanekLineList");
+                String url = station.getUrlToPlatforms();
+                Document doc = Jsoup.connect(url).get();
+                Elements links = doc.select(".PrzystanekKierunek p:contains(przystanek)>a>strong");
+                Elements directions = doc.select(".PrzystanekKierunek p:contains(przystanek)>strong");
+                Elements linesContainers = doc.select(".PrzystanekLineList");
 
-            List<Platform> platforms = generatePlatformList(links,directions,linesContainers);
-            station.setPlatforms(platforms);
-
-            System.out.println(station);
+                List<Platform> platforms = generatePlatformList(links, directions, linesContainers, station);
+                station.setPlatforms(platforms);
+                System.out.println(station);
         }
     }
 
-    private List<Platform> generatePlatformList(Elements links, Elements directions, Elements linesContainers){
+    private List<Platform> generatePlatformList(Elements links, Elements directions, Elements linesContainers, Station station){
         List<Platform> res = new ArrayList<>();
         for (int i = 0; i < links.size(); i++) {
             String[] platformNumberWrapper = links.get(i).text().split(" ");
@@ -68,7 +68,11 @@ public class DataScraper extends DataManager {
                 lines.add(linesLink.text());
             }
 
-            res.add(new Platform(platformNumber,direction,lines));
+            String platformName = station.getMainName()+" "+platformNumber;
+
+            if(!BLOCKED_STOPS.contains(platformName)) {
+                res.add(new Platform(platformNumber, direction, lines));
+            }
         }
         return res;
     }
