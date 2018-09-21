@@ -13,7 +13,7 @@ import java.util.List;
 public class Response {
     private Station station;
     private List<Platform> platforms;
-    private List<PlatformDepartureInfo> platformDepartureInfo;
+    private List<PlatformDepartureInfo> platformDepartureInfos;
     private List<String> messages = new ArrayList<>();
     private int maxDepartures = 7;
 
@@ -31,50 +31,57 @@ public class Response {
     }
 
     public Response(Station station, List<Platform> platforms, List<PlatformDepartureInfo> platformDepartureInfo) {
-        this(station,platforms);
-        this.platformDepartureInfo = platformDepartureInfo;
+        this(station, platforms);
+        this.platformDepartureInfos = platformDepartureInfo;
     }
 
-    public void prepareMsg(){
-        if(station != null){
-            messages.add("Departures for: "+station.getName());
-        }
-        else {
+    public void prepareMsg() {
+        if (station != null) {
+            String msg = "Departures for: " + station.getName();
+            messages.add(msg);
+        } else {
             messages.add("Wrong station.");
             return;
         }
 
-        if(platforms != null){
-            for(Platform platform: platforms){
-                String platformNumber = platform.getNumber();
-                messages.add("Leaving from platform "+platformNumber+". Direction: "+platform.getDirection());
-                if(platformDepartureInfo != null) {
-                    for (PlatformDepartureInfo platformDepartureInfo: platformDepartureInfo){
-                        if(platformDepartureInfo.getNumber().equals(platformNumber)){
-                            String msg = "";
-                            int howMuch = 1;
-                            for (Departure departure: platformDepartureInfo.getDepartures()){
-                                if(howMuch<=this.maxDepartures) {
-                                    msg = msg + departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime() + "\n";
-                                    howMuch++;
-                                }
-                                else {
-                                    break;
-                                }
-                            }
-                            messages.add(msg);
-                        }
+        if (platformDepartureInfos != null) {
+            for (PlatformDepartureInfo platform : platformDepartureInfos) {
+                messages.add("Leaving from platform " + platform.getNumber() + ". Direction: " + platform.getDirection());
+                if (platform.getDepartures().isPresent()) {
+                    String msg = "";
+                    for (int i = 0; i <= this.maxDepartures; i++) {
+                        Departure departure = platform.getDepartures().get().get(i);
+                        msg = msg + departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime() + "\n";
                     }
-                }
-                else {
-                    messages.add("Departures not available at all.");
-                    return;
+                    messages.add(msg);
+                } else {
+                    messages.add("Not able to present departures for this platform.");
                 }
             }
         }
         else {
-            messages.add("Wrong platform.");
-            return;
+            String msg = "Choose platform:";
+            messages.add(msg);
+            List<Button> buttons = prepareButtons(station);
+            for (Button button : buttons) {
+                msg = button.toString();
+                messages.add(msg);
+            }
         }
+
+
     }
+
+
+    private List<Button> prepareButtons(Station station) {
+        List<Platform> platforms = station.getPlatforms();
+        List<Button> res = new ArrayList<>();
+        for (Platform platform : platforms) {
+            String textVis = "Platform: " + platform.getNumber() + ". Direction: " + platform.getDirection();
+            String textHid = station.getName() + " " + platform.getNumber();
+            res.add(new Button(textVis, textHid));
+        }
+        return res;
+    }
+
 }

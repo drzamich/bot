@@ -4,6 +4,7 @@ import bot.data.Departure;
 import bot.data.PlatformDepartureInfo;
 import bot.externalservice.apium.data.*;
 import bot.processor.Utilities;
+import com.sun.media.sound.UlawCodec;
 import lombok.Data;
 import org.apache.commons.collections4.map.MultiValueMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class StationService extends DataManager {
 
     private boolean stationExists = false;
     private boolean platformExists = false;
-    private boolean departuesExist = false;
+    private boolean departuresExist = false;
 
 
     public StationService(String[] msg) {
@@ -35,14 +36,20 @@ public class StationService extends DataManager {
         this.findStation();
         this.findPlatforms();
         this.processPlatforms();
+        this.prepare();
     }
 
-    public StationService(Station station){
+    public StationService(Station station) {
         super();
         this.station = station;
         this.stationId = station.getId();
         this.platforms = station.getPlatforms();
+        this.prepare();
         this.processPlatforms();
+    }
+
+    private void prepare() {
+        this.stationName = this.station.getMainName();
     }
 
     @Autowired
@@ -51,21 +58,21 @@ public class StationService extends DataManager {
     public void findStation() {
         String proposedName = this.msg[0];
         Optional<Station> stationOptSaved = Optional.empty(); //this is to ensure that the name is not matched too early
-        for(int i = 0;i< this.msg.length;i++){
+        for (int i = 0; i < this.msg.length; i++) {
             Optional<Station> stationOpt = Optional.ofNullable(this.stationsMap.get(proposedName));
-            if(stationOpt.isPresent()){
+            if (stationOpt.isPresent()) {
                 stationOptSaved = stationOpt;
             }
         }
-        if(stationOptSaved.isPresent()){
+        if (stationOptSaved.isPresent()) {
             this.station = stationOptSaved.get();
             this.stationId = this.station.getId();
             this.stationExists = true;
         }
     }
 
-    public void findPlatforms(){
-        if(this.stationExists) {
+    public void findPlatforms() {
+        if (this.stationExists) {
             for (Platform platform : this.station.getPlatforms()) {
                 for (String s : this.msg) {
                     if (s.equals("all")) {
@@ -73,7 +80,7 @@ public class StationService extends DataManager {
                         this.platformExists = true;
                         return;
                     }
-                    if (s.equals(platform.getNumber())) {
+                    if (s.equals(platform.getNumber()) || s.equals(Utilities.parseInput(platform.getDirection()))) {
                         this.platforms.add(platform);
                         this.platformExists = true;
                     }
@@ -82,17 +89,12 @@ public class StationService extends DataManager {
         }
     }
 
-    public void processPlatforms(){
-        if(this.platforms != null) {
+    public void processPlatforms() {
+        if (this.platformExists) {
             for (Platform platform : this.platforms) {
-                String path = PATH_TO_OBJECTS+this.date+"_"+stationId+"_"+platform.getNumber();
-                if(!Utilities.objectExists(path)) {
-                    Optional<List<Departure>> departureList = getDeparturesForPlatform(platform);
-                    if (departureList.isPresent()) {
-                        this.platformDepartureInfos.add(new PlatformDepartureInfo(platform.getNumber(), platform.getDirection(), departureList.get()));
-                        this.departuesExist = true;
-                    }
-                }
+                Optional<List<Departure>> departureList = getDeparturesForPlatform(platform);
+                this.platformDepartureInfos.add(new PlatformDepartureInfo(platform.getNumber(), platform.getDirection(), departureList));
+                this.departuresExist = true;
             }
         }
     }
@@ -111,17 +113,15 @@ public class StationService extends DataManager {
             departuresListRaw = getDeparturesListRaw(platform, path);
         }
 
-        if(departuresListRaw.isPresent()){
+        if (departuresListRaw.isPresent()) {
             return Optional.of(this.sortDeparturesList(departuresListRaw.get()));
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
 
 
-
-    private List<Departure> sortDeparturesList(DeparturesListRaw departuresListRaw){
+    private List<Departure> sortDeparturesList(DeparturesListRaw departuresListRaw) {
         List<Departure> departuresListSorted = new ArrayList<>();
 
         List<String> times = departuresListRaw.getTimes();
@@ -129,10 +129,10 @@ public class StationService extends DataManager {
         String currTime = Utilities.getTime(TIME_PATTERN);
         for (String time : times) {
             int timeDiff = Math.round(Utilities.compareTimes(currTime, time, TIME_PATTERN) / 60000);
-            if (timeDiff >= 0 /*&& timeDiff < MAX_MINUTES*/) {
+            if (timeDiff >= 0) {
                 List<DepartureDetail> deps = (List<DepartureDetail>) mappedDepartures.get(time);
-                for(DepartureDetail dep: deps){
-                    Departure departure = new Departure(dep.getLine(),dep.getDirection(),Integer.toString(timeDiff));
+                for (DepartureDetail dep : deps) {
+                    Departure departure = new Departure(dep.getLine(), dep.getDirection(), Integer.toString(timeDiff));
                     departuresListSorted.add(departure);
                 }
             }
@@ -148,7 +148,7 @@ public class StationService extends DataManager {
 
         for (String line : lines) {
             Optional<List<DepartureDetail>> list = apiUmService.getDepartureDetails(this.stationId, platformNumber, line);
-            if(list.isPresent()) {
+            if (list.isPresent()) {
                 for (DepartureDetail departureDetail : list.get()) {
                     String time = departureDetail.getTime();
                     mappedDepartures.put(time, departureDetail);
@@ -159,7 +159,7 @@ public class StationService extends DataManager {
             }
         }
 
-        if(mappedDepartures.isEmpty() || times.isEmpty()){
+        if (mappedDepartures.isEmpty() || times.isEmpty()) {
             return Optional.empty();
         }
 

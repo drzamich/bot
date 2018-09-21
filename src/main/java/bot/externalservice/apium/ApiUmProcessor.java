@@ -15,25 +15,22 @@ public class ApiUmProcessor {
     Response response;
 
     public Response processQuery(Query query){
-        System.out.println("ApiUMProcessor");
         String[] msg = query.getBodyExploded();
 
         StationService stationService = new StationService(msg);
 
         if(stationService.isStationExists()){
-            bot.data.Station station = new bot.data.Station(stationService.getStationName());
+            List<Platform> platformList = new ArrayList<>();
+            for (bot.externalservice.apium.data.Platform platform : stationService.getStation().getPlatforms()) {
+                platformList.add(new Platform(platform.getNumber(), platform.getDirection()));
+            }
+            bot.data.Station station = new bot.data.Station(stationService.getStationName(),platformList);
             if (stationService.isPlatformExists()) {
-                List<Platform> platformList = new ArrayList<>();
-
-                for (bot.externalservice.apium.data.Platform platform : stationService.getPlatforms()) {
-                    platformList.add(new Platform(platform.getNumber(), platform.getDirection()));
-                }
-                if (stationService.isDepartuesExist()) {
+                if (stationService.isDeparturesExist()) {
                     return new Response(station, platformList, stationService.getPlatformDepartureInfos());
                 }
-                return new Response(station, platformList);
             }
-            return new Response(station);
+            return new Response(station, platformList);
         }
         else {
             return new Response();
