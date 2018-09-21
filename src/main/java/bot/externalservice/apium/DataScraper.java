@@ -1,28 +1,33 @@
 package bot.externalservice.apium;
 
-import bot.externalservice.apium.data.DataManager;
 import bot.externalservice.apium.data.Platform;
 import bot.externalservice.apium.data.Station;
-import bot.externalservice.apium.data.StationsMap;
 import bot.externalservice.general.NameProcessor;
+import bot.processor.Utilities;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.*;
 import java.util.*;
 
 public class DataScraper extends DataManager {
     private List<Station> stationList = new ArrayList<>();
     private final List<String> EXCLUDED_IDS = Arrays.asList("2306");
-    private final String BASE_URL = "";
+    protected Map<String,Station> stationsMap = new HashMap<>();
+    private final String BASE_URL = "http://www.ztm.waw.pl/";
 
-    public DataScraper() throws Exception {
-        this.fillStationList();
-        this.fillPlatformInformation();
-        this.convertListToHashMap();
-        this.serializeStationMap();
+    public DataScraper(){
+        try {
+            this.fillStationList();
+            this.fillPlatformInformation();
+            this.convertListToHashMap();
+            Utilities.serializeObject(this.stationsMap, this.pathToStationMap);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Not able to get station list");
+        }
     }
 
 
@@ -37,7 +42,6 @@ public class DataScraper extends DataManager {
     private void fillPlatformInformation() throws Exception {
         for (Station station : this.stationList) {
             String url = station.getUrlToPlatforms();
-
             Document doc = Jsoup.connect(url).get();
             Elements links = doc.select(".PrzystanekKierunek p:contains(przystanek)>a>strong");
             Elements directions = doc.select(".PrzystanekKierunek p:contains(przystanek)>strong");
@@ -70,8 +74,8 @@ public class DataScraper extends DataManager {
     }
 
     private void fillStationList() throws Exception {
-        File input = new File("E:\\java\\bot\\src\\main\\resources\\scraping\\ztmWebsite\\station_list.html");
-        Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
+        String url="http://www.ztm.waw.pl/rozklad_nowy.php?c=183&l=1";
+        Document doc = Jsoup.connect(url).get();
         Elements links = doc.select("a:contains(Warszawa)");
         this.generateStations(links);
     }
@@ -79,7 +83,7 @@ public class DataScraper extends DataManager {
     private void generateStations(Elements links){
         for (Element link : links) {
             String stationName = link.text();
-            String url = link.attr("href");
+            String url = BASE_URL+link.attr("href");
 
             int pos = url.indexOf("&a=");
             String id = url.substring(pos + 3);

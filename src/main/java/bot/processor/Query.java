@@ -8,22 +8,10 @@ public class Query {
     private String[] bodyExploded;
     private String[] properties;
     private boolean toSipTw = false;
-    private boolean toApiUm = false;
+    private boolean toApiUm = true;
 
     public Query(String body){
         this.body = body;
         this.bodyExploded = body.split(" ");
-        this.setQueryReceiver();
-    }
-
-    private void setQueryReceiver(){
-        for(String part : this.bodyExploded){
-            if(part.equals("toSipTw")){
-                this.toSipTw = true;
-            }
-            else if(part.equals("toApiUm")){
-                this.toApiUm = true;
-            }
-        }
     }
 }

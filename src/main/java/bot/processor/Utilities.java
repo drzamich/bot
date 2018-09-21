@@ -1,9 +1,14 @@
 package bot.processor;
 
+import bot.externalservice.apium.data.Station;
+
+import java.io.*;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Utilities {
     private Utilities() {
@@ -58,4 +63,40 @@ public final class Utilities {
     public static int msToMin(long ms){
         return Math.round(ms/60000);
     }
+
+    public static <T> void serializeObject(T o, String path){
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(path);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(o);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+        }
+        catch (Exception e){
+
+        }
+    }
+
+    public static <T> T deserializeObject(String path){
+        T o;
+        try {
+            FileInputStream fileInputStream = new FileInputStream(path);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            o = (T) objectInputStream.readObject();
+            objectInputStream.close();
+        }
+        catch (Exception e){
+            return null;
+        }
+        return o;
+    }
+
+    public static boolean objectExists(String path){
+        File f = new File(path);
+        if(f.exists() && !f.isDirectory()) {
+            return true;
+        }
+        return false;
+    }
+
 }

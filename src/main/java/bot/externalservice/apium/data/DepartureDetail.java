@@ -2,8 +2,10 @@ package bot.externalservice.apium.data;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class DepartureDetail {
+public class DepartureDetail implements Serializable {
     private String time;
     private String direction;
     private String line;
