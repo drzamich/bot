@@ -79,7 +79,8 @@ public class DepartureService extends DataManager {
 
         Collections.sort(times);
         DeparturesListWithTimes departuresListWithTimes = new DeparturesListWithTimes(times, mappedDepartures);
-        Utilities.serializeObject(departuresListWithTimes, path);
-        return calculateDeparturesList(departuresListWithTimes);
+        List<Departure> res = calculateDeparturesList(departuresListWithTimes);
+        Utilities.serializeObject(res, path);
+        return res;
     }
 }

@@ -34,26 +34,34 @@ public class Response {
 
         if (platforms.isEmpty()) {
             messages.add("Choose platform:");
-            List<Button> buttons = prepareButtons(station);
-            for (Button button : buttons) {
-                messages.add(button.toString());
-            }
+            this.createButtonsMsg(this.station);
             return;
         }
 
         for (PlatformDepartureInfo plDep : platformDepartureInfos) {
             Platform pl = plDep.getPlatform();
             messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getDirection());
-            if (!plDep.getDepartures().isEmpty()) {
-                String msg = "";
-                for (int i = 0; i <= this.maxDepartures; i++) {
-                    Departure departure = plDep.getDepartures().get(i);
-                    msg = msg + departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime() + "\n";
-                }
-                messages.add(msg);
-            } else {
-                messages.add("Not able to present departures for this platform.");
+            this.createDepartureMsg(plDep.getDepartures());
+        }
+    }
+
+    private void createButtonsMsg(Station station){
+        List<Button> buttons = prepareButtons(station);
+        for (Button button : buttons) {
+            messages.add(button.toString());
+        }
+    }
+
+    private void createDepartureMsg(List<Departure> deps){
+        if (!deps.isEmpty()) {
+            StringBuilder sb = new StringBuilder("");
+            for (int i = 0; i <= this.maxDepartures; i++) {
+                Departure departure = deps.get(i);
+                sb.append(departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime() + "\n");
             }
+            messages.add(sb.toString());
+        } else {
+            messages.add("Not able to present departures for this platform.");
         }
     }
 
