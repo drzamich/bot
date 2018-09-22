@@ -35,7 +35,7 @@ public class DepartureService extends DataManager {
         String path = PATH_TO_OBJECTS + identifier;
 
         if (Utilities.objectExists(path)) {
-            return Utilities.deserializeObject(path);
+            return calculateDeparturesList(Utilities.deserializeObject(path));
         } else {
             return getDeparturesLists(platform, path);
         }
@@ -79,8 +79,7 @@ public class DepartureService extends DataManager {
 
         Collections.sort(times);
         DeparturesListWithTimes departuresListWithTimes = new DeparturesListWithTimes(times, mappedDepartures);
-        List<Departure> res = calculateDeparturesList(departuresListWithTimes);
-        Utilities.serializeObject(res, path);
-        return res;
+        Utilities.serializeObject(departuresListWithTimes, path);
+        return calculateDeparturesList(departuresListWithTimes);
     }
 }
