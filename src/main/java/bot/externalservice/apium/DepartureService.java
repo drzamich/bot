@@ -66,20 +66,36 @@ public class DepartureService extends DataManager {
         MultiValueMap<String, Departure> mappedDepartures = new MultiValueMap<>();
         List<String> times = new ArrayList<>();
 
-        for (String line : lines) {
-            List<Departure> list = apiUmService.getDepartureDetails(this.station.getId(), platformNumber, line);
-            for (Departure departure : list) {
-                String time = departure.getTime();
-                mappedDepartures.put(time, departure);
-                if (!times.contains(time)) {
-                    times.add(time);
-                }
-            }
-        }
+        lines.parallelStream()
+                .forEach(l -> apiUmService.getDepartureDetails(this.station.getId(), platformNumber, l)
+                                .stream()
+                                .peek(d -> mappedDepartures.put(d.getTime(),d))
+                                .map(Departure::getTime)
+                                .filter(t-> !times.contains(t))
+                                .forEach(t -> times.add(t))
+                );
 
-        Collections.sort(times);
-        DeparturesListWithTimes departuresListWithTimes = new DeparturesListWithTimes(times, mappedDepartures);
-        Utilities.serializeObject(departuresListWithTimes, path);
-        return calculateDeparturesList(departuresListWithTimes);
+//        for (String line : lines) {
+//            //List<Departure> list = apiUmService.getDepartureDetails(this.station.getId(), platformNumber, line);
+//            for (Departure departure : list) {
+//                String time = departure.getTime();
+//                mappedDepartures.put(time, departure);
+//                if (!times.contains(time)) {
+//                    times.add(time);
+//                }
+//            }
+//        }
+
+        if(times != null && !times.isEmpty()) {
+            Collections.sort(times);
+            DeparturesListWithTimes departuresListWithTimes = new DeparturesListWithTimes(times, mappedDepartures);
+            Utilities.serializeObject(departuresListWithTimes, path);
+            return calculateDeparturesList(departuresListWithTimes);
+        }
+        else {
+            return new ArrayList<Departure>();
+        }
     }
+
+
 }

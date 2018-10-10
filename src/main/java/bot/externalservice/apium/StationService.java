@@ -16,6 +16,7 @@ public class StationService extends DataManager {
     private List<Platform> platforms;
     private List<PlatformDepartureInfo> platformDepartureInfos = new ArrayList<>();
     private List<String> msg;
+    private DepartureService departureService;
 
 
     public StationService(List<String> msg) {
@@ -29,6 +30,7 @@ public class StationService extends DataManager {
     public StationService(Station station) {
         super();
         this.station = station;
+        departureService = new DepartureService(this.station);
         this.platforms = station.getPlatforms();
         this.processPlatforms();
     }
@@ -45,6 +47,7 @@ public class StationService extends DataManager {
             }
         }
         this.station = stationSaved;
+        departureService = new DepartureService(this.station);
     }
 
     public void findPlatforms() {
@@ -68,12 +71,18 @@ public class StationService extends DataManager {
 
 
     public void processPlatforms() {
-        DepartureService departureService = new DepartureService(this.station);
-        for (Platform platform : this.platforms) {
-            List<Departure> departureList = departureService.getDeparturesForPlatform(platform);
-            Platform pl = new Platform(platform.getNumber(), platform.getDirection());
-            this.platformDepartureInfos.add(new PlatformDepartureInfo(pl, departureList));
-        }
+
+        this.platforms.parallelStream()
+                .forEach(s -> this.processPlatform(s));
+//        for (Platform platform : this.platforms) {
+//
+//        }
+    }
+
+    public void processPlatform(Platform platform){
+        List<Departure> departureList = this.departureService.getDeparturesForPlatform(platform);
+        Platform pl = new Platform(platform.getNumber(), platform.getDirection());
+        this.platformDepartureInfos.add(new PlatformDepartureInfo(pl, departureList));
     }
 
 }
