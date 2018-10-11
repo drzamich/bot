@@ -70,16 +70,12 @@ public class StationService extends DataManager {
     }
 
 
-    public void processPlatforms() {
-
+    private void processPlatforms() {
         this.platforms.parallelStream()
                 .forEach(s -> this.processPlatform(s));
-//        for (Platform platform : this.platforms) {
-//
-//        }
     }
 
-    public void processPlatform(Platform platform){
+    private void processPlatform(Platform platform){
         List<Departure> departureList = this.departureService.getDeparturesForPlatform(platform);
         Platform pl = new Platform(platform.getNumber(), platform.getDirection());
         this.platformDepartureInfos.add(new PlatformDepartureInfo(pl, departureList));

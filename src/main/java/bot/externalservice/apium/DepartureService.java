@@ -1,9 +1,6 @@
 package bot.externalservice.apium;
 
 import bot.data.Departure;
-import bot.externalservice.apium.ApiUmService;
-import bot.externalservice.apium.DataManager;
-import bot.externalservice.apium.data.DepartureDetail;
 import bot.externalservice.apium.data.DeparturesListWithTimes;
 import bot.externalservice.apium.data.Platform;
 import bot.externalservice.apium.data.Station;
@@ -17,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Data
 public class DepartureService extends DataManager {
     private Station station;
@@ -25,7 +24,7 @@ public class DepartureService extends DataManager {
     @Autowired
     ApiUmService apiUmService = new ApiUmService(new RestTemplateBuilder());
 
-    public DepartureService(Station station){
+    public DepartureService(Station station) {
         this.station = station;
     }
 
@@ -66,36 +65,28 @@ public class DepartureService extends DataManager {
         MultiValueMap<String, Departure> mappedDepartures = new MultiValueMap<>();
         List<String> times = new ArrayList<>();
 
-        lines.parallelStream()
-                .forEach(l -> apiUmService.getDepartureDetails(this.station.getId(), platformNumber, l)
-                                .stream()
-                                .peek(d -> mappedDepartures.put(d.getTime(),d))
-                                .map(Departure::getTime)
-                                .filter(t-> !times.contains(t))
-                                .forEach(t -> times.add(t))
-                );
+        List<List<Departure>> departures =
+                lines.parallelStream()
+                        .map(l -> apiUmService.getDepartureDetails(this.station.getId(), platformNumber, l))
+                        .collect(toList());
 
-//        for (String line : lines) {
-//            //List<Departure> list = apiUmService.getDepartureDetails(this.station.getId(), platformNumber, line);
-//            for (Departure departure : list) {
-//                String time = departure.getTime();
-//                mappedDepartures.put(time, departure);
-//                if (!times.contains(time)) {
-//                    times.add(time);
-//                }
-//            }
-//        }
 
-        if(times != null && !times.isEmpty()) {
-            Collections.sort(times);
-            DeparturesListWithTimes departuresListWithTimes = new DeparturesListWithTimes(times, mappedDepartures);
-            Utilities.serializeObject(departuresListWithTimes, path);
-            return calculateDeparturesList(departuresListWithTimes);
+        for (List<Departure> list : departures) {
+            for (Departure dep : list) {
+                String time = dep.getTime();
+                mappedDepartures.put(time, dep);
+                if (!times.contains(time)) {
+                    times.add(time);
+                }
+            }
         }
-        else {
-            return new ArrayList<Departure>();
-        }
+
+        Collections.sort(times);
+        DeparturesListWithTimes departuresListWithTimes = new DeparturesListWithTimes(times, mappedDepartures);
+        Utilities.serializeObject(departuresListWithTimes, path);
+        return calculateDeparturesList(departuresListWithTimes);
+
     }
 
-
 }
+

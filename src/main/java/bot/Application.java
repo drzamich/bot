@@ -18,7 +18,7 @@ public class Application {
         //SpringApplication.run(Application.class, args);
 
         DataCollector dataCollector = new DataCollector();
-//        String msg = "centrum 03";
+//        String msg = "centrum 09";
 //        QueryProcessor queryProcessor = new QueryProcessor();
 //        queryProcessor.processQuery(msg);
 

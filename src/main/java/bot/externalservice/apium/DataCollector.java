@@ -20,7 +20,7 @@ public class DataCollector extends DataManager {
 
     public DataCollector() {
         getStationList();
-        //countStations();
+        countStations();
        countStationsWithTrams();
         generateTimetbles2();
         //System.out.println("Data collected.");
@@ -37,7 +37,7 @@ public class DataCollector extends DataManager {
     public void getStationList() {
 
         if (!Utilities.objectExists(pathToStationMap)) {
-            DataScraper dataScraper = new DataScraper();
+            new DataScraper();
         }
 
         this.stationList = Utilities.deserializeObject(pathToStationList);
@@ -120,13 +120,13 @@ public class DataCollector extends DataManager {
                             //.filter(s -> fetchedStations.contains(s.getMainName()))
                             .forEach(DataCollector::getTimetable)
 
-            ).get(); //this makes it an overall blocking call
+            ).get();
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         } finally {
             if (forkJoinPool != null) {
-                forkJoinPool.shutdown(); //always remember to shutdown the pool
+                forkJoinPool.shutdown();
             }
         }
 
