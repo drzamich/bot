@@ -19,6 +19,10 @@ public class StationService extends DataManager {
     private DepartureService departureService;
 
 
+    public StationService(){
+        super();
+    }
+
     public StationService(List<String> msg) {
         super();
         this.msg = msg;

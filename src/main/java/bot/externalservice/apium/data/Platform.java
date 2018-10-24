@@ -10,6 +10,8 @@ public class Platform implements Serializable {
     private String number;
     private String direction;
     private List<String> lines;
+    private boolean isAtSipTw = false;
+    private int sipTwID;
 
     public Platform(String number, String direction, List<String> lines) {
         this.number = number;

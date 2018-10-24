@@ -7,8 +7,8 @@ public class Query {
     private String body;
     private String[] bodyExploded;
     private String[] properties;
-    private boolean toSipTw = false;
-    private boolean toApiUm = true;
+    private boolean toSipTw = true;
+    private boolean toApiUm = false;
 
     public Query(String body){
         this.body = body;

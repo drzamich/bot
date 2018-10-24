@@ -1,6 +1,8 @@
 package bot.externalservice.siptw;
 
 import bot.externalservice.siptw.data.Departure;
+import bot.externalservice.siptw.data.Platform;
+import bot.externalservice.siptw.data.PlatformRaw;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -30,6 +32,7 @@ public class SipService {
         this.restTemplate = restTemplateBuilder.build();
     }
 
+
     @Retryable
     public SipServiceResponse getTimetableForPlatform(int platformID) throws URISyntaxException {
 
@@ -38,6 +41,14 @@ public class SipService {
 
         Departure[] departures = restTemplate.postForObject(SIP_SERVICE_URL, request, Departure[].class);
         return new SipServiceResponse(departures);
+    }
+
+    @Retryable
+    public SipServiceResponse getPlatforms() throws  URISyntaxException {
+        HttpEntity<MultiValueMap<String, String>> request = configureRequest();
+        log.info("Calling SIP at " + SIP_SERVICE_URL + " for details about platforms");
+        PlatformRaw[] platforms = restTemplate.postForObject(SIP_SERVICE_URL,request,PlatformRaw[].class);
+        return new SipServiceResponse(platforms);
     }
 
     private HttpEntity<MultiValueMap<String, String>> configureRequest(int platformID) {
@@ -49,5 +60,16 @@ public class SipService {
         map.add("id", String.valueOf(platformID));
 
         return new HttpEntity<>(map, headers);
+    }
+
+    private HttpEntity<MultiValueMap<String,String>> configureRequest(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+        map.add("action","sip_get_paradas");
+        map.add("idlinea","");
+
+        return new HttpEntity<>(map,headers);
     }
 }
