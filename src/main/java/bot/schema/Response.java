@@ -53,10 +53,18 @@ public class Response {
 
     private void createDepartureMsg(Optional<List<Departure>> deps){
         if (deps.isPresent()) {
+
+            if(deps.get().size()<this.maxDepartures){
+                this.maxDepartures = deps.get().size()-1;
+            }
+
             StringBuilder sb = new StringBuilder("");
             for (int i = 0; i <= this.maxDepartures; i++) {
                 Departure departure = deps.get().get(i);
-                sb.append(departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime() + "\n");
+                sb.append(departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime());
+                if(i <= this.maxDepartures-1){
+                    sb.append(System.getProperty("line.separator"));
+                }
             }
             messages.add(sb.toString());
         } else {
@@ -78,8 +86,11 @@ public class Response {
 
     private void prepareInfo(){
         StringBuilder sb = new StringBuilder();
-        for(String msg: messages){
-            sb.append(msg+"\n");
+        for(int i =0; i<messages.size();i++){
+            sb.append(messages.get(i));
+            if(i<messages.size()-1) {
+                sb.append(System.getProperty("line.separator"));
+            }
         }
         info = sb.toString();
     }

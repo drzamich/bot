@@ -2,6 +2,7 @@ package bot.processor;
 
 import bot.schema.Response;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
@@ -12,7 +13,7 @@ public class QueryProcessor {
     private Query query;
     private Response response;
 
-    //@Autowired
+    @Autowired
     TimetableProcessor timetableProcessor = new TimetableProcessor();
 
     public void processQuery(String msg){

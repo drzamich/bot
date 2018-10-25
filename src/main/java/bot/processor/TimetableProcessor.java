@@ -1,13 +1,18 @@
 package bot.processor;
 
+import bot.externalservice.siptw.SipService;
 import bot.schema.Departure;
 import bot.externalservice.apium.ApiUmTimetableGenerator;
 import bot.schema.Platform;
 import bot.schema.Response;
 import bot.schema.Station;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -17,9 +22,14 @@ public class TimetableProcessor extends Settings {
     private Optional<List<Departure>> departures;
     private List<String> msg;
 
+    @Autowired
+    SipService sipService;
+
     public TimetableProcessor() {
         this.stationMap = Utilities.deserializeObject(PATH_TO_STATION_MAP);
+        printMap(stationMap);
     }
+
 
     protected Response processQuery(Query query) {
         this.msg = query.getBodyExploded();
@@ -59,8 +69,7 @@ public class TimetableProcessor extends Settings {
     private Optional<List<Departure>> getDepartureInfo(){
         if(platform.isPresent()){
             if(platform.get().isAtSipTw()){
-                return getInfoFromApiUm();
-                //return getInfoFromSipTw();
+                return getInfoFromSipTw();
             }
             else {
                 return getInfoFromApiUm();
@@ -72,6 +81,25 @@ public class TimetableProcessor extends Settings {
     private Optional<List<Departure>> getInfoFromApiUm(){
         ApiUmTimetableGenerator apiUmDepartureService = new ApiUmTimetableGenerator(station.get());
         return Optional.of(apiUmDepartureService.getDeparturesForPlatform(platform.get()));
+    }
+
+    private Optional<List<Departure>> getInfoFromSipTw(){
+        try {
+            return Optional.of(sipService.getTimetableForPlatform(platform.get().getSipTwID()).getDepartures());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+    public static void printMap(Map mp) {
+        Iterator it = mp.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            System.out.println(pair.getKey() + " = " + pair.getValue());
+            it.remove(); // avoids a ConcurrentModificationException
+        }
     }
 
     //departureService = new ApiUmTimetableGenerator(this.station);

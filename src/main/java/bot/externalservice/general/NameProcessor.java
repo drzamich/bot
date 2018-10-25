@@ -3,9 +3,7 @@ package bot.externalservice.general;
 import bot.processor.Utilities;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Data
 public class NameProcessor {
@@ -16,41 +14,62 @@ public class NameProcessor {
     }
 
     private List<String> generateAcceptedNames(String str) {
-        List<String> shortcutsShort = Arrays.asList("^al", "^os", "^gen", "im ", "dw", "^zaj", "^ks", "pld", "pln", "zach", "wsch",
-                "ii", "iii", "vi", "jana pawla ii", "jana pawla 2", "zajezdnia");
-        List<String> shortcutsLong = Arrays.asList("aleja", "osiedle", "generala", "imienia ", "dworzec", "zajezdnia",
-                "ksiedza", "poludnie", "polnoc", "zachodnia", "wschodni", "2", "3", "6", "jp2",
-                "jp2", "zaj");
-        List<String> repetitiveNames = Arrays.asList("metro", "pl", "al", "aleja", "plac", "dworzec");
+        List<String> shortcutsShort = Arrays.asList("^al", "^os", "^gen", "im", "^dw", "^zaj", "^ks", "pld", "pln",
+                "zach", "wsch ", "^pl", "^zajezdnia", "^cm");
+        List<String> shortcutsLong = Arrays.asList("aleja", "osiedle", "generala", "imienia", "dworzec", "zajezdnia",
+                "ksiedza", "poludnie", "polnoc", "zachodni", "wschodni", "plac", "zaj", "cmentarz");
+        List<String> repetitiveNames = Arrays.asList("metro", "pl", "al", "plac", "dworzec", "dw", "im");
+
+        List<String> extrasSource = Arrays.asList(" ii", "jana pawla ii", "wschodni");
+        List<String> extrasGoal = Arrays.asList(" 2", "jp2","wsch");
 
         str = Utilities.parseInput(str);
+
+
+
         List<String> res = new ArrayList<>();
         res.add(str);
-        String str3 = str;
+
+
         int len = shortcutsLong.size();
         for (int i = 0; i < len; i++) {
             String key = shortcutsShort.get(i);
             String val = shortcutsLong.get(i);
-            String str2 = str.replaceAll(key, val);
-            str3 = str3.replaceAll(key, val);
+            String str2 = str.replaceAll(key+" ", val+" ");
             if (!res.contains(str2)) {
                 res.add(str2);
             }
-            if (!res.contains(str3)) {
-                res.add(str3);
+//            if (!res.contains(str3)) {
+//                res.add(str3);
+//            }
+        }
+
+        len = repetitiveNames.size();
+        for (int i = 0; i < len; i++) {
+            String key = repetitiveNames.get(i);
+            String str2 = str.replaceAll(key+" ", "");
+            //String str3 = str.replaceAll(key,"");
+            if (!res.contains(str2)) {
+                res.add(str2);
             }
         }
 
-        int len2 = res.size();
-        for (int i = 0; i < len2; i++) {
-            for (String key : repetitiveNames) {
-                String str2 = res.get(i).replaceAll(key + " ", "").trim();
-                if (!res.contains(str2) && !str.equals(str2)) {
-                    res.add(str2);
+
+
+        for (ListIterator<String> iterator = res.listIterator(); iterator.hasNext(); ) {
+            String a = iterator.next();
+            len = extrasSource.size();
+            for (int i = 0; i < len; i++) {
+                String key = extrasSource.get(i);
+                String val = extrasGoal.get(i);
+                String str2 = a.replaceAll(key, val);
+                if (!res.contains(str2)) {
+                    iterator.add(str2);
                 }
             }
         }
 
         return res;
+
     }
 }

@@ -1,8 +1,9 @@
 package bot.externalservice.siptw;
 
-import bot.externalservice.siptw.data.Departure;
-import bot.externalservice.siptw.data.Platform;
+
+import bot.externalservice.siptw.data.DepartureSipTw;
 import bot.externalservice.siptw.data.PlatformRaw;
+import bot.schema.Departure;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -14,11 +15,17 @@ import java.util.List;
 @ToString
 public class SipServiceResponse {
 
+    private List<DepartureSipTw> departuresFromSipTw;
     private List<Departure> departures;
     private List<PlatformRaw> platforms;
 
-    public SipServiceResponse(Departure[] departures) {
-        this.departures = Arrays.asList(departures);
+
+    public SipServiceResponse(DepartureSipTw[] departures) {
+        this.departuresFromSipTw = Arrays.asList(departures);
+        this.departures = new ArrayList<>();
+        for(DepartureSipTw dep: departuresFromSipTw){
+            this.departures.add(new Departure(dep.getLine(),dep.getDestination(),dep.getTimeMinutes()));
+        }
     }
 
     public SipServiceResponse(PlatformRaw[] platforms){

@@ -13,16 +13,18 @@ import org.springframework.web.bind.annotation.*;
 @EnableJpaRepositories
 public class Controller {
 
-    @Autowired
-    DataManager dataManager;
+//    @Autowired
+//    DataManager dataManager;
 
     @Autowired
     QueryProcessor queryProcessor;
 
     @RequestMapping(value= "msg/{msg}", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public void giveInfo(@PathVariable("msg") String msg){
+    public String giveInfo(@PathVariable("msg") String msg){
         queryProcessor.processQuery(msg);
+        System.out.println(queryProcessor.getResponse().getInfo());
+        return queryProcessor.getResponse().getInfo();
     }
 //
 //    @RequestMapping(value = "foo",method = RequestMethod.GET)

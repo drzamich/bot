@@ -1,7 +1,6 @@
 package bot.externalservice.siptw;
 
-import bot.externalservice.siptw.data.Departure;
-import bot.externalservice.siptw.data.Platform;
+import bot.externalservice.siptw.data.DepartureSipTw;
 import bot.externalservice.siptw.data.PlatformRaw;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ public class SipService {
         HttpEntity<MultiValueMap<String, String>> request = configureRequest(platformID);
         log.info("Calling SIP at " + SIP_SERVICE_URL + " for details about platform with ID: " + platformID);
 
-        Departure[] departures = restTemplate.postForObject(SIP_SERVICE_URL, request, Departure[].class);
+        DepartureSipTw[] departures = restTemplate.postForObject(SIP_SERVICE_URL, request, DepartureSipTw[].class);
         return new SipServiceResponse(departures);
     }
 

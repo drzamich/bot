@@ -14,6 +14,10 @@ public class ApiUmTimetableCollector extends Properties {
     private List<Platform> platforms;
     private ApiUmTimetableGenerator departureService;
 
+    public ApiUmTimetableCollector(){
+
+    }
+
     public ApiUmTimetableCollector(Station station) {
         super();
         this.station = station;

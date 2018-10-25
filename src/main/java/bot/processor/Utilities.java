@@ -18,6 +18,7 @@ public final class Utilities {
         input = input.replaceAll("[()]","");
         input = input.replaceAll("[.+-]"," ");
         input = input.replaceAll("\\.$","");
+        input = input.replaceAll("\"","");
         input = removeExcessiveWhitespaces(input);
         input = input.trim();
         return input;

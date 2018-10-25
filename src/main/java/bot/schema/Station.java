@@ -1,11 +1,14 @@
 package bot.schema;
 
 import lombok.Data;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
+@Component
 public class Station implements Serializable {
     private String id;
     private String mainName;

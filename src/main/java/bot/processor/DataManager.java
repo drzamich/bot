@@ -1,6 +1,7 @@
 package bot.processor;
 
 import bot.externalservice.apium.ApiUmDataCollector;
+import bot.externalservice.general.NameProcessor;
 import bot.schema.Platform;
 import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
@@ -17,6 +18,8 @@ import java.util.Map;
 @Data
 public class DataManager extends Settings {
 
+    private Map<String,Station> stationMap;
+
     //@Autowired
     SipTwDataCollector sipTwDataCollector = new SipTwDataCollector();
 
@@ -26,6 +29,7 @@ public class DataManager extends Settings {
 
     public DataManager() {
         prepareData();
+        printMap(this.stationMap);
     }
 
     public void prepareData() {
@@ -41,6 +45,9 @@ public class DataManager extends Settings {
 
             this.stationMap = integrateLists(sipTwPlatformMap,umStationList);
             Utilities.serializeObject(stationMap,PATH_TO_STATION_MAP);
+        }
+        else {
+            this.stationMap = Utilities.deserializeObject(PATH_TO_STATION_MAP);
         }
     }
 
@@ -70,4 +77,16 @@ public class DataManager extends Settings {
     }
 
 
+    public static void printMap(Map<String,Station> mp) {
+        Iterator it = mp.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            String key = (String) pair.getKey();
+            Station station = (Station) pair.getValue();
+            String name = station.getMainName();
+            System.out.println(name);
+
+            it.remove(); // avoids a ConcurrentModificationException
+        }
+    }
 }
