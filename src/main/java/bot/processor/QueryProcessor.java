@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Data
 public class QueryProcessor {
-    private Response response;
+
 
 //    @Autowired
 //    SipTwProcessor sipTwProcessor;
@@ -17,13 +17,22 @@ public class QueryProcessor {
 //    ApiUmProcessor apiUmProcessor = new ApiUmProcessor();
 
     private Query query;
+    private Response response;
 
-
+    //@Autowired
+    TimetableProcessor timetableProcessor = new TimetableProcessor();
 
 
     public void processQuery(String msg){
-//        msg = Utilities.parseInput(msg);
-//        this.query = new Query(msg);
+        msg = Utilities.parseInput(msg);
+        this.query = new Query(msg);
+
+        if(query.isSettingsQuery()){
+
+        }
+        else{
+            timetableProcessor.processQuery(this.query);
+        }
 //
 //        if(query.isToSipTw()){
 //            sipTwProcessor.processQuery(this.query);

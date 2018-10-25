@@ -17,7 +17,7 @@ public class SipTwProcessor {
     @Autowired
     SipService sipService;
 
-    private String[] parts;
+    private List<String> parts;
     Optional<Station> stationOptional;
     SipServiceResponse sipServiceResponse;
 
@@ -54,14 +54,14 @@ public class SipTwProcessor {
     }
 
 
-    private Optional<Station> matchStation(String[] parts) {
-        int elements = parts.length;
+    private Optional<Station> matchStation(List<String> parts) {
+        int elements = parts.size();
 
-        String testedName = parts[0];
+        String testedName = parts.get(0);
         Optional<AcceptedName> acceptedName;
         for (int i = 0; i < elements; i++) {
             if (i != 0) {
-                testedName = testedName + " " + parts[i];
+                testedName = testedName + " " + parts.get(i);
             }
             acceptedName = acceptedNameRepository.findByNameAccepted(testedName);
             if (acceptedName.isPresent()) {
@@ -71,7 +71,7 @@ public class SipTwProcessor {
         return Optional.empty();
     }
 
-    private Optional<Platform> matchPlatform(String[] parts, List<Platform> platforms) {
+    private Optional<Platform> matchPlatform(List<String> parts, List<Platform> platforms) {
         for (Platform platform : platforms) {
             String platformNumber = String.valueOf(platform.getPlatformNumber());
             List<Direction> directions = platform.getDirections();

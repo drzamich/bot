@@ -4,6 +4,7 @@ import bot.externalservice.apium.data.Platform;
 import bot.externalservice.apium.data.Station;
 import bot.externalservice.general.NameProcessor;
 import bot.processor.Utilities;
+import lombok.Getter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,19 +12,22 @@ import org.jsoup.select.Elements;
 
 import java.util.*;
 
+@Getter
 public class DataScraper extends DataManager {
     private List<Station> stationList = new ArrayList<>();
     private final List<String> EXCLUDED_IDS = Arrays.asList("2306");
     protected Map<String,Station> stationsMap = new HashMap<>();
     private final String BASE_URL = "http://www.ztm.waw.pl/";
 
+
+
     public DataScraper(){
         try {
             this.fillStationList();
             this.fillPlatformInformation();
-            this.convertListToHashMap();
-            Utilities.serializeObject(this.stationsMap, this.pathToStationMap);
-            Utilities.serializeObject(this.stationList, this.pathToStationList);
+            //this.convertListToHashMap();
+            //Utilities.serializeObject(this.stationsMap, this.pathToStationMap);
+            //Utilities.serializeObject(this.stationList, this.pathToStationList);
         }
         catch (Exception e){
             e.printStackTrace();

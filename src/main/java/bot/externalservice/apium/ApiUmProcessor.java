@@ -14,11 +14,10 @@ import java.util.List;
 @Service
 public class ApiUmProcessor {
 
-    public Response processQuery(Query query) {
-        String[] msg = query.getBodyExploded();
-
-        StationService stationService = new StationService(Arrays.asList(msg));
-
-        return new Response(stationService.getStation(), stationService.getPlatforms(), stationService.getPlatformDepartureInfos());
-    }
+//    public Response processQuery(Query query) {
+//        //String[] msg = query.getBodyExploded();
+//
+//        //StationService stationService = new StationService(Arrays.asList(msg));
+//        //return new Response(stationService.getStation(), stationService.getPlatforms(), stationService.getPlatformDepartureInfos());
+//    }
 }

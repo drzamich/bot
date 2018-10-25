@@ -24,11 +24,11 @@ public class Controller {
     public void giveInfo(@PathVariable("msg") String msg){
         queryProcessor.processQuery(msg);
     }
-
-    @RequestMapping(value = "foo",method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public void foo(){
-        dataManager.prepareLists();
-    }
+//
+//    @RequestMapping(value = "foo",method = RequestMethod.GET)
+//    @ResponseStatus(value = HttpStatus.OK)
+//    public void foo(){
+//        dataManager.prepareLists();
+//    }
 
 }

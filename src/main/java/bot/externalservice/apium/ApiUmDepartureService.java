@@ -17,18 +17,18 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @Data
-public class DepartureService extends DataManager {
+public class ApiUmDepartureService extends DataManager {
     private Station station;
 
 
     @Autowired
     ApiUmService apiUmService = new ApiUmService(new RestTemplateBuilder());
 
-    public DepartureService(Station station) {
+    public ApiUmDepartureService(Station station) {
         this.station = station;
     }
 
-    protected List<Departure> getDeparturesForPlatform(Platform platform) {
+    public List<Departure> getDeparturesForPlatform(Platform platform) {
         String platformNumber = platform.getNumber();
         String identifier = this.date + "_" + this.station.getId() + "_" + platformNumber;
         String path = PATH_TO_OBJECTS + identifier;

@@ -21,10 +21,13 @@ public class SipTwDataCollector {
     @Autowired
     SipService sipService;
 
-    public void process() {
+    public SipTwDataCollector(){
         getPlatformsList();
         parsePlatformsList();
     }
+//    public void process() {
+//
+//    }
 
     public void getPlatformsList() {
         if (!Utilities.objectExists(PATH_TO_PLATFORM_LIST)) {

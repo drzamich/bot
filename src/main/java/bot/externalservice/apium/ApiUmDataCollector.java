@@ -40,13 +40,14 @@ public class ApiUmDataCollector extends DataManager {
         return this.stationList;
     }
 
-    public void getStationList() {
+    public List<Station> getStationList() {
 
-        if (!Utilities.objectExists(pathToStationMap)) {
-            new DataScraper();
-        }
+        //if (!Utilities.objectExists(pathToStationMap)) {
+            DataScraper dataScraper = new DataScraper();
+            return dataScraper.getStationList();
+        //}
 
-        this.stationList = Utilities.deserializeObject(pathToStationList);
+        //this.stationList = Utilities.deserializeObject(pathToStationList);
 
         //System.out.println("Station list generated.");
     }
@@ -150,7 +151,7 @@ public class ApiUmDataCollector extends DataManager {
             }
 
             if (searchedStation != null) {
-                new StationService(searchedStation);
+                new ApiUmStationService(searchedStation);
                 System.out.println("Fetched timetable for " + station.getMainName());
             }
         }
@@ -158,7 +159,7 @@ public class ApiUmDataCollector extends DataManager {
     }
 
     public static void getTimetable(Station station) {
-        new StationService(station);
+        new ApiUmStationService(station);
         System.out.println("Fetched timetable for " + station.getMainName());
     }
 }
