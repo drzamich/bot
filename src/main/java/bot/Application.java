@@ -13,10 +13,11 @@ public class Application {
         //SpringApplication.run(Application.class, args);
 
 
-        DataManager dataManager = new DataManager();
-        String msg = "centrum 01";
+        new DataManager();
+        String msg = "centrum 10";
         QueryProcessor queryProcessor = new QueryProcessor();
         queryProcessor.processQuery(msg);
+        System.out.println(queryProcessor.getResponse().getInfo());
 
     }
 

@@ -1,4 +1,4 @@
-package bot.data;
+package bot.schema;
 
 import lombok.Data;
 

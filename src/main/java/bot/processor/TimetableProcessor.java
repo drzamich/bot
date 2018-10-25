@@ -1,9 +1,10 @@
 package bot.processor;
 
-import bot.data.Departure;
-import bot.externalservice.apium.ApiUmDepartureService;
-import bot.externalservice.apium.data.Platform;
-import bot.externalservice.apium.data.Station;
+import bot.schema.Departure;
+import bot.externalservice.apium.ApiUmTimetableGenerator;
+import bot.schema.Platform;
+import bot.schema.Response;
+import bot.schema.Station;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,14 +21,12 @@ public class TimetableProcessor extends Settings {
         this.stationMap = Utilities.deserializeObject(PATH_TO_STATION_MAP);
     }
 
-    protected void processQuery(Query query) {
+    protected Response processQuery(Query query) {
         this.msg = query.getBodyExploded();
         this.station = findStation();
         this.platform = findPlatform();
         this.departures = getDepartureInfo();
-        System.out.println(station);
-        System.out.println(platform);
-        System.out.println(departures);
+        return new Response(station,platform,departures);
     }
 
     private Optional<Station> findStation() {
@@ -60,6 +59,7 @@ public class TimetableProcessor extends Settings {
     private Optional<List<Departure>> getDepartureInfo(){
         if(platform.isPresent()){
             if(platform.get().isAtSipTw()){
+                return getInfoFromApiUm();
                 //return getInfoFromSipTw();
             }
             else {
@@ -70,9 +70,9 @@ public class TimetableProcessor extends Settings {
     }
 
     private Optional<List<Departure>> getInfoFromApiUm(){
-        ApiUmDepartureService apiUmDepartureService = new ApiUmDepartureService(station.get());
+        ApiUmTimetableGenerator apiUmDepartureService = new ApiUmTimetableGenerator(station.get());
         return Optional.of(apiUmDepartureService.getDeparturesForPlatform(platform.get()));
     }
 
-    //departureService = new ApiUmDepartureService(this.station);
+    //departureService = new ApiUmTimetableGenerator(this.station);
 }

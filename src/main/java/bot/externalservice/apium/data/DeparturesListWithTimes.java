@@ -1,10 +1,9 @@
 package bot.externalservice.apium.data;
 
-import bot.data.Departure;
+import bot.schema.Departure;
 import lombok.Data;
 import org.apache.commons.collections4.map.MultiValueMap;
 
-import javax.xml.soap.Detail;
 import java.io.Serializable;
 import java.util.List;
 

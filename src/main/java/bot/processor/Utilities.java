@@ -1,14 +1,10 @@
 package bot.processor;
 
-import bot.externalservice.apium.data.Station;
-
 import java.io.*;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class Utilities {
     private Utilities() {

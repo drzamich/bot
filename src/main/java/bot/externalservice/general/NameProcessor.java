@@ -11,7 +11,6 @@ import java.util.List;
 public class NameProcessor {
     private List<String> acceptedNames;
 
-
     public NameProcessor(String str){
         this.acceptedNames = generateAcceptedNames(str);
     }

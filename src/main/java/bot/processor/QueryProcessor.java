@@ -1,7 +1,7 @@
 package bot.processor;
 
+import bot.schema.Response;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
@@ -9,19 +9,11 @@ import org.springframework.stereotype.Service;
 @Data
 public class QueryProcessor {
 
-
-//    @Autowired
-//    SipTwProcessor sipTwProcessor;
-//
-//    @Autowired
-//    ApiUmProcessor apiUmProcessor = new ApiUmProcessor();
-
     private Query query;
     private Response response;
 
     //@Autowired
     TimetableProcessor timetableProcessor = new TimetableProcessor();
-
 
     public void processQuery(String msg){
         msg = Utilities.parseInput(msg);
@@ -31,20 +23,8 @@ public class QueryProcessor {
 
         }
         else{
-            timetableProcessor.processQuery(this.query);
+            response = timetableProcessor.processQuery(this.query);
         }
-//
-//        if(query.isToSipTw()){
-//            sipTwProcessor.processQuery(this.query);
-//        }
-//
-//        if(query.isToApiUm()){
-//            response = apiUmProcessor.processQuery(this.query);
-//        }
-//
-//        response.prepareMsg();
-//        for(String s : response.getMessages()){
-//            System.out.println(s);
-//        }
+
     }
 }

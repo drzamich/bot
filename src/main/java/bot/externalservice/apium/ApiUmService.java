@@ -1,6 +1,6 @@
 package bot.externalservice.apium;
 
-import bot.data.Departure;
+import bot.schema.Departure;
 import bot.externalservice.apium.data.ApiUmResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @Service
-public class ApiUmService {
+public class ApiUmService extends Properties {
     private RestTemplate restTemplate;
 
     @Autowired
@@ -26,7 +26,7 @@ public class ApiUmService {
         List<Departure> res = new ArrayList<>();
         try {
             String urlToApi = "https://api.um.warszawa.pl/api/action/dbtimetable_get/?id=e923fa0e-d96c-43f9-ae6e-60518c9f3238" +
-                    "&busstopId=" + stationId + "&busstopNr=" + platformNumber + "&line=" + line + "&apikey=" + Properties.API_KEY;
+                    "&busstopId=" + stationId + "&busstopNr=" + platformNumber + "&line=" + line + "&apikey=" + API_KEY;
 
             RestTemplate restTemplate2 = new RestTemplate();
             ResponseEntity<ApiUmResponse> response = restTemplate2.exchange(urlToApi, HttpMethod.GET, null,

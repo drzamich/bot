@@ -1,6 +1,6 @@
 package bot.processor;
 
-import bot.externalservice.apium.data.Station;
+import bot.schema.Station;
 
 import java.util.Map;
 

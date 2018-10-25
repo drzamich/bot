@@ -1,9 +1,9 @@
 package bot.externalservice.apium;
 
-import bot.data.Departure;
+import bot.schema.Departure;
 import bot.externalservice.apium.data.DeparturesListWithTimes;
-import bot.externalservice.apium.data.Platform;
-import bot.externalservice.apium.data.Station;
+import bot.schema.Platform;
+import bot.schema.Station;
 import bot.processor.Utilities;
 import lombok.Data;
 import org.apache.commons.collections4.map.MultiValueMap;
@@ -17,14 +17,14 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @Data
-public class ApiUmDepartureService extends DataManager {
+public class ApiUmTimetableGenerator extends Properties {
     private Station station;
 
 
     @Autowired
     ApiUmService apiUmService = new ApiUmService(new RestTemplateBuilder());
 
-    public ApiUmDepartureService(Station station) {
+    public ApiUmTimetableGenerator(Station station) {
         this.station = station;
     }
 

@@ -1,12 +1,11 @@
 package bot.processor;
 
 import bot.externalservice.apium.ApiUmDataCollector;
-import bot.externalservice.apium.data.Platform;
-import bot.externalservice.apium.data.Station;
+import bot.schema.Platform;
+import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
 import bot.externalservice.siptw.data.PlatformRaw;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

@@ -1,9 +1,8 @@
 package bot.externalservice.apium;
 
-import bot.externalservice.apium.data.Platform;
-import bot.externalservice.apium.data.Station;
+import bot.schema.Platform;
+import bot.schema.Station;
 import bot.externalservice.general.NameProcessor;
-import bot.processor.Utilities;
 import lombok.Getter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,7 +12,7 @@ import org.jsoup.select.Elements;
 import java.util.*;
 
 @Getter
-public class DataScraper extends DataManager {
+public class DataScraper extends Properties {
     private List<Station> stationList = new ArrayList<>();
     private final List<String> EXCLUDED_IDS = Arrays.asList("2306");
     protected Map<String,Station> stationsMap = new HashMap<>();
@@ -24,10 +23,7 @@ public class DataScraper extends DataManager {
     public DataScraper(){
         try {
             this.fillStationList();
-            this.fillPlatformInformation();
-            //this.convertListToHashMap();
-            //Utilities.serializeObject(this.stationsMap, this.pathToStationMap);
-            //Utilities.serializeObject(this.stationList, this.pathToStationList);
+            this.fillPlatformInformation();;
         }
         catch (Exception e){
             e.printStackTrace();
@@ -35,14 +31,6 @@ public class DataScraper extends DataManager {
         }
     }
 
-
-    private void convertListToHashMap(){
-        for(Station station: this.stationList){
-            for(String accName : station.getAcceptedNames()){
-                this.stationsMap.put(accName,station);
-            }
-        }
-    }
 
     private void fillPlatformInformation() throws Exception {
         for (Station station : this.stationList) {

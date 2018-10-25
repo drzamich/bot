@@ -1,6 +1,6 @@
 package bot.externalservice.apium.data;
 
-import bot.data.Departure;
+import bot.schema.Departure;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 

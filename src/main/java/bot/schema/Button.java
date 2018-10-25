@@ -1,4 +1,4 @@
-package bot.processor;
+package bot.schema;
 
 import lombok.Data;
 

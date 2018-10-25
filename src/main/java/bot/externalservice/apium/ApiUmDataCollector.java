@@ -1,7 +1,7 @@
 package bot.externalservice.apium;
 
-import bot.externalservice.apium.data.Platform;
-import bot.externalservice.apium.data.Station;
+import bot.schema.Platform;
+import bot.schema.Station;
 import bot.processor.Utilities;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 @Service
-public class ApiUmDataCollector extends DataManager {
+public class ApiUmDataCollector extends Properties {
     //    private List<String> fetchedStations = Arrays.asList("Muranów","Centrum","Muranowska","Kierbedzia","Kijowska",
 //                        "Hipodrom","GUS","Metro Świętokrzyska","Metro Politechnika","Dw.Centralny");
     private List<String> fetchedStations = Arrays.asList("Muranów", "Centrum");
@@ -36,20 +36,14 @@ public class ApiUmDataCollector extends DataManager {
         countTramQueries();
     }
 
-    public List<Station> getList(){
+    public List<Station> getList() {
         return this.stationList;
     }
 
     public List<Station> getStationList() {
+        DataScraper dataScraper = new DataScraper();
+        return dataScraper.getStationList();
 
-        //if (!Utilities.objectExists(pathToStationMap)) {
-            DataScraper dataScraper = new DataScraper();
-            return dataScraper.getStationList();
-        //}
-
-        //this.stationList = Utilities.deserializeObject(pathToStationList);
-
-        //System.out.println("Station list generated.");
     }
 
     public void countPlatforms(List<Station> stationList) {
@@ -151,7 +145,7 @@ public class ApiUmDataCollector extends DataManager {
             }
 
             if (searchedStation != null) {
-                new ApiUmStationService(searchedStation);
+                new ApiUmTimetableCollector(searchedStation);
                 System.out.println("Fetched timetable for " + station.getMainName());
             }
         }
@@ -159,7 +153,7 @@ public class ApiUmDataCollector extends DataManager {
     }
 
     public static void getTimetable(Station station) {
-        new ApiUmStationService(station);
+        new ApiUmTimetableCollector(station);
         System.out.println("Fetched timetable for " + station.getMainName());
     }
 }
