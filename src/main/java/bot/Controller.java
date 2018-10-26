@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @EnableJpaRepositories
 public class Controller {
 
-//    @Autowired
-//    DataManager dataManager;
 
     @Autowired
     QueryProcessor queryProcessor;
+
+    @Autowired
+    DataManager dataManager;
 
     @RequestMapping(value= "msg/{msg}", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
@@ -26,11 +27,11 @@ public class Controller {
         System.out.println(queryProcessor.getResponse().getInfo());
         return queryProcessor.getResponse().getInfo();
     }
-//
-//    @RequestMapping(value = "foo",method = RequestMethod.GET)
-//    @ResponseStatus(value = HttpStatus.OK)
-//    public void foo(){
-//        dataManager.prepareLists();
-//    }
+
+    @RequestMapping(value= "lists", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void giveInfo(){
+        dataManager.fetchLists();
+    }
 
 }

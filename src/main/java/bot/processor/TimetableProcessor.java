@@ -22,12 +22,12 @@ public class TimetableProcessor extends Settings {
     private Optional<List<Departure>> departures;
     private List<String> msg;
 
-    @Autowired
+   @Autowired
     SipService sipService;
 
     public TimetableProcessor() {
-        this.stationMap = Utilities.deserializeObject(PATH_TO_STATION_MAP);
-        printMap(stationMap);
+        //this.stationMap = Utilities.deserializeObject(PATH_TO_STATION_MAP);
+        //ddprintMap(stationMap);
     }
 
 
@@ -56,7 +56,7 @@ public class TimetableProcessor extends Settings {
         if(this.station.isPresent()) {
             for (Platform platform : this.station.get().getPlatforms()) {
                 String platformNumber = platform.getNumber();
-                String direction = Utilities.parseInput(platform.getDirection());
+                String direction = Utilities.parseInput(platform.getDirections().get(0));
 
                 if (this.msg.contains(platformNumber) || this.msg.contains(direction)) {
                     return Optional.of(platform);

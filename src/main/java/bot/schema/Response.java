@@ -39,7 +39,7 @@ public class Response {
         }
 
         Platform pl = platform.get();
-        messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getDirection());
+        messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getDirections().get(0));
         this.createDepartureMsg(departures);
 
     }
@@ -77,7 +77,7 @@ public class Response {
         List<Platform> platforms = station.getPlatforms();
         List<Button> res = new ArrayList<>();
         for (Platform platform : platforms) {
-            String textVis = "Platform: " + platform.getNumber() + ". Direction: " + platform.getDirection();
+            String textVis = "Platform: " + platform.getNumber() + ". Direction: " + platform.getDirections().get(0);
             String textHid = station.getMainName() + " " + platform.getNumber();
             res.add(new Button(textVis, textHid));
         }

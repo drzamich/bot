@@ -1,5 +1,6 @@
 package bot.externalservice.siptw;
 
+import bot.externalservice.siptw.data.Platform;
 import bot.externalservice.siptw.data.PlatformRaw;
 import bot.processor.Utilities;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 @Data
@@ -21,29 +23,27 @@ public class SipTwDataCollector {
     @Autowired
     SipService sipService;
 
-    public SipTwDataCollector(){
+    public SipTwDataCollector() {
+
+    }
+
+    public Map<String, PlatformRaw> fetchPlatformMap() {
         getPlatformsList();
         parsePlatformsList();
+        return this.platformMap;
     }
-//    public void process() {
-//
-//    }
 
     public void getPlatformsList() {
-        if (!Utilities.objectExists(PATH_TO_PLATFORM_LIST)) {
-            try {
-                this.platformRawList = sipService.getPlatforms().getPlatforms();
-                Utilities.serializeObject(this.platformRawList, PATH_TO_PLATFORM_LIST);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            this.platformRawList = Utilities.deserializeObject(PATH_TO_PLATFORM_LIST);
+        try {
+            this.platformRawList = sipService.getPlatforms().getPlatforms();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Not able to fetch platforms from SIP TW");
         }
     }
 
     public void parsePlatformsList() {
-        platformMap = new HashMap<>();
+        platformMap = new TreeMap<>();
         for (PlatformRaw platformRaw : this.platformRawList) {
             String name = platformRaw.getName();
             String platformNumber = name.substring(name.length() - 3, name.length() - 1);
@@ -51,9 +51,8 @@ public class SipTwDataCollector {
             String entity = name + String.valueOf(platformNumber);
             //System.out.println(entity);
             platformMap.put(entity, platformRaw);
-
+            System.out.println(platformRaw);
         }
-
     }
 
 

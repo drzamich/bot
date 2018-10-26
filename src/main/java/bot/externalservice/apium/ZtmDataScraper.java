@@ -8,19 +8,23 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Getter
-public class DataScraper extends Properties {
+@Service
+public class ZtmDataScraper extends Properties {
     private List<Station> stationList = new ArrayList<>();
     private final List<String> EXCLUDED_IDS = Arrays.asList("2306");
     protected Map<String,Station> stationsMap = new HashMap<>();
     private final String BASE_URL = "http://www.ztm.waw.pl/";
 
 
+    public ZtmDataScraper(){
+    }
 
-    public DataScraper(){
+    public List<Station> getZtmStationList(){
         try {
             this.fillStationList();
             this.fillPlatformInformation();;
@@ -29,6 +33,7 @@ public class DataScraper extends Properties {
             e.printStackTrace();
             System.out.println("Not able to get station list");
         }
+        return this.stationList;
     }
 
 
@@ -52,7 +57,8 @@ public class DataScraper extends Properties {
             String[] platformNumberWrapper = links.get(i).text().split(" ");
             String platformNumber = platformNumberWrapper[platformNumberWrapper.length-1];
 
-            String direction = directions.get(i).text();
+            List<String> directs= new ArrayList<>();
+            directs.add(directions.get(i).text());
 
             Elements linesLinks = linesContainers.get(i).select("a");
             List<String> lines = new ArrayList<>();
@@ -63,7 +69,7 @@ public class DataScraper extends Properties {
             String platformName = station.getMainName()+" "+platformNumber;
 
             if(!BLOCKED_STOPS.contains(platformName)) {
-                res.add(new Platform(platformNumber, direction, lines));
+                res.add(new Platform(platformNumber, directs, lines));
             }
         }
         return res;
@@ -84,25 +90,25 @@ public class DataScraper extends Properties {
             int pos = url.indexOf("&a=");
             String id = url.substring(pos + 3);
 
-            stationName = stationName.replaceAll("\\(Warszawa\\)", "");
+            stationName = stationName.replaceAll("\\(Warszawa\\)", "").trim();
 
             if (!EXCLUDED_IDS.contains(id)) {
-                Station station = this.makeStation(stationName, id, url);
+                Station station = new Station(id,stationName, url);
                 this.stationList.add(station);
             }
         }
-        this.checkForNameRepetittions();
+        //this.checkForNameRepetittions();
     }
 
-    private Station makeStation(String stationName, String id, String url) {
-        Station station = new Station(id, stationName.trim(), url);
-
-        NameProcessor nameProcessor = new NameProcessor(stationName);
-        List<String> acceptedNames = nameProcessor.getAcceptedNames();
-        station.setAcceptedNames(acceptedNames);
-
-        return station;
-    }
+//    private Station makeStation(String stationName, String id, String url) {
+//        Station station = new Station(id, stationName.trim(), url);
+//
+//       // NameProcessor nameProcessor = new NameProcessor(stationName);
+//       // List<String> acceptedNames = nameProcessor.getAcceptedNames();
+//       // station.setAcceptedNames(acceptedNames);
+//
+//        return station;
+//    }
 
     private void checkForNameRepetittions() {
         List<String> names = new ArrayList<>();

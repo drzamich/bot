@@ -8,19 +8,20 @@ import java.util.List;
 @Data
 public class Platform implements Serializable {
     private String number;
-    private String direction;
+    private String mainDirection;
+    private List<String> directions;
     private List<String> lines;
     private boolean isAtSipTw = false;
     private int sipTwID;
 
-    public Platform(String number, String direction, List<String> lines) {
+    public Platform(String number, List<String> directions, List<String> lines) {
         this.number = number;
-        this.direction = direction;
+        this.directions = directions;
         this.lines = lines;
     }
 
-    public Platform(String number, String direction) {
+    public Platform(String number, List<String> directions) {
         this.number = number;
-        this.direction = direction;
+        this.directions = directions;
     }
 }

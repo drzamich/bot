@@ -41,7 +41,7 @@ public class ApiUmDataCollector extends Properties {
     }
 
     public List<Station> getStationList() {
-        DataScraper dataScraper = new DataScraper();
+        ZtmDataScraper dataScraper = new ZtmDataScraper();
         return dataScraper.getStationList();
 
     }
