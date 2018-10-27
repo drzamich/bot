@@ -1,15 +1,22 @@
 package bot.processor;
 
 import bot.externalservice.apium.ZtmDataScraper;
+import bot.externalservice.general.NameProcessor;
 import bot.schema.Platform;
 import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
 import bot.externalservice.siptw.data.PlatformRaw;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import lombok.Data;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.FileOutputStream;
 import java.util.*;
 
 @Service
@@ -22,6 +29,8 @@ public class DataManager extends Settings {
     private List<Station> ztmStationList;
     private Map<String, PlatformRaw> sipTwPlatformMap;
     private List<Station> integratedList;
+    private Set<String> acceptedNamesBase;
+
 
     @Autowired
     SipTwDataCollector sipTwDataCollector = new SipTwDataCollector();
@@ -38,6 +47,9 @@ public class DataManager extends Settings {
     public void prepareData() {
         fetchLists();
         integrateLists();
+        generateAcceptedNames();
+        exportToExcel();
+        loadFromExcel();
     }
 
 
@@ -64,11 +76,8 @@ public class DataManager extends Settings {
 
     public void integrateLists() {
         integratedList = new ArrayList<>();
-//    public Map<String,Station> integrateLists(Map<String,PlatformRaw> sipTwPlatformMap, List<Station> umStationList) {
         for (Station station : ztmStationList) {
             String stationName = station.getMainName();
-//            for (Iterator<Platform> i = station.getPlatforms().iterator(); i.hasNext(); ) {
-//                Platform platform =
             for (Platform platform : station.getPlatforms()) {
                 String number = platform.getNumber();
                 String validator = stationName + " " + number;
@@ -79,8 +88,27 @@ public class DataManager extends Settings {
                 }
             }
             integratedList.add(station);
-
         }
+    }
+
+    public void generateAcceptedNames(){
+        acceptedNamesBase = new TreeSet<>();
+        for(Station station: integratedList){
+            String name = station.getMainName();
+            NameProcessor nameProcessor = new NameProcessor(name);
+            List<String> acceptedNames = nameProcessor.getAcceptedNames();
+            if(!Collections.disjoint(acceptedNamesBase,acceptedNames)){
+                System.out.println("Repeated names for station: "+name);
+            }
+            station.setAcceptedNames(acceptedNames);
+            acceptedNamesBase.addAll(acceptedNames);
+        }
+    }
+
+    public void exportToExcel(){
+        ExcelProcessor excelProcessor = new ExcelProcessor(integratedList);
+        excelProcessor.exportPlatformListToExcel();
+        excelProcessor.exportStationsListToExcel();
     }
 //
 //        Map<String,Station> stationMap = new HashMap<>();
@@ -91,6 +119,9 @@ public class DataManager extends Settings {
 //        }
 //        return stationMap;
 
+    public void loadFromExcel(){
+
+    }
 
     public static void printMap(Map<String, Station> mp) {
         Iterator it = mp.entrySet().iterator();

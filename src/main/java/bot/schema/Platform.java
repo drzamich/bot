@@ -20,6 +20,13 @@ public class Platform implements Serializable {
         this.lines = lines;
     }
 
+    public Platform(String number, String mainDir, List<String> directions, List<String> lines) {
+        this.mainDirection = mainDir;
+        this.number = number;
+        this.directions = directions;
+        this.lines = lines;
+    }
+
     public Platform(String number, List<String> directions) {
         this.number = number;
         this.directions = directions;

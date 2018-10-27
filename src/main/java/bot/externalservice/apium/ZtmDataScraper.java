@@ -69,7 +69,7 @@ public class ZtmDataScraper extends Properties {
             String platformName = station.getMainName()+" "+platformNumber;
 
             if(!BLOCKED_STOPS.contains(platformName)) {
-                res.add(new Platform(platformNumber, directs, lines));
+                res.add(new Platform(platformNumber,directs.get(0), directs, lines));
             }
         }
         return res;
