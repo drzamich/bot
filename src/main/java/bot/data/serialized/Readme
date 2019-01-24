@@ -1,0 +1,3 @@
+To update accepted names of stations or directions of platforms:
+1. Delete file serialized/00_final_list
+2. Rerun the program
