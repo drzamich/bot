@@ -49,28 +49,29 @@ public class DataManager extends Settings {
         integrateLists();
         generateAcceptedNames();
         exportToExcel();
-        loadFromExcel();
+        //loadFromExcel();
     }
 
 
     public void fetchLists() {
         if (fetchNewListOnEveryRun || !Utilities.objectExists(PATH_LIST_ZTM)) {
             this.ztmStationList = ztmDataScraper.getZtmStationList();
-
+            Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
         } else {
             this.ztmStationList = Utilities.deserializeObject(PATH_LIST_ZTM);
         }
 
-        if (fetchNewListOnEveryRun || !Utilities.objectExists(PATH_MAP_SIPTW)) {
-            sipTwPlatformMap = sipTwDataCollector.fetchPlatformMap();
-        } else {
-            this.sipTwPlatformMap = Utilities.deserializeObject(PATH_MAP_SIPTW);
-        }
+//        if (fetchNewListOnEveryRun || !Utilities.objectExists(PATH_MAP_SIPTW)) {
+//            sipTwPlatformMap = sipTwDataCollector.fetchPlatformMap();
+//            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
+//        } else {
+//            this.sipTwPlatformMap = Utilities.deserializeObject(PATH_MAP_SIPTW);
+//        }
 
-        if (overwriteWhenPresent) {
-            Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
-            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
-        }
+//        if (overwriteWhenPresent) {
+//            Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
+//            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
+//        }
     }
 
 
@@ -81,11 +82,11 @@ public class DataManager extends Settings {
             for (Platform platform : station.getPlatforms()) {
                 String number = platform.getNumber();
                 String validator = stationName + " " + number;
-                if (sipTwPlatformMap.containsKey(validator)) {
-                    int SipTwId = Integer.valueOf(sipTwPlatformMap.get(validator).getInnerId());
-                    platform.setAtSipTw(true);
-                    platform.setSipTwID(SipTwId);
-                }
+//                if (sipTwPlatformMap.containsKey(validator)) {
+//                    int SipTwId = Integer.valueOf(sipTwPlatformMap.get(validator).getInnerId());
+//                    platform.setAtSipTw(true);
+//                    platform.setSipTwID(SipTwId);
+//                }
             }
             integratedList.add(station);
         }
@@ -107,8 +108,6 @@ public class DataManager extends Settings {
 
     public void exportToExcel(){
         ExcelProcessor excelProcessor = new ExcelProcessor(integratedList);
-        excelProcessor.exportPlatformListToExcel();
-        excelProcessor.exportStationsListToExcel();
     }
 //
 //        Map<String,Station> stationMap = new HashMap<>();
@@ -118,10 +117,6 @@ public class DataManager extends Settings {
 //            }
 //        }
 //        return stationMap;
-
-    public void loadFromExcel(){
-
-    }
 
     public static void printMap(Map<String, Station> mp) {
         Iterator it = mp.entrySet().iterator();
