@@ -11,8 +11,8 @@ import java.util.Optional;
 @Service
 public class SipTwProcessor {
 
-    @Autowired
-    AcceptedNameRepository acceptedNameRepository;
+//    @Autowired
+//    AcceptedNameRepository acceptedNameRepository;
 
     @Autowired
     SipService sipService;
@@ -63,10 +63,10 @@ public class SipTwProcessor {
             if (i != 0) {
                 testedName = testedName + " " + parts.get(i);
             }
-            acceptedName = acceptedNameRepository.findByNameAccepted(testedName);
-            if (acceptedName.isPresent()) {
-                return Optional.of(acceptedName.get().getStation());
-            }
+//            acceptedName = acceptedNameRepository.findByNameAccepted(testedName);
+//            if (acceptedName.isPresent()) {
+//                return Optional.of(acceptedName.get().getStation());
+//            }
         }
         return Optional.empty();
     }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +22,15 @@ public class TimetableProcessor extends Settings {
     private Optional<Platform> platform;
     private Optional<List<Departure>> departures;
     private List<String> msg;
+    private List<Station> stationList;
+    private Map<String,Station> stationMap;
 
    @Autowired
     SipService sipService;
 
     public TimetableProcessor() {
-        //this.stationMap = Utilities.deserializeObject(PATH_TO_STATION_MAP);
-        //ddprintMap(stationMap);
+        DataManager dataManager = new DataManager()
+        this.stationMap = Utilities.deserializeObject(PATH_TO_STATION_MAP);
     }
 
 

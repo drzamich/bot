@@ -71,7 +71,7 @@ public final class Utilities {
             objectOutputStream.close();
         }
         catch (Exception e){
-
+            e.printStackTrace();
         }
     }
 

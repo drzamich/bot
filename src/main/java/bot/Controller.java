@@ -4,13 +4,13 @@ import bot.processor.DataManager;
 import bot.processor.QueryProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+//import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @EnableAutoConfiguration
-@EnableJpaRepositories
+//@EnableJpaRepositories
 public class Controller {
 
 
@@ -31,7 +31,7 @@ public class Controller {
     @RequestMapping(value= "lists", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public void giveInfo(){
-        dataManager.fetchLists();
+        dataManager.prepareData();
     }
 
 }

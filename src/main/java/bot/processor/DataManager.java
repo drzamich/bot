@@ -6,17 +6,10 @@ import bot.schema.Platform;
 import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
 import bot.externalservice.siptw.data.PlatformRaw;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import lombok.Data;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
 import java.util.*;
 
 @Service
@@ -28,9 +21,13 @@ public class DataManager extends Settings {
     boolean fetchNewListOnEveryRun = false;
     private List<Station> ztmStationList;
     private Map<String, PlatformRaw> sipTwPlatformMap;
-    private List<Station> integratedList;
+    private List<Station> integratedList = new ArrayList<>();
+    private List<Station> finalList;
+    private Map<String,Station> finalStationMap;
     private Set<String> acceptedNamesBase;
 
+    private boolean loadNewData = false;
+    private boolean reloadExistingData = true;
 
     @Autowired
     SipTwDataCollector sipTwDataCollector = new SipTwDataCollector();
@@ -40,53 +37,62 @@ public class DataManager extends Settings {
 
 
     public DataManager() {
-//        prepareData();
-//        printMap(this.stationMap);
+    }
+
+    public List<Station> getFinalList() {
+        if(!Utilities.objectExists(PATH_FINAL_LIST)){
+            prepareData();
+            return this.finalList;
+        }
+        else {
+            return Utilities.deserializeObject(PATH_FINAL_LIST);
+        }
     }
 
     public void prepareData() {
-        fetchLists();
-        integrateLists();
-        generateAcceptedNames();
-        exportToExcel();
-        //loadFromExcel();
+        if(reloadExistingData) {
+            fetchLists();
+            integrateLists();
+            generateAcceptedNames();
+            saveIntegratedList();
+        }
+        loadIntegratedList();
+        processInExcel();
+        convertStationListToMap();
     }
 
-
     public void fetchLists() {
-        if (fetchNewListOnEveryRun || !Utilities.objectExists(PATH_LIST_ZTM)) {
+        if (loadNewData || !Utilities.objectExists(PATH_LIST_ZTM)) {
             this.ztmStationList = ztmDataScraper.getZtmStationList();
             Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
         } else {
             this.ztmStationList = Utilities.deserializeObject(PATH_LIST_ZTM);
         }
 
-//        if (fetchNewListOnEveryRun || !Utilities.objectExists(PATH_MAP_SIPTW)) {
-//            sipTwPlatformMap = sipTwDataCollector.fetchPlatformMap();
-//            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
-//        } else {
-//            this.sipTwPlatformMap = Utilities.deserializeObject(PATH_MAP_SIPTW);
-//        }
+        if (loadNewData || !Utilities.objectExists(PATH_MAP_SIPTW)) {
+            sipTwPlatformMap = sipTwDataCollector.fetchPlatformMap();
+            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
+        } else {
+            this.sipTwPlatformMap = Utilities.deserializeObject(PATH_MAP_SIPTW);
+        }
 
-//        if (overwriteWhenPresent) {
-//            Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
-//            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
-//        }
+        if (overwriteWhenPresent) {
+            Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
+            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
+        }
     }
 
-
     public void integrateLists() {
-        integratedList = new ArrayList<>();
         for (Station station : ztmStationList) {
             String stationName = station.getMainName();
             for (Platform platform : station.getPlatforms()) {
                 String number = platform.getNumber();
                 String validator = stationName + " " + number;
-//                if (sipTwPlatformMap.containsKey(validator)) {
-//                    int SipTwId = Integer.valueOf(sipTwPlatformMap.get(validator).getInnerId());
-//                    platform.setAtSipTw(true);
-//                    platform.setSipTwID(SipTwId);
-//                }
+                if (sipTwPlatformMap.containsKey(validator)) {
+                    int SipTwId = Integer.valueOf(sipTwPlatformMap.get(validator).getInnerId());
+                    platform.setAtSipTw(true);
+                    platform.setSipTwID(SipTwId);
+                }
             }
             integratedList.add(station);
         }
@@ -106,28 +112,43 @@ public class DataManager extends Settings {
         }
     }
 
-    public void exportToExcel(){
-        ExcelProcessor excelProcessor = new ExcelProcessor(integratedList);
+    public void saveIntegratedList() {
+        Utilities.serializeObject(integratedList,PATH_INTEGRATED_LIST);
     }
-//
-//        Map<String,Station> stationMap = new HashMap<>();
-//        for(Station station: umStationList){
-//            for(String accName : station.getAcceptedNames()){
-//                stationMap.put(accName,station);
-//            }
-//        }
-//        return stationMap;
 
-    public static void printMap(Map<String, Station> mp) {
-        Iterator it = mp.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            String key = (String) pair.getKey();
-            Station station = (Station) pair.getValue();
-            String name = station.getMainName();
-            System.out.println(name);
-
-            it.remove(); // avoids a ConcurrentModificationException
+    public void loadIntegratedList() {
+        if(integratedList.size() <= 1){
+            integratedList = Utilities.deserializeObject(PATH_INTEGRATED_LIST);
         }
     }
+
+    public void processInExcel(){
+        ExcelProcessor excelProcessor = new ExcelProcessor(integratedList);
+        this.finalList = excelProcessor.getIntegratedList();
+        Utilities.serializeObject(this.finalList,PATH_FINAL_LIST);
+    }
+
+    public Map<String,Station> convertStationListToMap(){
+        Map<String,Station> res = new HashMap<>();
+        for(Station s: finalList){
+            for(String accName: s.getAcceptedNames()){
+                res.put(accName,s);
+            }
+        }
+        return res;
+        Utilities.serializeObject(res,);
+    }
+
+//    public static void printMap(Map<String, Station> mp) {
+//        Iterator it = mp.entrySet().iterator();
+//        while (it.hasNext()) {
+//            Map.Entry pair = (Map.Entry) it.next();
+//            String key = (String) pair.getKey();
+//            Station station = (Station) pair.getValue();
+//            String name = station.getMainName();
+//            System.out.println(name);
+//
+//            it.remove(); // avoids a ConcurrentModificationException
+//        }
+//    }
 }

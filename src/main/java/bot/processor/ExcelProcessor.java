@@ -14,7 +14,6 @@ import java.util.*;
 
 public class ExcelProcessor extends Settings {
     private List<Station> stationList;
-    private List<Station> modifiedStationList;
 
     private List<String> headersPlatforms = Arrays.asList("StationName", "PlatformNO", "MainDirection", "Directions");
     private List<String> headersStations = Arrays.asList("MainName", "AcceptedNames");
@@ -28,12 +27,15 @@ public class ExcelProcessor extends Settings {
     }
 
     private void doWork(){
-        exportPlatformListToExcel();
-        exportStationsListToExcel();
+//        exportPlatformListToExcel();
+//        exportStationsListToExcel();
         this.customAcceptedNames = loadCustomAcceptedNames();
         this.platformDirections = loadDirections();
         integrateStationList();
-        System.out.println("Done");
+    }
+
+    protected List<Station> getIntegratedList(){
+        return this.stationList;
     }
 
     private void integrateStationList(){
@@ -59,7 +61,6 @@ public class ExcelProcessor extends Settings {
         }
     }
 
-    //    protected void exportStationListToExcel
     protected void exportPlatformListToExcel() {
 
         Workbook workbook = new XSSFWorkbook();
@@ -157,7 +158,6 @@ public class ExcelProcessor extends Settings {
         }
         return res;
     }
-
 
     private Iterator<Row> getRowsOfExcelFile(String filepath) {
         try {
