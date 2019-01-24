@@ -10,7 +10,6 @@ public class Settings {
     protected final String PATH_SERIALIZATION = "src/main/java/bot/data/serialized/";
     protected final String PATH_LIST_ZTM = PATH_SERIALIZATION + "00_ztm_list";
     protected final String PATH_MAP_SIPTW = PATH_SERIALIZATION + "00_siptw_map";
-    protected final String PATH_TO_STATION_MAP = PATH_SERIALIZATION + "_station_map";
     protected final String PATH_SAVE_PLATFORMS_RAW = MAIN_PATH + "00_platforms_raw.xlsx";
     protected final String PATH_SAVE_STATIONS_RAw = MAIN_PATH + "00_stations_raw.xlsx";
     protected final String PATH_DIRECTIONS_CUSTOM = MAIN_PATH + "00_directions.xlsx";

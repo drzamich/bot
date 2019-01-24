@@ -23,7 +23,7 @@ public class DataManager extends Settings {
     private Map<String, PlatformRaw> sipTwPlatformMap;
     private List<Station> integratedList = new ArrayList<>();
     private List<Station> finalList;
-    private Map<String,Station> finalStationMap;
+    private Map<String, Station> finalStationMap;
     private Set<String> acceptedNamesBase;
 
     private boolean loadNewData = false;
@@ -39,18 +39,15 @@ public class DataManager extends Settings {
     public DataManager() {
     }
 
-    public List<Station> getFinalList() {
-        if(!Utilities.objectExists(PATH_FINAL_LIST)){
+    public Map<String, Station> getFinalMap() {
+        if (!Utilities.objectExists(PATH_FINAL_MAP)) {
             prepareData();
-            return this.finalList;
         }
-        else {
-            return Utilities.deserializeObject(PATH_FINAL_LIST);
-        }
+        return Utilities.deserializeObject(PATH_FINAL_MAP);
     }
 
     public void prepareData() {
-        if(reloadExistingData) {
+        if (reloadExistingData) {
             fetchLists();
             integrateLists();
             generateAcceptedNames();
@@ -98,14 +95,14 @@ public class DataManager extends Settings {
         }
     }
 
-    public void generateAcceptedNames(){
+    public void generateAcceptedNames() {
         acceptedNamesBase = new TreeSet<>();
-        for(Station station: integratedList){
+        for (Station station : integratedList) {
             String name = station.getMainName();
             NameProcessor nameProcessor = new NameProcessor(name);
             List<String> acceptedNames = nameProcessor.getAcceptedNames();
-            if(!Collections.disjoint(acceptedNamesBase,acceptedNames)){
-                System.out.println("Repeated names for station: "+name);
+            if (!Collections.disjoint(acceptedNamesBase, acceptedNames)) {
+                System.out.println("Repeated names for station: " + name);
             }
             station.setAcceptedNames(acceptedNames);
             acceptedNamesBase.addAll(acceptedNames);
@@ -113,30 +110,29 @@ public class DataManager extends Settings {
     }
 
     public void saveIntegratedList() {
-        Utilities.serializeObject(integratedList,PATH_INTEGRATED_LIST);
+        Utilities.serializeObject(integratedList, PATH_INTEGRATED_LIST);
     }
 
     public void loadIntegratedList() {
-        if(integratedList.size() <= 1){
+        if (integratedList.size() <= 1) {
             integratedList = Utilities.deserializeObject(PATH_INTEGRATED_LIST);
         }
     }
 
-    public void processInExcel(){
+    public void processInExcel() {
         ExcelProcessor excelProcessor = new ExcelProcessor(integratedList);
         this.finalList = excelProcessor.getIntegratedList();
-        Utilities.serializeObject(this.finalList,PATH_FINAL_LIST);
+        Utilities.serializeObject(this.finalList, PATH_FINAL_LIST);
     }
 
-    public Map<String,Station> convertStationListToMap(){
-        Map<String,Station> res = new HashMap<>();
-        for(Station s: finalList){
-            for(String accName: s.getAcceptedNames()){
-                res.put(accName,s);
+    public void convertStationListToMap() {
+        Map<String, Station> res = new HashMap<>();
+        for (Station s : this.finalList) {
+            for (String accName : s.getAcceptedNames()) {
+                res.put(accName, s);
             }
         }
-        return res;
-        Utilities.serializeObject(res,);
+        Utilities.serializeObject(res, PATH_FINAL_MAP);
     }
 
 //    public static void printMap(Map<String, Station> mp) {

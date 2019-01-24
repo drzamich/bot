@@ -1,34 +1,24 @@
 package bot;
 
-import bot.processor.DataManager;
 import bot.processor.QueryProcessor;
-import bot.schema.Station;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.util.*;
 
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
-        int devMode = 1;
+        int devMode = 0;
 
         if (devMode == 1) {
-//            DataManager dataManager = new DataManager();
-//            List<Station> finalList = dataManager.getFinalList();
-
-        String msg = "centrum 10";
-        QueryProcessor queryProcessor = new QueryProcessor();
-        queryProcessor.processQuery(msg);
-        System.out.println(queryProcessor.getResponse().getInfo());
-
+            String msg = "centrum centralny";
+            QueryProcessor queryProcessor = new QueryProcessor();
+            queryProcessor.processQuery(msg);
+            System.out.println(queryProcessor.getResponse().getInfo());
         } else {
             SpringApplication.run(Application.class, args);
         }
     }
-
-
 }
 
