@@ -1,8 +1,8 @@
 package bot.externalservice.siptw;
 
 
-import bot.externalservice.siptw.data.DepartureSipTw;
-import bot.externalservice.siptw.data.PlatformRaw;
+import bot.externalservice.siptw.schema.DepartureSipTw;
+import bot.externalservice.siptw.schema.PlatformSipTw;
 import bot.schema.Departure;
 import lombok.Getter;
 import lombok.ToString;
@@ -17,7 +17,7 @@ public class SipServiceResponse {
 
     private List<DepartureSipTw> departuresFromSipTw;
     private List<Departure> departures;
-    private List<PlatformRaw> platforms;
+    private List<PlatformSipTw> platformSipTws;
 
 
     public SipServiceResponse(DepartureSipTw[] departures) {
@@ -28,7 +28,7 @@ public class SipServiceResponse {
         }
     }
 
-    public SipServiceResponse(PlatformRaw[] platforms){
-        this.platforms = Arrays.asList(platforms);
+    public SipServiceResponse(PlatformSipTw[] platformSipTws){
+        this.platformSipTws = Arrays.asList(platformSipTws);
     }
 }

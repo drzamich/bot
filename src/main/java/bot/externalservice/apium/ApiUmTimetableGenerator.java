@@ -1,7 +1,7 @@
 package bot.externalservice.apium;
 
 import bot.schema.Departure;
-import bot.externalservice.apium.data.DeparturesListWithTimes;
+import bot.externalservice.apium.schema.DeparturesListWithTimes;
 import bot.schema.Platform;
 import bot.schema.Station;
 import bot.processor.Utilities;

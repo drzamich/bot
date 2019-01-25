@@ -1,11 +1,10 @@
 package bot.processor;
 
 import bot.externalservice.apium.ZtmDataScraper;
-import bot.externalservice.general.NameProcessor;
+import bot.externalservice.siptw.schema.PlatformSipTw;
 import bot.schema.Platform;
 import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
-import bot.externalservice.siptw.data.PlatformRaw;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class DataManager extends Settings {
     boolean overwriteWhenPresent = true;
     boolean fetchNewListOnEveryRun = false;
     private List<Station> ztmStationList;
-    private Map<String, PlatformRaw> sipTwPlatformMap;
+    private Map<String, PlatformSipTw> sipTwPlatformMap;
     private List<Station> integratedList = new ArrayList<>();
     private List<Station> finalList;
     private Map<String, Station> finalStationMap;
@@ -134,17 +133,4 @@ public class DataManager extends Settings {
         }
         Utilities.serializeObject(res, PATH_FINAL_MAP);
     }
-
-//    public static void printMap(Map<String, Station> mp) {
-//        Iterator it = mp.entrySet().iterator();
-//        while (it.hasNext()) {
-//            Map.Entry pair = (Map.Entry) it.next();
-//            String key = (String) pair.getKey();
-//            Station station = (Station) pair.getValue();
-//            String name = station.getMainName();
-//            System.out.println(name);
-//
-//            it.remove(); // avoids a ConcurrentModificationException
-//        }
-//    }
 }

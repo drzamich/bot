@@ -1,7 +1,6 @@
 package bot.externalservice.apium;
 
 import bot.schema.Departure;
-import bot.externalservice.apium.data.ApiUmResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;

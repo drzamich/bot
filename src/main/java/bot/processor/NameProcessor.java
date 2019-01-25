@@ -1,4 +1,4 @@
-package bot.externalservice.general;
+package bot.processor;
 
 import bot.processor.Utilities;
 import lombok.Data;

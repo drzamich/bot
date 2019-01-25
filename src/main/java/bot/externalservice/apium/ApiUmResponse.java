@@ -1,4 +1,4 @@
-package bot.externalservice.apium.data;
+package bot.externalservice.apium;
 
 import bot.schema.Departure;
 import com.fasterxml.jackson.annotation.JsonProperty;
