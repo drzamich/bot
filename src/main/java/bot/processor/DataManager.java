@@ -133,17 +133,4 @@ public class DataManager extends Settings {
         }
         Utilities.serializeObject(res, PATH_FINAL_MAP);
     }
-
-//    public static void printMap(Map<String, Station> mp) {
-//        Iterator it = mp.entrySet().iterator();
-//        while (it.hasNext()) {
-//            Map.Entry pair = (Map.Entry) it.next();
-//            String key = (String) pair.getKey();
-//            Station station = (Station) pair.getValue();
-//            String name = station.getMainName();
-//            System.out.println(name);
-//
-//            it.remove(); // avoids a ConcurrentModificationException
-//        }
-//    }
 }
