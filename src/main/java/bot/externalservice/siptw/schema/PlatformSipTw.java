@@ -1,12 +1,11 @@
-package bot.externalservice.siptw.data;
+package bot.externalservice.siptw.schema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-
 import java.io.Serializable;
 
 @Data
-public class PlatformRaw implements Serializable {
+public class PlatformSipTw implements Serializable {
     @JsonProperty("IDParada")
     private int id;
 

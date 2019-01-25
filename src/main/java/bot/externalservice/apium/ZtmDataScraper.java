@@ -2,7 +2,6 @@ package bot.externalservice.apium;
 
 import bot.schema.Platform;
 import bot.schema.Station;
-import bot.externalservice.general.NameProcessor;
 import lombok.Getter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -100,15 +99,6 @@ public class ZtmDataScraper extends Properties {
         //this.checkForNameRepetittions();
     }
 
-//    private Station makeStation(String stationName, String id, String url) {
-//        Station station = new Station(id, stationName.trim(), url);
-//
-//       // NameProcessor nameProcessor = new NameProcessor(stationName);
-//       // List<String> acceptedNames = nameProcessor.getAcceptedNames();
-//       // station.setAcceptedNames(acceptedNames);
-//
-//        return station;
-//    }
 
     private void checkForNameRepetittions() {
         List<String> names = new ArrayList<>();
@@ -131,6 +121,3 @@ public class ZtmDataScraper extends Properties {
     }
 
 }
-
-
-

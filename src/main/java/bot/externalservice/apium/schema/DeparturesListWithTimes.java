@@ -1,4 +1,4 @@
-package bot.externalservice.apium.data;
+package bot.externalservice.apium.schema;
 
 import bot.schema.Departure;
 import lombok.Data;
