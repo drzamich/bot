@@ -14,12 +14,15 @@ public class Response {
     private List<String> messages = new ArrayList<>();
     private String info;
     private int maxDepartures = 7;
+    private String responseType;
 
 
-    public Response(Optional<Station> station, Optional<Platform> platform, Optional<List<Departure>> departures) {
+    public Response(Optional<Station> station, Optional<Platform> platform, Optional<List<Departure>> departures,
+                    String responseType) {
         this.station = station;
         this.platform = platform;
         this.departures = departures;
+        this.responseType = responseType;
         prepareMsg();
         prepareInfo();
     }
@@ -39,30 +42,31 @@ public class Response {
         }
 
         Platform pl = platform.get();
-        messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getDirections().get(0));
+        messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getDirections().get(0)
+                + System.getProperty("line.separator") + responseType);
         this.createDepartureMsg(departures);
 
     }
 
-    private void createButtonsMsg(Station station){
+    private void createButtonsMsg(Station station) {
         List<Button> buttons = prepareButtons(station);
         for (Button button : buttons) {
             messages.add(button.toString());
         }
     }
 
-    private void createDepartureMsg(Optional<List<Departure>> deps){
+    private void createDepartureMsg(Optional<List<Departure>> deps) {
         if (deps.isPresent()) {
 
-            if(deps.get().size()<this.maxDepartures){
-                this.maxDepartures = deps.get().size()-1;
+            if (deps.get().size() < this.maxDepartures) {
+                this.maxDepartures = deps.get().size() - 1;
             }
 
             StringBuilder sb = new StringBuilder("");
             for (int i = 0; i <= this.maxDepartures; i++) {
                 Departure departure = deps.get().get(i);
                 sb.append(departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime());
-                if(i <= this.maxDepartures-1){
+                if (i <= this.maxDepartures - 1) {
                     sb.append(System.getProperty("line.separator"));
                 }
             }
@@ -84,11 +88,11 @@ public class Response {
         return res;
     }
 
-    private void prepareInfo(){
+    private void prepareInfo() {
         StringBuilder sb = new StringBuilder();
-        for(int i =0; i<messages.size();i++){
+        for (int i = 0; i < messages.size(); i++) {
             sb.append(messages.get(i));
-            if(i<messages.size()-1) {
+            if (i < messages.size() - 1) {
                 sb.append(System.getProperty("line.separator"));
             }
         }

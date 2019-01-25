@@ -22,6 +22,7 @@ public class TimetableProcessor extends Settings {
     private List<String> msg;
     private List<Station> stationList;
     private Map<String, Station> stationMap;
+    private String responseType;
 
     @Autowired
     SipService sipService;
@@ -37,7 +38,7 @@ public class TimetableProcessor extends Settings {
         this.station = findStation();
         this.platform = findPlatform();
         this.departures = getDepartureInfo();
-        return new Response(station, platform, departures);
+        return new Response(station, platform, departures, responseType);
     }
 
     private Optional<Station> findStation() {
@@ -83,9 +84,11 @@ public class TimetableProcessor extends Settings {
                 res = getInfoFromSipTw();
             }
             if (!res.isPresent()) {
+                responseType = "<TIMETABLE>";
                 return getInfoFromApiUm();
             }
         }
+        responseType = "<LIVE>";
         return res;
     }
 
@@ -98,7 +101,7 @@ public class TimetableProcessor extends Settings {
         try {
             return Optional.ofNullable(sipService.getTimetableForPlatform(platform.get().getSipTwID()).getDepartures());
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return Optional.empty();
         }
     }
