@@ -49,3 +49,9 @@ src/main/java/bot/externalservice/apium/Properties.java
 src/main/java/bot/externalservice/apium/data/serialized/*
 
 # End of https://www.gitignore.io/api/java,maven
+
+.DS_Store
+out/
+src/main/main.iml
+src/main/java/bot/data/.DS_Store
+src/main/java/bot/data/serialized/old
