@@ -9,7 +9,7 @@ public class Application {
 
     public static void main(String[] args) {
 
-        int devMode = 1;
+        int devMode = 0;
 
         if (devMode == 1) {
             String msg = "muranow centrum";
