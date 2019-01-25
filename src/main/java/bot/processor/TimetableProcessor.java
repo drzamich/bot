@@ -6,21 +6,18 @@ import bot.externalservice.apium.ApiUmTimetableGenerator;
 import bot.schema.Platform;
 import bot.schema.Response;
 import bot.schema.Station;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
-import javax.xml.crypto.Data;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TimetableProcessor extends Settings {
-    private Optional<Station> station;
-    private Optional<Platform> platform;
+    private List<Station> stations;
+    private Optional<Platform> platform = Optional.empty();
     private Optional<List<Departure>> departures;
     private List<String> msg;
-    private List<Station> stationList;
     private Map<String, Station> stationMap;
     private String responseType;
 
@@ -35,47 +32,62 @@ public class TimetableProcessor extends Settings {
 
     protected Response processQuery(Query query) {
         this.msg = query.getBodyExploded();
-        this.station = findStation();
-        this.platform = findPlatform();
-        this.departures = getDepartureInfo();
-        return new Response(station, platform, departures, responseType);
+        this.stations = findStations();
+
+        if(this.stations.size() == 1) {
+            this.platform = findPlatform();
+        }
+
+        if(this.platform.isPresent()) {
+            this.departures = getDepartureInfo();
+        }
+
+        return new Response(stations, platform, departures, responseType);
     }
 
-    private Optional<Station> findStation() {
-        Optional<Station> stationSaved = Optional.empty(); //this is to ensure that the name is not matched too early
-        StringBuilder s = new StringBuilder(msg.get(0));
+    private List<Station> findStations() {
+        StringBuilder sb = new StringBuilder(this.msg.get(0));
+        List<Station> res = new ArrayList<>();
+
         for (int i = 0; i < msg.size(); i++) {
-            if (i != 0) s.append(msg.get(i));
-            Optional<Station> stationOpt = Optional.ofNullable(stationMap.get(s.toString()));
-            if (stationOpt.isPresent()) {
-                stationSaved = stationOpt;
+            String str = sb.toString();
+
+            if(stationMap.containsKey(str)) {
+                return Arrays.asList(stationMap.get(str));
             }
+
+            List<Station> list = stationMap.entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().indexOf(str) > -1)
+                    .map(Map.Entry::getValue)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            if (!list.isEmpty()) {
+                res = list;
+            }
+
+            if(i<msg.size()-1) sb.append(" "+msg.get(i+1));
         }
-        return stationSaved;
+        return res;
     }
 
     private Optional<Platform> findPlatform() {
-        if (this.station.isPresent()) {
-            for (Platform platform : this.station.get().getPlatforms()) {
-
-                List<String> directions = new ArrayList<>();
-                directions.add(Utilities.parseInput(platform.getMainDirection()));
-                for (String d : platform.getDirections()) {
-                    directions.add(Utilities.parseInput(d));
-                }
-
-                // Check if the any of direction available for platform is contained in the message
-                Collection<String> intersection = CollectionUtils.intersection(this.msg, directions);
-
-                String platformNumber = platform.getNumber();
-
-                if (this.msg.contains(platformNumber) || intersection.size() > 0) {
-                    return Optional.of(platform);
-                }
-            }
-        }
-        return Optional.empty();
+            return this.stations.get(0).getPlatforms()
+                    .stream()
+                    .filter(
+                        p -> p.getDirections()
+                                .stream()
+                                .map(Utilities::parseInput)
+                                .anyMatch(this.msg::contains)
+                                ||
+                                this.msg.contains(p.getMainDirection())
+                                ||
+                                this.msg.contains(p.getNumber())
+                    )
+                    .findFirst();
     }
+
 
     private Optional<List<Departure>> getDepartureInfo() {
         Optional<List<Departure>> res = Optional.empty();
@@ -93,7 +105,7 @@ public class TimetableProcessor extends Settings {
     }
 
     private Optional<List<Departure>> getInfoFromApiUm() {
-        ApiUmTimetableGenerator apiUmDepartureService = new ApiUmTimetableGenerator(station.get());
+        ApiUmTimetableGenerator apiUmDepartureService = new ApiUmTimetableGenerator(stations.get(0));
         return Optional.of(apiUmDepartureService.getDeparturesForPlatform(platform.get()));
     }
 
@@ -115,5 +127,5 @@ public class TimetableProcessor extends Settings {
         }
     }
 
-    //departureService = new ApiUmTimetableGenerator(this.station);
+    //departureService = new ApiUmTimetableGenerator(this.stations);
 }

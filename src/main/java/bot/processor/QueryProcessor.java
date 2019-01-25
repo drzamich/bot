@@ -20,12 +20,11 @@ public class QueryProcessor {
         msg = Utilities.parseInput(msg);
         this.query = new Query(msg);
 
-        if(query.isSettingsQuery()){
+        if(this.query.isSettingsQuery()){
 
         }
         else{
-            response = timetableProcessor.processQuery(this.query);
+            this.response = timetableProcessor.processQuery(this.query);
         }
-
     }
 }

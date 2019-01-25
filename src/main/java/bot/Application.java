@@ -9,10 +9,10 @@ public class Application {
 
     public static void main(String[] args) {
 
-        int devMode = 0;
+        int devMode = 1;
 
         if (devMode == 1) {
-            String msg = "muranow centrum";
+            String msg = "zab";
             QueryProcessor queryProcessor = new QueryProcessor();
             queryProcessor.processQuery(msg);
             System.out.println(queryProcessor.getResponse().getInfo());
