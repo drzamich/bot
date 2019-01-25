@@ -63,7 +63,7 @@ public class ApiUmDataCollector extends Properties {
     public void countStationsWithTrams() {
 //        stationList.stream()
 //                .filter(
-//                        s -> s.getPlatforms().stream()
+//                        s -> s.getPlatformSipTws().stream()
 //                                            .filter(p -> p.getLines().stream()
 //
 //                )

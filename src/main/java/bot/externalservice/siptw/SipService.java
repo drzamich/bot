@@ -1,7 +1,7 @@
 package bot.externalservice.siptw;
 
-import bot.externalservice.siptw.data.DepartureSipTw;
-import bot.externalservice.siptw.data.PlatformRaw;
+import bot.externalservice.siptw.schema.DepartureSipTw;
+import bot.externalservice.siptw.schema.PlatformSipTw;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -45,9 +45,9 @@ public class SipService {
     @Retryable
     public SipServiceResponse getPlatforms() throws  URISyntaxException {
         HttpEntity<MultiValueMap<String, String>> request = configureRequest();
-        log.info("Calling SIP at " + SIP_SERVICE_URL + " for details about platforms");
-        PlatformRaw[] platforms = restTemplate.postForObject(SIP_SERVICE_URL,request,PlatformRaw[].class);
-        return new SipServiceResponse(platforms);
+        log.info("Calling SIP at " + SIP_SERVICE_URL + " for details about platformSipTws");
+        PlatformSipTw[] platformSipTws = restTemplate.postForObject(SIP_SERVICE_URL,request, PlatformSipTw[].class);
+        return new SipServiceResponse(platformSipTws);
     }
 
     private HttpEntity<MultiValueMap<String, String>> configureRequest(int platformID) {

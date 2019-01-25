@@ -1,4 +1,4 @@
-package bot.externalservice.siptw.data;
+package bot.externalservice.siptw.schema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
