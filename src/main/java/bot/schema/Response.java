@@ -10,46 +10,50 @@ import java.util.stream.Collectors;
 @Data
 public class Response {
     private List<Station> stations;
-    private Optional<Platform> platform;
+    private List<Platform> platforms;
     private Optional<List<Departure>> departures;
     private List<String> messages = new ArrayList<>();
     private String info;
     private String responseType;
+    private List<Button> buttonList;
+    private String responseJSON;
 
 
     //How many (max) departures will be displayed in the response (
     private int maxDepartures = 7;
 
-    public Response(List<Station> stations, Optional<Platform> platform, Optional<List<Departure>> departures,
+    public Response(List<Station> stations, List<Platform> platforms, Optional<List<Departure>> departures,
                     String responseType) {
         this.stations = stations;
-        this.platform = platform;
+        this.platforms = platforms;
         this.departures = departures;
         this.responseType = responseType;
         prepareMsg();
         prepareInfo();
+        this.responseJSON = new JSONResponse(this.buttonList,this.messages).toString();
     }
 
     public void prepareMsg() {
         if (this.stations.size() < 1) {
-            messages.add("Wrong station.");
+            this.messages.add("Wrong station.");
             return;
         }
         else if (this.stations.size() > 1) {
-            messages.add("Multiple matching stations. Select the proper one.");
-            this.createButtonsMsg(this.stations);
+            this.messages.add("Multiple matching stations. Select the proper one.");
+            this.buttonList = new ButtonList(this.stations).getButtonList();
             return;
         }
 
         messages.add("Departures for: " + stations.get(0).getMainName());
 
-        if (!platform.isPresent()) {
-            messages.add("Choose platform:");
-            this.createButtonsMsg(this.stations.get(0));
+
+        if (this.platforms.size() != 1) {
+            this.messages.add("Choose platform:");
+            this.buttonList = new ButtonList(this.stations.get(0)).getButtonList();
             return;
         }
 
-        Platform pl = platform.get();
+        Platform pl = this.platforms.get(0);
         messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getDirections().get(0)
                 + System.getProperty("line.separator") + responseType);
         this.createDepartureMsg(departures);
@@ -57,19 +61,7 @@ public class Response {
     }
 
 
-    private void createButtonsMsg(Station s) {
-        List<Button> buttons = prepareButtons(s);
-        for (Button button : buttons) {
-            messages.add(button.toString());
-        }
-    }
 
-    private void createButtonsMsg(List<Station> stations) {
-        List<Button> buttons = prepareButtons(stations);
-        for (Button button : buttons) {
-            messages.add(button.toString());
-        }
-    }
 
     private void createDepartureMsg(Optional<List<Departure>> deps) {
         if (deps.isPresent()) {
@@ -93,29 +85,7 @@ public class Response {
     }
 
 
-    private List<Button> prepareButtons(Station s) {
-//            List<Platform> platforms = station.getPlatforms();
-//            List<Button> res = new ArrayList<>();
-//            for (Platform platform : platforms) {
-//                String textVis = "Platform: " + platform.getNumber() + ". Direction: " + platform.getDirections().get(0);
-//                String textHid = station.getMainName() + " " + platform.getNumber();
-//                res.add(new Button(textVis, textHid));
-//            }
-//            return res;
 
-        return s.getPlatforms()
-                .stream()
-                .map(p -> new Button("Platform: " + p.getNumber() + ". Direction: " + p.getMainDirection(),
-                        s.getMainName() + " " + p.getNumber()))
-                .collect(Collectors.toList());
-    }
-
-    private List<Button> prepareButtons(List<Station> stations) {
-        return stations
-                .stream()
-                .map(s -> new Button(s.getMainName(),s.getMainName()))
-                .collect(Collectors.toList());
-    }
 
     private void prepareInfo() {
         StringBuilder sb = new StringBuilder();

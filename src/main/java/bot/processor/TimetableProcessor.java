@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TimetableProcessor extends Settings {
-    private List<Station> stations;
-    private Optional<Platform> platform = Optional.empty();
+    private List<Station> stations = new ArrayList<>();
+    private List<Platform> platforms = new ArrayList<>();
     private Optional<List<Departure>> departures;
     private List<String> msg;
     private Map<String, Station> stationMap;
@@ -35,14 +35,14 @@ public class TimetableProcessor extends Settings {
         this.stations = findStations();
 
         if(this.stations.size() == 1) {
-            this.platform = findPlatform();
+            this.platforms = findPlatforms();
         }
 
-        if(this.platform.isPresent()) {
+        if(this.platforms.size() == 1) {
             this.departures = getDepartureInfo();
         }
 
-        return new Response(stations, platform, departures, responseType);
+        return new Response(stations, platforms, departures, responseType);
     }
 
     private List<Station> findStations() {
@@ -72,7 +72,7 @@ public class TimetableProcessor extends Settings {
         return res;
     }
 
-    private Optional<Platform> findPlatform() {
+    private List<Platform> findPlatforms() {
             return this.stations.get(0).getPlatforms()
                     .stream()
                     .filter(
@@ -81,37 +81,35 @@ public class TimetableProcessor extends Settings {
                                 .map(Utilities::parseInput)
                                 .anyMatch(this.msg::contains)
                                 ||
-                                this.msg.contains(p.getMainDirection())
-                                ||
                                 this.msg.contains(p.getNumber())
                     )
-                    .findFirst();
+                    .collect(Collectors.toList());
     }
 
 
     private Optional<List<Departure>> getDepartureInfo() {
         Optional<List<Departure>> res = Optional.empty();
-        if (platform.isPresent()) {
-            if (platform.get().isAtSipTw()) {
+        if (this.platforms.size()==1) {
+            if (this.platforms.get(0).isAtSipTw()) {
                 res = getInfoFromSipTw();
             }
             if (!res.isPresent()) {
-                responseType = "<TIMETABLE>";
+                this.responseType = "<TIMETABLE>";
                 return getInfoFromApiUm();
             }
         }
-        responseType = "<LIVE>";
+        this.responseType = "<LIVE>";
         return res;
     }
 
     private Optional<List<Departure>> getInfoFromApiUm() {
         ApiUmTimetableGenerator apiUmDepartureService = new ApiUmTimetableGenerator(stations.get(0));
-        return Optional.of(apiUmDepartureService.getDeparturesForPlatform(platform.get()));
+        return Optional.of(apiUmDepartureService.getDeparturesForPlatform(platforms.get(0)));
     }
 
     private Optional<List<Departure>> getInfoFromSipTw() {
         try {
-            return Optional.ofNullable(sipService.getTimetableForPlatform(platform.get().getSipTwID()).getDepartures());
+            return Optional.ofNullable(sipService.getTimetableForPlatform(platforms.get(0).getSipTwID()).getDepartures());
         } catch (Exception e) {
             //e.printStackTrace();
             return Optional.empty();
