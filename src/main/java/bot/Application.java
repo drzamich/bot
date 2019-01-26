@@ -11,11 +11,12 @@ public class Application {
 
         int devMode = 1;
 
-        if (devMode == 1) {
-            String msg = "zab";
+        if (devMode == 0) {
+            String msg = "muranow";
             QueryProcessor queryProcessor = new QueryProcessor();
             queryProcessor.processQuery(msg);
-            System.out.println(queryProcessor.getResponse().getInfo());
+            System.out.println(queryProcessor.getResponse().getConsoleInfo());
+            System.out.println(queryProcessor.getResponse().getResponseJSONString());
         } else {
             SpringApplication.run(Application.class, args);
         }

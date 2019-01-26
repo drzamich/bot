@@ -109,4 +109,8 @@ public final class Utilities {
         return sb.toString();
     }
 
+    public static String parsePostRequest(String r){
+        return r.replaceAll("\\+"," ").replaceAll("="," ").trim();
+    }
+
 }

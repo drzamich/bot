@@ -5,7 +5,6 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Data
 public class Response {
@@ -13,10 +12,13 @@ public class Response {
     private List<Platform> platforms;
     private Optional<List<Departure>> departures;
     private List<String> messages = new ArrayList<>();
-    private String info;
+    private String consoleInfo;
     private String responseType;
     private List<Button> buttonList;
-    private String responseJSON;
+    private List<String> responseJSONList;
+    private String responseJSONString;
+    private ButtonList buttonListObject;
+    private JSONResponse jsonResponse;
 
 
     //How many (max) departures will be displayed in the response (
@@ -29,18 +31,25 @@ public class Response {
         this.departures = departures;
         this.responseType = responseType;
         prepareMsg();
-        prepareInfo();
-        this.responseJSON = new JSONResponse(this.buttonList,this.messages).toString();
+        prepareConsoleInfo();
+        prepareJSON();
+    }
+
+    public void prepareJSON() {
+        this.jsonResponse = new JSONResponse(this.buttonList, this.messages);
+        this.responseJSONList = this.jsonResponse.getResponses();
+        this.responseJSONString = this.jsonResponse.convertResponsesToSingleString();
+
     }
 
     public void prepareMsg() {
         if (this.stations.size() < 1) {
             this.messages.add("Wrong station.");
             return;
-        }
-        else if (this.stations.size() > 1) {
+        } else if (this.stations.size() > 1) {
             this.messages.add("Multiple matching stations. Select the proper one.");
-            this.buttonList = new ButtonList(this.stations).getButtonList();
+            this.buttonListObject = new ButtonList(this.stations);
+            this.buttonList = getButtonList();
             return;
         }
 
@@ -49,7 +58,8 @@ public class Response {
 
         if (this.platforms.size() != 1) {
             this.messages.add("Choose platform:");
-            this.buttonList = new ButtonList(this.stations.get(0)).getButtonList();
+            this.buttonListObject = new ButtonList(this.stations.get(0));
+            this.buttonList = getButtonList();
             return;
         }
 
@@ -59,8 +69,6 @@ public class Response {
         this.createDepartureMsg(departures);
 
     }
-
-
 
 
     private void createDepartureMsg(Optional<List<Departure>> deps) {
@@ -85,17 +93,20 @@ public class Response {
     }
 
 
-
-
-    private void prepareInfo() {
+    private void prepareConsoleInfo() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < messages.size(); i++) {
-            sb.append(messages.get(i));
-            if (i < messages.size() - 1) {
+        for (int i = 0; i < this.messages.size(); i++) {
+            sb.append(this.messages.get(i));
+            if (i < this.messages.size() - 1) {
                 sb.append(System.getProperty("line.separator"));
             }
         }
-        info = sb.toString();
+
+        this.consoleInfo = sb.toString();
+
+        if (this.buttonListObject != null) {
+            this.consoleInfo += System.getProperty("line.separator") + buttonListObject.toString();
+        }
     }
 
 }

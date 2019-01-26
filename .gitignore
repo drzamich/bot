@@ -55,3 +55,4 @@ src/main/main.iml
 src/main/java/bot/data/.DS_Store
 src/main/java/bot/data/serialized/old
 src/main/java/bot/externalservice/apium/Secret.java
+/src/main/java/bot/processor/Secret.java

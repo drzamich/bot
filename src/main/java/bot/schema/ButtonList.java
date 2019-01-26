@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 @Data
 public class ButtonList {
     private List<Button> buttonList;
-    private String buttonListJSON;
 
     public ButtonList(List<Station> stations) {
         this.buttonList = stations
@@ -23,7 +22,16 @@ public class ButtonList {
                         s.getMainName() + " " + p.getNumber()))
                 .collect(Collectors.toList());
     }
-//
+
+    @Override
+    public String toString() {
+        return buttonList
+                .stream()
+                .map(Button::getTextVisible)
+                .collect(Collectors.joining("\n"));
+    }
+
+    //
 //
 //    private void createButtonsMsg(Station s) {
 //        List<Button> buttons = prepareButtons(s);
