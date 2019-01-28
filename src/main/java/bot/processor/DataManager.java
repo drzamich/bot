@@ -5,19 +5,21 @@ import bot.externalservice.siptw.schema.PlatformSipTw;
 import bot.schema.Platform;
 import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Getter
+@Setter
 @Service
-@Data
 public class DataManager extends Settings {
 
     private Map<String, Station> stationMap;
-    boolean overwriteWhenPresent = true;
-    boolean fetchNewListOnEveryRun = false;
+    private boolean overwriteWhenPresent = true;
+    private boolean fetchNewListOnEveryRun = false;
     private List<Station> ztmStationList;
     private Map<String, PlatformSipTw> sipTwPlatformMap;
     private List<Station> integratedList = new ArrayList<>();
@@ -29,16 +31,15 @@ public class DataManager extends Settings {
     private boolean reloadExistingData = true;
 
     @Autowired
-    SipTwDataCollector sipTwDataCollector = new SipTwDataCollector();
+    private SipTwDataCollector sipTwDataCollector;
 
     @Autowired
-    ZtmDataScraper ztmDataScraper = new ZtmDataScraper();
-
+    private ZtmDataScraper ztmDataScraper;
 
     public DataManager() {
     }
 
-    public Map<String, Station> getFinalMap() {
+    Map<String, Station> getFinalMap() {
         if (!Utilities.objectExists(PATH_FINAL_MAP)) {
             prepareData();
         }
@@ -57,7 +58,7 @@ public class DataManager extends Settings {
         convertStationListToMap();
     }
 
-    public void fetchLists() {
+    private void fetchLists() {
         if (loadNewData || !Utilities.objectExists(PATH_LIST_ZTM)) {
             this.ztmStationList = ztmDataScraper.getZtmStationList();
             Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
@@ -78,7 +79,7 @@ public class DataManager extends Settings {
         }
     }
 
-    public void integrateLists() {
+    private void integrateLists() {
         for (Station station : ztmStationList) {
             String stationName = station.getMainName();
             for (Platform platform : station.getPlatforms()) {
@@ -94,7 +95,7 @@ public class DataManager extends Settings {
         }
     }
 
-    public void generateAcceptedNames() {
+    private void generateAcceptedNames() {
         acceptedNamesBase = new TreeSet<>();
         for (Station station : integratedList) {
             String name = station.getMainName();
@@ -108,23 +109,23 @@ public class DataManager extends Settings {
         }
     }
 
-    public void saveIntegratedList() {
+    private void saveIntegratedList() {
         Utilities.serializeObject(integratedList, PATH_INTEGRATED_LIST);
     }
 
-    public void loadIntegratedList() {
+    private void loadIntegratedList() {
         if (integratedList.size() <= 1) {
             integratedList = Utilities.deserializeObject(PATH_INTEGRATED_LIST);
         }
     }
 
-    public void processInExcel() {
+    private void processInExcel() {
         ExcelProcessor excelProcessor = new ExcelProcessor(integratedList);
         this.finalList = excelProcessor.getIntegratedList();
         Utilities.serializeObject(this.finalList, PATH_FINAL_LIST);
     }
 
-    public void convertStationListToMap() {
+    private void convertStationListToMap() {
         Map<String, Station> res = new HashMap<>();
         for (Station s : this.finalList) {
             for (String accName : s.getAcceptedNames()) {

@@ -14,7 +14,10 @@ public class QueryProcessor {
     private Response response;
 
     @Autowired
-    TimetableProcessor timetableProcessor = new TimetableProcessor();
+    TimetableProcessor timetableProcessor;
+
+    public QueryProcessor() {
+    }
 
     public void processQuery(String msg){
         msg = Utilities.parseInput(msg);

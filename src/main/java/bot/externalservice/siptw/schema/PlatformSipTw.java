@@ -2,9 +2,12 @@ package bot.externalservice.siptw.schema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 
 @Data
+@Component
 public class PlatformSipTw implements Serializable {
     @JsonProperty("IDParada")
     private int id;

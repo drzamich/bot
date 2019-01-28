@@ -7,6 +7,7 @@ import bot.schema.Platform;
 import bot.schema.Response;
 import bot.schema.Station;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,16 +22,18 @@ public class TimetableProcessor extends Settings {
     private Map<String, Station> stationMap;
     private String responseType;
 
-    @Autowired
     SipService sipService;
 
+    @Autowired
+    DataManager dataManager;
+
     public TimetableProcessor() {
-        DataManager dataManager = new DataManager();
-        this.stationMap = dataManager.getFinalMap();
     }
 
 
     protected Response processQuery(Query query) {
+        this.stationMap = dataManager.getFinalMap();
+
         this.msg = query.getBodyExploded();
         this.stations = findStations();
 
@@ -108,6 +111,7 @@ public class TimetableProcessor extends Settings {
     }
 
     private Optional<List<Departure>> getInfoFromSipTw() {
+        sipService = new SipService(new RestTemplateBuilder());
         try {
             return Optional.ofNullable(sipService.getTimetableForPlatform(platforms.get(0).getSipTwID()).getDepartures());
         } catch (Exception e) {

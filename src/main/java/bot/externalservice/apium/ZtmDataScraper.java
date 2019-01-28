@@ -16,7 +16,7 @@ import java.util.*;
 public class ZtmDataScraper extends Properties {
     private List<Station> stationList = new ArrayList<>();
     private final List<String> EXCLUDED_IDS = Arrays.asList("2306");
-    protected Map<String,Station> stationsMap = new HashMap<>();
+    private Map<String,Station> stationsMap = new HashMap<>();
     private final String BASE_URL = "http://www.ztm.waw.pl/";
 
 

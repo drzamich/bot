@@ -3,24 +3,24 @@ package bot.externalservice.siptw;
 import bot.externalservice.siptw.schema.PlatformSipTw;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-@Service
 @Data
+@Service
 public class SipTwDataCollector {
-    private final String PATH_TO_PLATFORM_LIST = "src/main/java/bot/externalservice/siptw/data/serialized/platforms";
+//    private final String PATH_TO_PLATFORM_LIST = "src/main/java/bot/externalservice/siptw/data/serialized/platforms";
     private List<PlatformSipTw> platformSipTwList;
-    Map<String, PlatformSipTw> platformMap;
+    private Map<String, PlatformSipTw> platformMap;
 
     @Autowired
-    SipService sipService;
+    private SipService sipService;
 
     public SipTwDataCollector() {
-
     }
 
     public Map<String, PlatformSipTw> fetchPlatformMap() {
@@ -29,16 +29,17 @@ public class SipTwDataCollector {
         return this.platformMap;
     }
 
-    public void getPlatformsList() {
+    private void getPlatformsList() {
         try {
-            this.platformSipTwList = sipService.getPlatforms().getPlatformSipTws();
+            SipServiceResponse sipServiceResponse = sipService.getPlatforms();
+            this.platformSipTwList = sipServiceResponse.getPlatformSipTws();
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Not able to fetch platforms from SIP TW");
         }
     }
 
-    public void parsePlatformsList() {
+    private void parsePlatformsList() {
         platformMap = new TreeMap<>();
         for (PlatformSipTw platformSipTw : this.platformSipTwList) {
             String name = platformSipTw.getName();

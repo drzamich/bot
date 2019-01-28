@@ -151,6 +151,7 @@ public class ExcelProcessor extends Settings {
             try {
                 mainDirNew = row.getCell(4).getStringCellValue();
                 otherDirNew = Arrays.asList(row.getCell(5).getStringCellValue().split(", "));
+                otherDirNew.add(mainDirNew);
                 res.put(platformIdentifier, new TransferPlatform(mainDirNew, otherDirNew));
             } catch (Exception e) {
 
