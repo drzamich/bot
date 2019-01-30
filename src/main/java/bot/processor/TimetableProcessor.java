@@ -6,6 +6,7 @@ import bot.externalservice.apium.ApiUmTimetableGenerator;
 import bot.schema.Platform;
 import bot.schema.Response;
 import bot.schema.Station;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
@@ -21,11 +22,13 @@ public class TimetableProcessor extends Settings {
     private List<String> msg;
     private Map<String, Station> stationMap;
     private String responseType;
-
-    SipService sipService;
+    private int platformNumber;
 
     @Autowired
-    DataManager dataManager;
+    private SipService sipService;
+
+    @Autowired
+    private DataManager dataManager;
 
     public TimetableProcessor() {
     }
@@ -35,6 +38,8 @@ public class TimetableProcessor extends Settings {
         this.stationMap = dataManager.getFinalMap();
 
         this.msg = query.getBodyExploded();
+        this.platformNumber = query.getLastNumber();
+
         this.stations = findStations();
 
         if(this.stations.size() == 1) {
@@ -76,17 +81,17 @@ public class TimetableProcessor extends Settings {
     }
 
     private List<Platform> findPlatforms() {
-            return this.stations.get(0).getPlatforms()
-                    .stream()
-                    .filter(
-                        p -> p.getDirections()
-                                .stream()
-                                .map(Utilities::parseInput)
-                                .anyMatch(this.msg::contains)
-                                ||
-                                this.msg.contains(p.getNumber())
-                    )
-                    .collect(Collectors.toList());
+        List<Platform> res = new ArrayList<>();
+
+        for(Platform p: stations.get(0).getPlatforms()) {
+            List<String> dirs = p.getDirections();
+            int plNum = Integer.valueOf(p.getNumber());
+
+            if(plNum == this.platformNumber || !CollectionUtils.intersection(dirs,this.msg).isEmpty()) {
+                res.add(p);
+            }
+        }
+        return res;
     }
 
 
@@ -111,11 +116,12 @@ public class TimetableProcessor extends Settings {
     }
 
     private Optional<List<Departure>> getInfoFromSipTw() {
-        sipService = new SipService(new RestTemplateBuilder());
+//        sipService = new SipService(new RestTemplateBuilder());
         try {
             return Optional.ofNullable(sipService.getTimetableForPlatform(platforms.get(0).getSipTwID()).getDepartures());
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
+            System.out.println("Not possible ");
             return Optional.empty();
         }
     }

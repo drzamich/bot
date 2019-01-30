@@ -12,7 +12,7 @@ public class Application {
         int devMode = 0;
 
         if (devMode == 1) {
-            String msg = "muranow centrum";
+            String msg = "muranowska centrum";
             QueryProcessor queryProcessor = new QueryProcessor();
             queryProcessor.processQuery(msg);
             System.out.println(queryProcessor.getResponse().getConsoleInfo());

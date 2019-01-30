@@ -134,7 +134,7 @@ public class ExcelProcessor extends Settings {
         return res;
     }
 
-    protected Map<String, TransferPlatform> loadDirections() {
+    private Map<String, TransferPlatform> loadDirections() {
         Map<String, TransferPlatform> res = new HashMap<>();
         Iterator<Row> rowIterator = getRowsOfExcelFile(PATH_DIRECTIONS_CUSTOM);
 
@@ -143,19 +143,43 @@ public class ExcelProcessor extends Settings {
 
             String stationName = row.getCell(0).getStringCellValue();
             String platformNum = row.getCell(1).getStringCellValue();
-
             String platformIdentifier = stationName + " " + platformNum;
-            String mainDirNew;
-            List<String> otherDirNew;
 
-            try {
-                mainDirNew = row.getCell(4).getStringCellValue();
-                otherDirNew = Arrays.asList(row.getCell(5).getStringCellValue().split(", "));
-                otherDirNew.add(mainDirNew);
-                res.put(platformIdentifier, new TransferPlatform(mainDirNew, otherDirNew));
-            } catch (Exception e) {
+            String mainDirOld;
+            String mainDirNew = "";
+            List<String> otherDirNew =  new ArrayList<>();
 
+            Optional<Cell> mainDirOldCell = Optional.ofNullable(row.getCell(2));
+            Optional<Cell> mainDirNewCell = Optional.ofNullable(row.getCell(3));
+            Optional<Cell> otherDirNewCell = Optional.ofNullable(row.getCell(4));
+
+
+            if(mainDirNewCell.isPresent()) {
+                mainDirNew = mainDirNewCell.get().getStringCellValue();
+
+                if(mainDirOldCell.isPresent()){
+                    mainDirOld = mainDirOldCell.get().getStringCellValue();
+                    otherDirNew.add(mainDirOld);
+                    otherDirNew.add(mainDirNew);
+                }
             }
+
+            if(otherDirNewCell.isPresent()) {
+                otherDirNew.addAll(Arrays.asList(otherDirNewCell.get().getStringCellValue().split((", "))));
+            }
+
+            if(!otherDirNew.isEmpty()) {
+                res.put(platformIdentifier, new TransferPlatform(mainDirNew, otherDirNew));
+            }
+
+//            try {
+//                mainDirNew = row.getCell(4).getStringCellValue();
+//                otherDirNew = Arrays.asList(row.getCell(5).getStringCellValue().split(", "));
+//                otherDirNew.add(mainDirNew);
+//                res.put(platformIdentifier, new TransferPlatform(mainDirNew, otherDirNew));
+//            } catch (Exception e) {
+//
+//            }
         }
         return res;
     }
