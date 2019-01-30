@@ -64,7 +64,7 @@ public class Response {
         }
 
         Platform pl = this.platforms.get(0);
-        messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getDirections().get(0)
+        messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getMainDirection()
                 + System.getProperty("line.separator") + responseType);
         this.createDepartureMsg(departures);
 

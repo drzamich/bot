@@ -84,7 +84,7 @@ public class TimetableProcessor extends Settings {
         List<Platform> res = new ArrayList<>();
 
         for(Platform p: stations.get(0).getPlatforms()) {
-            List<String> dirs = p.getDirections();
+            List<String> dirs = p.getDirections().stream().map(Utilities::parseInput).collect(Collectors.toList());
             int plNum = Integer.valueOf(p.getNumber());
 
             if(plNum == this.platformNumber || !CollectionUtils.intersection(dirs,this.msg).isEmpty()) {

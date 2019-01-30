@@ -32,6 +32,7 @@ public class ExcelProcessor extends Settings {
         this.customAcceptedNames = loadCustomAcceptedNames();
         this.platformDirections = loadDirections();
         integrateStationList();
+        System.out.println("a");
     }
 
     protected List<Station> getIntegratedList(){
@@ -159,7 +160,7 @@ public class ExcelProcessor extends Settings {
 
                 if(mainDirOldCell.isPresent()){
                     mainDirOld = mainDirOldCell.get().getStringCellValue();
-                    otherDirNew.add(mainDirOld);
+//                    otherDirNew.add(mainDirOld);
                     otherDirNew.add(mainDirNew);
                 }
             }
@@ -172,14 +173,6 @@ public class ExcelProcessor extends Settings {
                 res.put(platformIdentifier, new TransferPlatform(mainDirNew, otherDirNew));
             }
 
-//            try {
-//                mainDirNew = row.getCell(4).getStringCellValue();
-//                otherDirNew = Arrays.asList(row.getCell(5).getStringCellValue().split(", "));
-//                otherDirNew.add(mainDirNew);
-//                res.put(platformIdentifier, new TransferPlatform(mainDirNew, otherDirNew));
-//            } catch (Exception e) {
-//
-//            }
         }
         return res;
     }
