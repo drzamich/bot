@@ -50,7 +50,11 @@ public class TimetableProcessor extends Settings {
             this.departures = getDepartureInfo();
         }
 
-        return new Response(stations, platforms, departures, responseType);
+        if(query.getUserID() == null) {
+            return new Response(stations, platforms, departures, responseType);
+        } else {
+            return new Response(stations, platforms, departures, responseType, query.getUserID());
+        }
     }
 
     private List<Station> findStations() {

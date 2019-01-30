@@ -19,6 +19,7 @@ public class Response {
     private String responseJSONString;
     private ButtonList buttonListObject;
     private JSONResponse jsonResponse;
+    private String userID;
 
 
     //How many (max) departures will be displayed in the response (
@@ -30,16 +31,29 @@ public class Response {
         this.platforms = platforms;
         this.departures = departures;
         this.responseType = responseType;
+        doWork();
+    }
+
+    public Response(List<Station> stations, List<Platform> platforms, Optional<List<Departure>> departures,
+                    String responseType, String userID)
+    {
+        this.stations = stations;
+        this.platforms = platforms;
+        this.departures = departures;
+        this.responseType = responseType;
+        this.userID = userID;
+        doWork();
+    }
+
+    private void doWork() {
         prepareMsg();
         prepareConsoleInfo();
         prepareJSON();
     }
 
     public void prepareJSON() {
-        this.jsonResponse = new JSONResponse(this.buttonList, this.messages);
-        this.responseJSONList = this.jsonResponse.getResponses();
+        this.jsonResponse = new JSONResponse(this.buttonListObject, this.messages, this.userID);
         this.responseJSONString = this.jsonResponse.convertResponsesToSingleString();
-
     }
 
     public void prepareMsg() {
@@ -47,9 +61,8 @@ public class Response {
             this.messages.add("Wrong station.");
             return;
         } else if (this.stations.size() > 1) {
-            this.messages.add("Multiple matching stations. Select the proper one.");
-            this.buttonListObject = new ButtonList(this.stations);
-            this.buttonList = getButtonList();
+            this.buttonListObject = new ButtonList(this.stations,"Multiple matching stations. " +
+                                                                                "Select the proper one.");
             return;
         }
 
@@ -57,9 +70,7 @@ public class Response {
 
 
         if (this.platforms.size() != 1) {
-            this.messages.add("Choose platform:");
-            this.buttonListObject = new ButtonList(this.stations.get(0));
-            this.buttonList = getButtonList();
+            this.buttonListObject = new ButtonList(this.stations.get(0),"Choose platform:");
             return;
         }
 

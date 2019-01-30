@@ -38,7 +38,7 @@ public class Controller {
     @PostMapping("/getJSON")
     public String getJSON(@RequestBody String query){
         query = Utilities.parsePostRequest(query);
-        this.queryProcessor.processQuery(query);
+        this.queryProcessor.processPostQuery(query);
         return queryProcessor.getResponse().getResponseJSONString();
     }
 

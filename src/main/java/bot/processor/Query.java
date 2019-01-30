@@ -14,6 +14,7 @@ public class Query {
     private boolean toSipTw = true;
     private boolean toApiUm = false;
     private int lastNumber;
+    private String userID;
 
     public Query(String body){
         this.body = body;
@@ -27,5 +28,10 @@ public class Query {
         else {
             this.lastNumber = 999;
         }
+    }
+
+    public Query(String body, String userID) {
+        this(body);
+        this.userID = userID;
     }
 }
