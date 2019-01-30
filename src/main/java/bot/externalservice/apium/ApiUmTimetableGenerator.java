@@ -13,7 +13,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import static java.util.stream.Collectors.toList;
 
 @Data
@@ -28,6 +27,12 @@ public class ApiUmTimetableGenerator extends Properties {
         this.station = station;
     }
 
+    void generateTimetables(){
+        this.station.getPlatforms().parallelStream()
+                .forEach(p->getDeparturesForPlatform(p));
+    }
+
+
     public List<Departure> getDeparturesForPlatform(Platform platform) {
         String platformNumber = platform.getNumber();
         String identifier = this.date + "_" + this.station.getId() + "_" + platformNumber;
@@ -39,6 +44,7 @@ public class ApiUmTimetableGenerator extends Properties {
             return getDeparturesLists(platform, path);
         }
     }
+
 
     private List<Departure> calculateDeparturesList(DeparturesListWithTimes departuresListWithTimes) {
         List<Departure> departuresListCalculated = new ArrayList<>();
@@ -85,8 +91,8 @@ public class ApiUmTimetableGenerator extends Properties {
         DeparturesListWithTimes departuresListWithTimes = new DeparturesListWithTimes(times, mappedDepartures);
         Utilities.serializeObject(departuresListWithTimes, path);
         return calculateDeparturesList(departuresListWithTimes);
-
     }
+
 
 }
 

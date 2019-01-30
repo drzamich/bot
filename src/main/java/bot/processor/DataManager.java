@@ -58,6 +58,7 @@ public class DataManager extends Settings {
         convertStationListToMap();
     }
 
+
     private void fetchLists() {
         if (loadNewData || !Utilities.objectExists(PATH_LIST_ZTM)) {
             this.ztmStationList = ztmDataScraper.getZtmStationList();
