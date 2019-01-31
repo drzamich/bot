@@ -34,11 +34,11 @@ public class TimetableProcessor extends Settings {
     }
 
 
-    protected Response processQuery(Query query) {
+    public Response processQuery(List<String> msg, int platformNumber) {
         this.stationMap = dataManager.getFinalMap();
 
-        this.msg = query.getBodyExploded();
-        this.platformNumber = query.getLastNumber();
+        this.msg = msg;
+        this.platformNumber = platformNumber;
 
         this.stations = findStations();
 
@@ -50,11 +50,7 @@ public class TimetableProcessor extends Settings {
             this.departures = getDepartureInfo();
         }
 
-        if(query.getUserID() == null) {
-            return new Response(stations, platforms, departures, responseType);
-        } else {
-            return new Response(stations, platforms, departures, responseType, query.getUserID());
-        }
+        return new Response(stations, platforms, departures, responseType);
     }
 
     private List<Station> findStations() {

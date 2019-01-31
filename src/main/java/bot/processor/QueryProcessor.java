@@ -2,48 +2,50 @@ package bot.processor;
 
 import bot.schema.Response;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.policy.TimeoutRetryPolicy;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 
-
-@Service
 @Data
+@Service
 public class QueryProcessor {
-
-    private Query query;
+    private String body;
+    private List<String> bodyExploded;
+    private String[] properties;
+    private boolean settingsQuery = false;
+    private boolean toSipTw = true;
+    private boolean toApiUm = false;
+    private int lastNumber;
     private Response response;
 
     @Autowired
     TimetableProcessor timetableProcessor;
 
     public QueryProcessor() {
+
     }
 
-    public void processQuery(String msg){
-        msg = Utilities.parseInput(msg);
-        this.query = new Query(msg);
+    public void parseQuery(String messageText) {
+        this.body = Utilities.parseInput(messageText);
+        this.bodyExploded = Arrays.asList(body.split(" "));
 
-        if(this.query.isSettingsQuery()){
+        String lastEl = this.bodyExploded.get(this.bodyExploded.size()-1);
 
+        if(Utilities.isNumeric(lastEl)) {
+            this.lastNumber = Integer.valueOf(lastEl);
         }
-        else{
-            this.response = timetableProcessor.processQuery(this.query);
+        else {
+            this.lastNumber = 999;
         }
     }
 
-    public void processPostQuery(String msg){
-        String userId = msg.substring(msg.lastIndexOf(" ")+1);
-        msg = msg.substring(0, msg.lastIndexOf(" "));
-        msg = Utilities.parseInput(msg);
-        this.query = new Query(msg, userId);
-
-        if(this.query.isSettingsQuery()){
-
-        }
-        else{
-            this.response = timetableProcessor.processQuery(this.query);
-        }
+    public Response getFullResponse() {
+        this.response = timetableProcessor.processQuery(this.bodyExploded,this.lastNumber);
+        return this.response;
     }
 }

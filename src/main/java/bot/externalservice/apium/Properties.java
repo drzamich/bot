@@ -11,8 +11,12 @@ import java.util.Map;
 public class Properties {
     protected Map<String, Station> stationsMap = new HashMap<>();
     protected final String TIME_PATTERN = "HH:mm:ss";
-    protected final String PATH_TO_DATA = "src/main/java/bot/externalservice/apium/data/";
-    protected final String PATH_TO_OBJECTS = PATH_TO_DATA + "serialized/";
+
+    protected final String USER_HOME = System.getProperty("user.home");
+    protected final String MAIN_PATH = USER_HOME+ "/Java/bot/data";
+    protected final String PATH_SERIALIZATION = MAIN_PATH + "/serialized";
+    protected final String PATH_TO_OBJECTS = PATH_SERIALIZATION + "/apium/";
+
     public String time;
     public String date;
     public String pathToStationMap;

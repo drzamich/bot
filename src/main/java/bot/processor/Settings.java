@@ -6,8 +6,10 @@ import java.util.Map;
 
 public class Settings {
     protected String date = Utilities.getTime("yyyyMMdd");
-    protected final String MAIN_PATH = "src/main/java/bot/data/";
-    protected final String PATH_SERIALIZATION = "src/main/java/bot/data/serialized/";
+    protected final String USER_HOME = System.getProperty("user.home");
+    protected final String MAIN_PATH = USER_HOME+ "/Java/bot/data";
+    protected final String PATH_SERIALIZATION = MAIN_PATH + "/serialized/";
+
     protected final String PATH_LIST_ZTM = PATH_SERIALIZATION + "00_ztm_list";
     protected final String PATH_MAP_SIPTW = PATH_SERIALIZATION + "00_siptw_map";
     protected final String PATH_SAVE_PLATFORMS_RAW = MAIN_PATH + "00_platforms_raw.xlsx";
@@ -17,6 +19,4 @@ public class Settings {
     protected final String PATH_INTEGRATED_LIST = PATH_SERIALIZATION + "00_integrated_list";
     protected final String PATH_FINAL_LIST = PATH_SERIALIZATION + "00_final_list";
     protected final String PATH_FINAL_MAP = PATH_SERIALIZATION + "00_final_map";
-
-    protected Map<String, Station> stationMap;
 }

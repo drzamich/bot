@@ -1,10 +1,14 @@
 package bot.schema;
 
+import com.github.messenger4j.send.message.quickreply.QuickReply;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 @Data
 public class Response {
@@ -14,13 +18,9 @@ public class Response {
     private List<String> messages = new ArrayList<>();
     private String consoleInfo;
     private String responseType;
-    private List<Button> buttonList;
-    private List<String> responseJSONList;
-    private String responseJSONString;
-    private ButtonList buttonListObject;
-    private JSONResponse jsonResponse;
-    private String userID;
+    private Optional<QuickReplies> quickRepliesObject = empty();
 
+    private List<QuickReply> quickReplies;
 
     //How many (max) departures will be displayed in the response (
     private int maxDepartures = 7;
@@ -31,29 +31,8 @@ public class Response {
         this.platforms = platforms;
         this.departures = departures;
         this.responseType = responseType;
-        doWork();
-    }
-
-    public Response(List<Station> stations, List<Platform> platforms, Optional<List<Departure>> departures,
-                    String responseType, String userID)
-    {
-        this.stations = stations;
-        this.platforms = platforms;
-        this.departures = departures;
-        this.responseType = responseType;
-        this.userID = userID;
-        doWork();
-    }
-
-    private void doWork() {
         prepareMsg();
         prepareConsoleInfo();
-        prepareJSON();
-    }
-
-    public void prepareJSON() {
-        this.jsonResponse = new JSONResponse(this.buttonListObject, this.messages, this.userID);
-        this.responseJSONString = this.jsonResponse.convertResponsesToSingleString();
     }
 
     public void prepareMsg() {
@@ -61,28 +40,32 @@ public class Response {
             this.messages.add("Wrong station.");
             return;
         } else if (this.stations.size() > 1) {
-            this.buttonListObject = new ButtonList(this.stations,"Multiple matching stations. " +
-                                                                                "Select the proper one.");
+            this.quickRepliesObject = of(new QuickReplies(this.stations,"Multiple matching stations. " +
+                                                                                "Select the proper one."));
             return;
         }
 
-        messages.add("Departures for: " + stations.get(0).getMainName());
+        String stationName = stations.get(0).getMainName();
+
+        messages.add("Departures for: " + stationName);
 
 
         if (this.platforms.size() != 1) {
-            this.buttonListObject = new ButtonList(this.stations.get(0),"Choose platform:");
+            this.quickRepliesObject = of(new QuickReplies(this.stations.get(0),"Choose platform:"));
             return;
         }
 
         Platform pl = this.platforms.get(0);
         messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getMainDirection()
                 + System.getProperty("line.separator") + responseType);
-        this.createDepartureMsg(departures);
 
+        String depInfo = createDepartureMsg(departures);
+
+        this.quickRepliesObject = of(new QuickReplies(depInfo,stationName,pl.getNumber()));
     }
 
 
-    private void createDepartureMsg(Optional<List<Departure>> deps) {
+    private String createDepartureMsg(Optional<List<Departure>> deps) {
         if (deps.isPresent()) {
 
             if (deps.get().size() < this.maxDepartures) {
@@ -97,9 +80,9 @@ public class Response {
                     sb.append(System.getProperty("line.separator"));
                 }
             }
-            messages.add(sb.toString());
+            return sb.toString();
         } else {
-            messages.add("No departures from this platform in the nearest future.");
+            return "No departures from this platform in the nearest future.";
         }
     }
 
@@ -115,8 +98,8 @@ public class Response {
 
         this.consoleInfo = sb.toString();
 
-        if (this.buttonListObject != null) {
-            this.consoleInfo += System.getProperty("line.separator") + buttonListObject.toString();
+        if (this.quickRepliesObject != null) {
+            this.consoleInfo += System.getProperty("line.separator") + quickRepliesObject.toString();
         }
     }
 

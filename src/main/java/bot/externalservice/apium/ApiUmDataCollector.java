@@ -52,7 +52,7 @@ public class ApiUmDataCollector extends Properties {
     }
 
     private void readFetchedStationsFile() {
-        String pathString = PATH_TO_DATA + "fetchedStations";
+        String pathString = MAIN_PATH + "fetchedStations";
         Path path = Paths.get(pathString);
         try {
             List<String> l = Files.readAllLines(path);
