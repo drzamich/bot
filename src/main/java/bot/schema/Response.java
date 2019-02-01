@@ -36,7 +36,7 @@ public class Response {
 
     public void prepareMsg() {
         if (this.stations.size() < 1) {
-            this.messages.add("Wrong station.");
+            this.messages.add("Wrong station name.");
             return;
         } else if (this.stations.size() > 1) {
             this.quickRepliesObject = new QuickReplies(this.stations, "Multiple matching stations. " +
@@ -95,7 +95,9 @@ public class Response {
             }
         }
 
-        sb.append(System.getProperty("line.separator") + quickRepliesObject.toString());
+        if(this.quickRepliesObject != null) {
+            sb.append(System.getProperty("line.separator") + quickRepliesObject.toString());
+        }
 
         return sb.toString();
     }
