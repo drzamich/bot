@@ -62,3 +62,4 @@ testing/*
 data/serialized/apium/*
 
 src/main/java/bot/Settings.java
+Readme.md

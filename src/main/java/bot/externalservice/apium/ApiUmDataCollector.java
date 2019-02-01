@@ -1,14 +1,12 @@
 package bot.externalservice.apium;
 
+import bot.Settings;
 import bot.processor.DataManager;
+import bot.processor.Utilities;
 import bot.schema.Station;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -16,8 +14,8 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 @Service
-public class ApiUmDataCollector extends Properties {
-    private List<String> fetchedStations = new ArrayList<>();
+public class ApiUmDataCollector {
+    private List<String> fetchedStations;
     private List<Station> stationList;
 
     public ApiUmDataCollector() {
@@ -31,14 +29,14 @@ public class ApiUmDataCollector extends Properties {
     }
 
     private void clearOldData() {
-        File folder = new File(PATH_TO_OBJECTS);
+        File folder = new File(Settings.PATH_SAVED_TIMETABLES);
         File[] files = folder.listFiles();
 
-        Arrays.stream(files).filter(f-> !f.getName().contains(date)).forEach(File::delete);
+        Arrays.stream(files).filter(f-> !f.getName().contains(Settings.DATE)).forEach(File::delete);
     }
 
     private void prepareData() {
-        readFetchedStationsFile();
+        this.fetchedStations = Utilities.readFile(Settings.MAIN_DATA_PATH + "fetchedStations");
         DataManager dataManager = new DataManager();
         dataManager.prepareData();
         stationList = dataManager.getIntegratedList();
@@ -48,19 +46,6 @@ public class ApiUmDataCollector extends Properties {
                             .stream()
                             .filter(s -> fetchedStations.contains(s.getMainName()))
                             .collect(Collectors.toList());
-        }
-    }
-
-    private void readFetchedStationsFile() {
-        String pathString = MAIN_PATH + "fetchedStations";
-        Path path = Paths.get(pathString);
-        try {
-            List<String> l = Files.readAllLines(path);
-            fetchedStations = l.stream()
-                                .filter(s-> !s.contains("//"))
-                                .collect(Collectors.toList());
-        } catch (Exception e) {
-
         }
     }
 

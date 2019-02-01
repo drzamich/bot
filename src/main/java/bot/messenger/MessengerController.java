@@ -84,7 +84,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Max Grabenhorst
  */
 @RestController
-@RequestMapping("/")
+@RequestMapping("/messenger")
 public class MessengerController {
 
     private static final String RESOURCE_URL = "https://raw.githubusercontent.com/fbsamples/messenger-platform-samples/master/node/public";

@@ -1,5 +1,6 @@
 package bot.processor;
 
+import bot.Settings;
 import bot.externalservice.apium.ZtmDataScraper;
 import bot.externalservice.siptw.schema.PlatformSipTw;
 import bot.schema.Platform;
@@ -40,10 +41,10 @@ public class DataManager extends Settings {
     }
 
     Map<String, Station> getFinalMap() {
-        if (!Utilities.objectExists(PATH_FINAL_MAP)) {
+        if (!Utilities.objectExists(Settings.PATH_FINAL_MAP)) {
             prepareData();
         }
-        return Utilities.deserializeObject(PATH_FINAL_MAP);
+        return Utilities.deserializeObject(Settings.PATH_FINAL_MAP);
     }
 
     public void prepareData() {
@@ -60,18 +61,18 @@ public class DataManager extends Settings {
 
 
     private void fetchLists() {
-        if (loadNewData || !Utilities.objectExists(PATH_LIST_ZTM)) {
+        if (loadNewData || !Utilities.objectExists(Settings.PATH_LIST_ZTM)) {
             this.ztmStationList = ztmDataScraper.getZtmStationList();
-            Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
+            Utilities.serializeObject(ztmStationList, Settings.PATH_LIST_ZTM);
         } else {
-            this.ztmStationList = Utilities.deserializeObject(PATH_LIST_ZTM);
+            this.ztmStationList = Utilities.deserializeObject(Settings.PATH_LIST_ZTM);
         }
 
-        if (loadNewData || !Utilities.objectExists(PATH_MAP_SIPTW)) {
+        if (loadNewData || !Utilities.objectExists(Settings.PATH_MAP_SIPTW)) {
             sipTwPlatformMap = sipTwDataCollector.fetchPlatformMap();
-            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
+            Utilities.serializeObject(sipTwPlatformMap, Settings.PATH_MAP_SIPTW);
         } else {
-            this.sipTwPlatformMap = Utilities.deserializeObject(PATH_MAP_SIPTW);
+            this.sipTwPlatformMap = Utilities.deserializeObject(Settings.PATH_MAP_SIPTW);
         }
 
         if (overwriteWhenPresent) {
@@ -83,16 +84,20 @@ public class DataManager extends Settings {
     private void integrateLists() {
         for (Station station : ztmStationList) {
             String stationName = station.getMainName();
-            for (Platform platform : station.getPlatforms()) {
-                String number = platform.getNumber();
-                String validator = stationName + " " + number;
-                if (sipTwPlatformMap.containsKey(validator)) {
-                    int SipTwId = Integer.valueOf(sipTwPlatformMap.get(validator).getInnerId());
-                    platform.setAtSipTw(true);
-                    platform.setSipTwID(SipTwId);
+            try {
+                for (Platform platform : station.getPlatforms()) {
+                    String number = platform.getNumber();
+                    String validator = stationName + " " + number;
+                    if (sipTwPlatformMap.containsKey(validator)) {
+                        int SipTwId = Integer.valueOf(sipTwPlatformMap.get(validator).getInnerId());
+                        platform.setAtSipTw(true);
+                        platform.setSipTwID(SipTwId);
+                    }
                 }
+                integratedList.add(station);
+            }catch (Exception e) {
+                System.out.println("No platforms for station:" +stationName);
             }
-            integratedList.add(station);
         }
     }
 

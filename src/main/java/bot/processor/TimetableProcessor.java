@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class TimetableProcessor extends Settings {
+public class TimetableProcessor {
     private List<Station> stations = new ArrayList<>();
     private List<Platform> platforms = new ArrayList<>();
     private Optional<List<Departure>> departures;
