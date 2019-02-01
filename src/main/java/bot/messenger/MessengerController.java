@@ -1,4 +1,4 @@
-package bot;
+package bot.messenger;
 
 import static com.github.messenger4j.Messenger.CHALLENGE_REQUEST_PARAM_NAME;
 import static com.github.messenger4j.Messenger.MODE_REQUEST_PARAM_NAME;
@@ -85,16 +85,16 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/")
-public class MessengerPlatformCallbackHandler {
+public class MessengerController {
 
     private static final String RESOURCE_URL = "https://raw.githubusercontent.com/fbsamples/messenger-platform-samples/master/node/public";
 
-    private static final Logger logger = LoggerFactory.getLogger(MessengerPlatformCallbackHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessengerController.class);
 
     private final Messenger messenger;
 
     @Autowired
-    public MessengerPlatformCallbackHandler(final Messenger messenger) {
+    public MessengerController(final Messenger messenger) {
         this.messenger = messenger;
     }
 
