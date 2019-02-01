@@ -25,11 +25,8 @@ public class NameProcessor {
 
         str = Utilities.parseInput(str);
 
-
-
         List<String> res = new ArrayList<>();
         res.add(str);
-
 
         int len = shortcutsLong.size();
         for (int i = 0; i < len; i++) {
@@ -39,21 +36,16 @@ public class NameProcessor {
             if (!res.contains(str2)) {
                 res.add(str2);
             }
-//            if (!res.contains(str3)) {
-//                res.add(str3);
-//            }
         }
 
         len = repetitiveNames.size();
         for (int i = 0; i < len; i++) {
             String key = repetitiveNames.get(i);
             String str2 = str.replaceAll(key+" ", "");
-            //String str3 = str.replaceAll(key,"");
             if (!res.contains(str2)) {
                 res.add(str2);
             }
         }
-
 
 
         for (ListIterator<String> iterator = res.listIterator(); iterator.hasNext(); ) {
@@ -68,8 +60,6 @@ public class NameProcessor {
                 }
             }
         }
-
         return res;
-
     }
 }
