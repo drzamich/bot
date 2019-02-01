@@ -8,7 +8,6 @@ import bot.schema.Response;
 import bot.schema.Station;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -99,14 +98,14 @@ public class TimetableProcessor extends Settings {
         Optional<List<Departure>> res = Optional.empty();
         if (this.platforms.size()==1) {
             if (this.platforms.get(0).isAtSipTw()) {
+                this.responseType = "<LIVE>";
                 res = getInfoFromSipTw();
             }
-            if (!res.isPresent()) {
+            if (res.get().isEmpty()) {
                 this.responseType = "<TIMETABLE>";
                 return getInfoFromApiUm();
             }
         }
-        this.responseType = "<LIVE>";
         return res;
     }
 
@@ -116,24 +115,11 @@ public class TimetableProcessor extends Settings {
     }
 
     private Optional<List<Departure>> getInfoFromSipTw() {
-//        sipService = new SipService(new RestTemplateBuilder());
         try {
             return Optional.ofNullable(sipService.getTimetableForPlatform(platforms.get(0).getSipTwID()).getDepartures());
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Not possible ");
             return Optional.empty();
         }
     }
 
-    public static void printMap(Map mp) {
-        Iterator it = mp.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            System.out.println(pair.getKey() + " = " + pair.getValue());
-            it.remove(); // avoids a ConcurrentModificationException
-        }
-    }
-
-    //departureService = new ApiUmTimetableGenerator(this.stations);
 }

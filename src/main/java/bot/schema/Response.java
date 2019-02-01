@@ -18,7 +18,7 @@ public class Response {
     private List<String> messages = new ArrayList<>();
     private String consoleInfo;
     private String responseType;
-    private Optional<QuickReplies> quickRepliesObject = empty();
+    private QuickReplies quickRepliesObject;
 
     private List<QuickReply> quickReplies;
 
@@ -32,7 +32,6 @@ public class Response {
         this.departures = departures;
         this.responseType = responseType;
         prepareMsg();
-        prepareConsoleInfo();
     }
 
     public void prepareMsg() {
@@ -40,8 +39,8 @@ public class Response {
             this.messages.add("Wrong station.");
             return;
         } else if (this.stations.size() > 1) {
-            this.quickRepliesObject = of(new QuickReplies(this.stations,"Multiple matching stations. " +
-                                                                                "Select the proper one."));
+            this.quickRepliesObject = new QuickReplies(this.stations, "Multiple matching stations. " +
+                    "Select the proper one.");
             return;
         }
 
@@ -51,7 +50,7 @@ public class Response {
 
 
         if (this.platforms.size() != 1) {
-            this.quickRepliesObject = of(new QuickReplies(this.stations.get(0),"Choose platform:"));
+            this.quickRepliesObject = new QuickReplies(this.stations.get(0), "Choose platform:");
             return;
         }
 
@@ -61,7 +60,7 @@ public class Response {
 
         String depInfo = createDepartureMsg(departures);
 
-        this.quickRepliesObject = of(new QuickReplies(depInfo,stationName,pl.getNumber()));
+        this.quickRepliesObject = new QuickReplies(depInfo, stationName, pl.getNumber());
     }
 
 
@@ -87,7 +86,7 @@ public class Response {
     }
 
 
-    private void prepareConsoleInfo() {
+    public String consoleInfo() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.messages.size(); i++) {
             sb.append(this.messages.get(i));
@@ -96,11 +95,9 @@ public class Response {
             }
         }
 
-        this.consoleInfo = sb.toString();
+        sb.append(System.getProperty("line.separator") + quickRepliesObject.toString());
 
-        if (this.quickRepliesObject != null) {
-            this.consoleInfo += System.getProperty("line.separator") + quickRepliesObject.toString();
-        }
+        return sb.toString();
     }
 
 }

@@ -2,6 +2,8 @@ package bot;
 
 //import bot.processor.Query;
 //import bot.processor.QueryProcessor;
+import bot.processor.QueryProcessor;
+import bot.schema.Response;
 import com.github.messenger4j.Messenger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -25,8 +27,10 @@ public class Application {
         int devMode = 0;
 
         if (devMode == 1) {
-            String msg = "muranowska centrum";
-            System.out.println(System.getProperty("user.home"));
+//            String msg = "muranowska centrum";
+//            System.out.println(System.getProperty("user.home"));
+//            queryProcessor.parseQuery(messageText);
+//            Response response = queryProcessor.getFullResponse();
 //            Query q = new Query(msg);
 ////            queryProcessor.processQuery(msg);
 //            System.out.println(q.getFullResponse().getConsoleInfo());

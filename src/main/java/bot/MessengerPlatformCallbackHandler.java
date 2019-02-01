@@ -231,7 +231,7 @@ public class MessengerPlatformCallbackHandler {
                     break;
 
                 default:
-                    respondToRequest(senderId,messageText);
+                    respondToRequest(senderId, messageText);
 //                    sendTextMessage(senderId, messageText);
 //                    sendGeneratedPayload(senderId,messageText);  //added
             }
@@ -246,20 +246,19 @@ public class MessengerPlatformCallbackHandler {
         Response response = queryProcessor.getFullResponse();
         List<String> messages = response.getMessages();
 
-        messages.forEach(s-> sendTextMessage(senderId,s));
+        messages.forEach(s -> sendTextMessage(senderId, s));
 
-        if(response.getQuickRepliesObject().isPresent()) {
-            String quickRepliesHint = response.getQuickRepliesObject().get().getHintMessage();
-            List<QuickReply> quickReplies = response.getQuickRepliesObject().get().getQuickReplyList();
-            TextMessage message = TextMessage.create(quickRepliesHint, of(quickReplies), empty());
+        String quickRepliesHint = response.getQuickRepliesObject().getHintMessage();
+        List<QuickReply> quickReplies = response.getQuickRepliesObject().getQuickReplyList();
 
-            try {
-                messenger.send(MessagePayload.create(senderId, MessagingType.RESPONSE, message));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+        TextMessage message = TextMessage.create(quickRepliesHint, of(quickReplies), empty());
+
+        try {
+            messenger.send(MessagePayload.create(senderId, MessagingType.RESPONSE, message));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     private void handleQuickReplyMessageEvent(QuickReplyMessageEvent event) {
@@ -271,7 +270,7 @@ public class MessengerPlatformCallbackHandler {
         final String messageId = event.messageId();
         logger.debug("messageId: {}", messageId);
         logger.info("Received quick reply for message '{}' with payload '{}'", messageId, payload);
-        respondToRequest(senderId,payload);
+        respondToRequest(senderId, payload);
     }
 
     private void sendUserDetails(String recipientId) throws MessengerApiException, MessengerIOException {
@@ -442,7 +441,6 @@ public class MessengerPlatformCallbackHandler {
             }
         }
     }
-
 
 
     private void handlePostbackEvent(PostbackEvent event) {
