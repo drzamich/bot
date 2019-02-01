@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ScheduledTasks {
 
-
-
     @Scheduled(cron="0 3 3 * * *")  //this will run at 3:03 AM every day
     public void performEverydayTasks(){
         System.out.println("Starting data collection");

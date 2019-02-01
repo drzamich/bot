@@ -1,5 +1,6 @@
 package bot.processor;
 
+import bot.Settings;
 import bot.schema.Platform;
 import bot.schema.Station;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.*;
 
-public class ExcelProcessor extends Settings {
+public class ExcelProcessor {
     private List<Station> stationList;
 
     private List<String> headersPlatforms = Arrays.asList("StationName", "PlatformNO", "MainDirection", "Directions");
@@ -26,32 +27,31 @@ public class ExcelProcessor extends Settings {
         doWork();
     }
 
-    private void doWork(){
+    private void doWork() {
 //        exportPlatformListToExcel();
 //        exportStationsListToExcel();
         this.customAcceptedNames = loadCustomAcceptedNames();
         this.platformDirections = loadDirections();
         integrateStationList();
-        System.out.println("a");
     }
 
-    protected List<Station> getIntegratedList(){
+    protected List<Station> getIntegratedList() {
         return this.stationList;
     }
 
-    private void integrateStationList(){
-        for(int i =0; i<this.stationList.size(); i++){
+    private void integrateStationList() {
+        for (int i = 0; i < this.stationList.size(); i++) {
             Station s = this.stationList.get(i);
-            if(this.customAcceptedNames.containsKey(s.getMainName())){
+            if (this.customAcceptedNames.containsKey(s.getMainName())) {
                 List<String> accNames = s.getAcceptedNames();
                 accNames.addAll(this.customAcceptedNames.get(s.getMainName()));
                 s.setAcceptedNames(accNames);
             }
 
-            for(int j=0; j<s.getPlatforms().size(); j++){
+            for (int j = 0; j < s.getPlatforms().size(); j++) {
                 Platform p = s.getPlatforms().get(j);
-                String identifier = s.getMainName()+ " "+p.getNumber();
-                if(this.platformDirections.containsKey(identifier)){
+                String identifier = s.getMainName() + " " + p.getNumber();
+                if (this.platformDirections.containsKey(identifier)) {
                     TransferPlatform tp = this.platformDirections.get(identifier);
                     p.setMainDirection(tp.getMainDir());
                     List<String> dirs = p.getDirections();
@@ -89,7 +89,7 @@ public class ExcelProcessor extends Settings {
 
             }
         }
-        saveWorkbook(workbook, PATH_SAVE_PLATFORMS_RAW);
+        saveWorkbook(workbook, Settings.PATH_EXCEL_PLATFORMS_RAW);
     }
 
     protected void exportStationsListToExcel() {
@@ -112,12 +112,12 @@ public class ExcelProcessor extends Settings {
             cell3.setCellValue(names);
         }
 
-        saveWorkbook(workbook, PATH_SAVE_STATIONS_RAw);
+        saveWorkbook(workbook, Settings.PATH_EXCEL_STATIONS_RAw);
     }
 
     protected Map<String, List<String>> loadCustomAcceptedNames() {
         Map<String, List<String>> res = new HashMap<>();
-        Iterator<Row> rowIterator = getRowsOfExcelFile(PATH_ACCEPTED_NAMES_CUSTOM);
+        Iterator<Row> rowIterator = getRowsOfExcelFile(Settings.PATH_ACCEPTED_NAMES_CUSTOM);
 
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
@@ -125,7 +125,7 @@ public class ExcelProcessor extends Settings {
             String stationName = row.getCell(0).getStringCellValue();
             Optional<Cell> cell = Optional.ofNullable(row.getCell(2));
 
-            if(cell.isPresent()) {
+            if (cell.isPresent()) {
                 String accNames = cell.get().getStringCellValue();
                 List<String> accNamesList = Arrays.asList(accNames.split(", "));
                 res.put(stationName, accNamesList);
@@ -137,7 +137,7 @@ public class ExcelProcessor extends Settings {
 
     private Map<String, TransferPlatform> loadDirections() {
         Map<String, TransferPlatform> res = new HashMap<>();
-        Iterator<Row> rowIterator = getRowsOfExcelFile(PATH_DIRECTIONS_CUSTOM);
+        Iterator<Row> rowIterator = getRowsOfExcelFile(Settings.PATH_DIRECTIONS_CUSTOM);
 
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
@@ -148,28 +148,27 @@ public class ExcelProcessor extends Settings {
 
             String mainDirOld;
             String mainDirNew = "";
-            List<String> otherDirNew =  new ArrayList<>();
+            List<String> otherDirNew = new ArrayList<>();
 
             Optional<Cell> mainDirOldCell = Optional.ofNullable(row.getCell(2));
             Optional<Cell> mainDirNewCell = Optional.ofNullable(row.getCell(3));
             Optional<Cell> otherDirNewCell = Optional.ofNullable(row.getCell(4));
 
 
-            if(mainDirNewCell.isPresent()) {
+            if (mainDirNewCell.isPresent()) {
                 mainDirNew = mainDirNewCell.get().getStringCellValue();
 
-                if(mainDirOldCell.isPresent()){
+                if (mainDirOldCell.isPresent()) {
                     mainDirOld = mainDirOldCell.get().getStringCellValue();
-//                    otherDirNew.add(mainDirOld);
                     otherDirNew.add(mainDirNew);
                 }
             }
 
-            if(otherDirNewCell.isPresent()) {
+            if (otherDirNewCell.isPresent()) {
                 otherDirNew.addAll(Arrays.asList(otherDirNewCell.get().getStringCellValue().split((", "))));
             }
 
-            if(!otherDirNew.isEmpty()) {
+            if (!otherDirNew.isEmpty()) {
                 res.put(platformIdentifier, new TransferPlatform(mainDirNew, otherDirNew));
             }
 

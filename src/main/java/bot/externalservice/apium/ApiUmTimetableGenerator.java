@@ -1,5 +1,6 @@
 package bot.externalservice.apium;
 
+import bot.Settings;
 import bot.schema.Departure;
 import bot.externalservice.apium.schema.DeparturesListWithTimes;
 import bot.schema.Platform;
@@ -16,7 +17,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @Data
-public class ApiUmTimetableGenerator extends Properties {
+public class ApiUmTimetableGenerator {
     private Station station;
 
 
@@ -35,8 +36,8 @@ public class ApiUmTimetableGenerator extends Properties {
 
     public List<Departure> getDeparturesForPlatform(Platform platform) {
         String platformNumber = platform.getNumber();
-        String identifier = this.date + "_" + this.station.getId() + "_" + platformNumber;
-        String path = PATH_TO_OBJECTS + identifier;
+        String identifier = Settings.DATE + "_" + this.station.getId() + "_" + platformNumber;
+        String path = Settings.PATH_SAVED_TIMETABLES + identifier;
 
         if (Utilities.objectExists(path)) {
             return calculateDeparturesList(Utilities.deserializeObject(path));
@@ -51,9 +52,9 @@ public class ApiUmTimetableGenerator extends Properties {
         List<String> times = departuresListWithTimes.getTimes();
         MultiValueMap<String, Departure> mappedDepartures = departuresListWithTimes.getMappedDepartures();
 
-        String currTime = Utilities.getTime(TIME_PATTERN);
+        String currTime = Utilities.getTime(Settings.TIME_PATTERN);
         for (String time : times) {
-            int timeDiff = Math.round(Utilities.compareTimes(currTime, time, TIME_PATTERN) / 60000);
+            int timeDiff = Math.round(Utilities.compareTimes(currTime, time, Settings.TIME_PATTERN) / 60000);
             if (timeDiff >= 0) {
                 List<Departure> deps = (List<Departure>) mappedDepartures.get(time);
                 for (Departure dep : deps) {
