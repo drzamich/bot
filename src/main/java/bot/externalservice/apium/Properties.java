@@ -1,5 +1,6 @@
 package bot.externalservice.apium;
 
+import bot.Settings;
 import bot.processor.Utilities;
 import bot.schema.Station;
 
@@ -13,7 +14,7 @@ public class Properties {
     protected final String TIME_PATTERN = "HH:mm:ss";
 
     protected final String USER_HOME = System.getProperty("user.home");
-    protected final String MAIN_PATH = USER_HOME+ "/Java/bot/data";
+    protected final String MAIN_PATH = USER_HOME+ "/Java/bot-"+ Settings.STAGE +"/data";
     protected final String PATH_SERIALIZATION = MAIN_PATH + "/serialized";
     protected final String PATH_TO_OBJECTS = PATH_SERIALIZATION + "/apium/";
 
