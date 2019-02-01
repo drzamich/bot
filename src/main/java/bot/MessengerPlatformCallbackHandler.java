@@ -11,6 +11,7 @@ import static com.github.messenger4j.send.message.richmedia.RichMediaAsset.Type.
 import static java.util.Optional.*;
 
 import bot.processor.QueryProcessor;
+import bot.schema.QuickReplies;
 import bot.schema.Response;
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.common.WebviewHeightRatio;
@@ -248,15 +249,19 @@ public class MessengerPlatformCallbackHandler {
 
         messages.forEach(s -> sendTextMessage(senderId, s));
 
-        String quickRepliesHint = response.getQuickRepliesObject().getHintMessage();
-        List<QuickReply> quickReplies = response.getQuickRepliesObject().getQuickReplyList();
+        QuickReplies quickReplies = response.getQuickRepliesObject();
 
-        TextMessage message = TextMessage.create(quickRepliesHint, of(quickReplies), empty());
+        if(quickReplies != null) {
+            String quickRepliesHint = quickReplies.getHintMessage();
+            List<QuickReply> quickReplyList = quickReplies.getQuickReplyList();
 
-        try {
-            messenger.send(MessagePayload.create(senderId, MessagingType.RESPONSE, message));
-        } catch (Exception e) {
-            e.printStackTrace();
+            TextMessage message = TextMessage.create(quickRepliesHint, of(quickReplyList), empty());
+
+            try {
+                messenger.send(MessagePayload.create(senderId, MessagingType.RESPONSE, message));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }
