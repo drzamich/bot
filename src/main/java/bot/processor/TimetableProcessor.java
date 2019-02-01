@@ -101,7 +101,7 @@ public class TimetableProcessor extends Settings {
                 this.responseType = "<LIVE>";
                 res = getInfoFromSipTw();
             }
-            if (res.get().isEmpty()) {
+            if (!res.isPresent() || res.get().isEmpty()) {
                 this.responseType = "<TIMETABLE>";
                 return getInfoFromApiUm();
             }
