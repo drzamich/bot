@@ -7,7 +7,7 @@ import java.util.Map;
 public class Settings {
     protected String date = Utilities.getTime("yyyyMMdd");
     protected final String USER_HOME = System.getProperty("user.home");
-    protected final String MAIN_PATH = USER_HOME+ "/Java/bot/data";
+    protected final String MAIN_PATH = USER_HOME+ "/Java/"+ bot.Settings.BASE_FOLDER_NAME +"/data";
     protected final String PATH_SERIALIZATION = MAIN_PATH + "/serialized/";
 
     protected final String PATH_LIST_ZTM = PATH_SERIALIZATION + "00_ztm_list";

@@ -60,3 +60,5 @@ src/main/java/bot/data/serialized/00_final_list
 src/main/java/bot/data/serialized/00_final_map
 testing/*
 data/serialized/apium/*
+
+src/main/java/bot/Settings.java
