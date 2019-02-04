@@ -32,7 +32,7 @@ public class ApiUmDataCollector {
         File folder = new File(Settings.PATH_SAVED_TIMETABLES);
         File[] files = folder.listFiles();
 
-        Arrays.stream(files).filter(f-> !f.getName().contains(Settings.DATE)).forEach(File::delete);
+        Arrays.stream(files).filter(f-> !f.getName().contains(Utilities.getTime(Settings.DATE_PATTERN))).forEach(File::delete);
     }
 
     private void prepareData() {

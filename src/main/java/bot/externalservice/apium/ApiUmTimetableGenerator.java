@@ -36,7 +36,7 @@ public class ApiUmTimetableGenerator {
 
     public List<Departure> getDeparturesForPlatform(Platform platform) {
         String platformNumber = platform.getNumber();
-        String identifier = Settings.DATE + "_" + this.station.getId() + "_" + platformNumber;
+        String identifier = Utilities.getTime(Settings.DATE_PATTERN) + "_" + this.station.getId() + "_" + platformNumber;
         String path = Settings.PATH_SAVED_TIMETABLES + identifier;
 
         if (Utilities.objectExists(path)) {

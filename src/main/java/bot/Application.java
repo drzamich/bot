@@ -1,6 +1,7 @@
 package bot;
 
 
+import bot.messenger.User;
 import com.github.messenger4j.Messenger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;

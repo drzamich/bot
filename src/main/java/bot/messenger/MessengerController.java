@@ -93,6 +93,9 @@ public class MessengerController {
 
     private final Messenger messenger;
 
+    private int maxRequestsPerDay = 66;
+    private int numberOfWarnings = 2;
+
     @Autowired
     public MessengerController(final Messenger messenger) {
         this.messenger = messenger;
@@ -129,26 +132,37 @@ public class MessengerController {
         logger.info("Received Messenger Platform callback - payload: {} | signature: {}", payload, signature);
         try {
             this.messenger.onReceiveEvents(payload, ofNullable(signature), event -> {
-                if (event.isTextMessageEvent()) {
-                    handleTextMessageEvent(event.asTextMessageEvent());
-                } else if (event.isAttachmentMessageEvent()) {
-                    handleAttachmentMessageEvent(event.asAttachmentMessageEvent());
-                } else if (event.isQuickReplyMessageEvent()) {
-                    handleQuickReplyMessageEvent(event.asQuickReplyMessageEvent());
-                } else if (event.isPostbackEvent()) {
-                    handlePostbackEvent(event.asPostbackEvent());
-                } else if (event.isAccountLinkingEvent()) {
-                    handleAccountLinkingEvent(event.asAccountLinkingEvent());
-                } else if (event.isOptInEvent()) {
-                    handleOptInEvent(event.asOptInEvent());
-                } else if (event.isMessageEchoEvent()) {
-                    handleMessageEchoEvent(event.asMessageEchoEvent());
-                } else if (event.isMessageDeliveredEvent()) {
-                    handleMessageDeliveredEvent(event.asMessageDeliveredEvent());
-                } else if (event.isMessageReadEvent()) {
-                    handleMessageReadEvent(event.asMessageReadEvent());
-                } else {
-                    handleFallbackEvent(event);
+
+                // Flood check start
+                String userID = event.senderId();
+                User user = new User(userID);
+                int floodIndicator = user.checkFloodAttempt(maxRequestsPerDay,numberOfWarnings);
+                if(floodIndicator == 0) {
+                    // Flood check end
+                    if (event.isTextMessageEvent()) {
+                        handleTextMessageEvent(event.asTextMessageEvent());
+                    } else if (event.isAttachmentMessageEvent()) {
+                        handleAttachmentMessageEvent(event.asAttachmentMessageEvent());
+                    } else if (event.isQuickReplyMessageEvent()) {
+                        handleQuickReplyMessageEvent(event.asQuickReplyMessageEvent());
+                    } else if (event.isPostbackEvent()) {
+                        handlePostbackEvent(event.asPostbackEvent());
+                    } else if (event.isAccountLinkingEvent()) {
+                        handleAccountLinkingEvent(event.asAccountLinkingEvent());
+                    } else if (event.isOptInEvent()) {
+                        handleOptInEvent(event.asOptInEvent());
+                    } else if (event.isMessageEchoEvent()) {
+                        handleMessageEchoEvent(event.asMessageEchoEvent());
+                    } else if (event.isMessageDeliveredEvent()) {
+                        handleMessageDeliveredEvent(event.asMessageDeliveredEvent());
+                    } else if (event.isMessageReadEvent()) {
+                        handleMessageReadEvent(event.asMessageReadEvent());
+                    } else {
+                        handleFallbackEvent(event);
+                    }
+                }
+                else if (floodIndicator==1) {
+                    sendTextMessage(userID,"Maximum number of requests exceeded. Try again tommorow.");
                 }
             });
             logger.debug("Processed callback payload successfully");
