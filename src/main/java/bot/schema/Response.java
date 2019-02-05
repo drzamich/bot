@@ -38,9 +38,12 @@ public class Response {
         if (this.stations.size() < 1) {
             this.messages.add("Wrong station name.");
             return;
-        } else if (this.stations.size() > 1) {
+        } else if (this.stations.size() > 1 && this.stations.size() < 12) {
             this.quickRepliesObject = new QuickReplies(this.stations, "Multiple matching stations. " +
                     "Select the proper one.");
+            return;
+        } else if (this.stations.size() > 11) {
+            this.messages.add("Too many station matching the provided name. Please be more specific.");
             return;
         }
 
