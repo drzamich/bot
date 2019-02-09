@@ -1,7 +1,8 @@
 package bot.messenger;
 
 import bot.Settings;
-import bot.processor.Utilities;
+import bot.utils.FileHelper;
+import bot.utils.StringHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +15,7 @@ public class User {
 
     public User(String userID) {
         this.userID = userID;
-        this.date = Utilities.getTime(Settings.DATE_PATTERN);
+        this.date = StringHelper.getTime(Settings.DATE_PATTERN);
         this.pathToRequestMap = Settings.MESSENGER_USERS_REQUESTS_PATH + this.userID;
     }
 
@@ -50,12 +51,12 @@ public class User {
     }
 
     private void loadRequestMap() {
-        if (Utilities.objectExists(pathToRequestMap)) {
-            this.requestMap = Utilities.deserializeObject(pathToRequestMap);
+        if (FileHelper.fileExists(pathToRequestMap)) {
+            this.requestMap = FileHelper.deserializeObject(pathToRequestMap);
         }
     }
 
     private void saveRequestMap() {
-        Utilities.serializeObject(this.requestMap,this.pathToRequestMap);
+        FileHelper.serializeObject(this.requestMap,this.pathToRequestMap);
     }
 }

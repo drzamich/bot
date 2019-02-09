@@ -1,6 +1,6 @@
 package bot.processor;
 
-import bot.processor.Utilities;
+import bot.utils.StringHelper;
 import lombok.Data;
 
 import java.util.*;
@@ -23,7 +23,7 @@ public class NameProcessor {
         List<String> extrasSource = Arrays.asList(" ii", "jana pawla ii", "wschodni");
         List<String> extrasGoal = Arrays.asList(" 2", "jp2","wsch");
 
-        str = Utilities.parseInput(str);
+        str = StringHelper.sanitizeInput(str);
 
         List<String> res = new ArrayList<>();
         res.add(str);

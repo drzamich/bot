@@ -1,7 +1,9 @@
 package bot.externalservice.siptw;
 
+import bot.externalservice.siptw.response.SipServicePlatformResponse;
 import bot.externalservice.siptw.schema.PlatformSipTw;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +13,17 @@ import java.util.TreeMap;
 
 @Data
 @Service
+@Slf4j
 public class SipTwDataCollector {
     private List<PlatformSipTw> platformSipTwList;
     private Map<String, PlatformSipTw> platformMap;
 
-    @Autowired
+
     private SipService sipService;
 
-    public SipTwDataCollector() {
+    @Autowired
+    public SipTwDataCollector(SipService sipService) {
+        this.sipService = sipService;
     }
 
     public Map<String, PlatformSipTw> fetchPlatformMap() {
@@ -29,11 +34,10 @@ public class SipTwDataCollector {
 
     private void getPlatformsList() {
         try {
-            SipServiceResponse sipServiceResponse = sipService.getPlatforms();
-            this.platformSipTwList = sipServiceResponse.getPlatformSipTws();
+            SipServicePlatformResponse sipServiceDepartureResponse = sipService.getPlatforms();
+            this.platformSipTwList = sipServiceDepartureResponse.getPlatformSipTws();
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Not able to fetch platforms from SIP TW");
+            log.error("Not able to fetch platforms from SIP TW", e);
         }
     }
 
@@ -45,7 +49,6 @@ public class SipTwDataCollector {
             name = name.substring(0, name.length() - 4);
             String entity = name + platformNumber;
             platformMap.put(entity, platformSipTw);
-            System.out.println(platformSipTw);
         }
     }
 

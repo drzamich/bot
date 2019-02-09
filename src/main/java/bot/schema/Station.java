@@ -1,7 +1,6 @@
 package bot.schema;
 
 import lombok.Data;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
