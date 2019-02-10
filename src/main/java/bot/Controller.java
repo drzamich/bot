@@ -21,7 +21,7 @@ public class Controller {
         this.queryProcessor = queryProcessor;
     }
 
-    @RequestMapping(value= "msg/{msg}", method = RequestMethod.GET)
+    @GetMapping(value= "msg/{msg}")
     @ResponseStatus(value = HttpStatus.OK)
     public String giveInfo(@PathVariable("msg") String msg){
         Response response = queryProcessor.getFullResponse(msg);
