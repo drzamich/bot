@@ -21,8 +21,7 @@ public class Response {
 
     private List<QuickReply> quickReplies;
 
-    //How many (max) departures will be displayed in the response (
-    private int maxDepartures = 7;
+    private int maxDeparturesShown = 7;
 
     public Response(List<Station> stations, List<Platform> platforms, Optional<List<Departure>> departures,
                     String responseType) {
@@ -61,14 +60,14 @@ public class Response {
 
     private String createDepartureMsg(Optional<List<Departure>> deps) {
         if (deps.isPresent()) {
-            if (deps.get().size() < maxDepartures) {
-                maxDepartures = deps.get().size() - 1;
+            if (deps.get().size() < maxDeparturesShown) {
+                maxDeparturesShown = deps.get().size() - 1;
             }
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i <= maxDepartures; i++) {
+            for (int i = 0; i <= maxDeparturesShown; i++) {
                 Departure departure = deps.get().get(i);
                 sb.append(departure.getLine()).append(" | ").append(departure.getDirection()).append(" | ").append(departure.getTime());
-                if (i <= maxDepartures - 1) {
+                if (i <= maxDeparturesShown - 1) {
                     sb.append(LINE_SEPARATOR);
                 }
             }

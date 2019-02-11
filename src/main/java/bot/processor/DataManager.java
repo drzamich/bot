@@ -121,7 +121,7 @@ public class DataManager {
     }
 
     private void loadIntegratedList() {
-        if (integratedList.size() <= 1) {
+        if (integratedList.isEmpty()) {
             integratedList = FileHelper.deserializeObject(Settings.PATH_INTEGRATED_LIST);
         }
     }
