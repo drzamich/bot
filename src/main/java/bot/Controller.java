@@ -11,17 +11,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class Controller {
 
-    @Autowired
     private DataManager dataManager;
 
-    @Autowired
-    QueryProcessor queryProcessor;
+    private QueryProcessor queryProcessor;
 
-    @RequestMapping(value= "msg/{msg}", method = RequestMethod.GET)
+    @Autowired
+    public Controller(DataManager dataManager, QueryProcessor queryProcessor) {
+        this.dataManager = dataManager;
+        this.queryProcessor = queryProcessor;
+    }
+
+    @GetMapping(value= "msg/{msg}")
     @ResponseStatus(value = HttpStatus.OK)
     public String giveInfo(@PathVariable("msg") String msg){
-        queryProcessor.parseQuery(msg);
-        Response response = queryProcessor.getFullResponse();
+        Response response = queryProcessor.getFullResponse(msg);
         String info = response.consoleInfo();
         System.out.println(info);
         return info;

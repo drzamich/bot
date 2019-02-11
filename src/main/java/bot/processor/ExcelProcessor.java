@@ -84,7 +84,7 @@ public class ExcelProcessor {
                 cell2.setCellValue(platform.getMainDirection());
 
                 Cell cell3 = row.createCell(3);
-                String dirs = Utilities.listToString(platform.getDirections(), ", ");
+                String dirs = String.join(", ", platform.getDirections());
                 cell3.setCellValue(dirs);
 
             }
@@ -108,7 +108,7 @@ public class ExcelProcessor {
             cell0.setCellValue(station.getMainName());
 
             Cell cell3 = row.createCell(1);
-            String names = Utilities.listToString(station.getAcceptedNames(), ", ");
+            String names = String.join(", ", station.getAcceptedNames());
             cell3.setCellValue(names);
         }
 
@@ -187,7 +187,7 @@ public class ExcelProcessor {
             return sheet.iterator();
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Could not import the file");
+            System.out.println("Could not import the fileExists");
             return null;
         }
     }

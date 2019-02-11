@@ -1,9 +1,9 @@
 package bot.externalservice.apium;
 
 import bot.Settings;
-import bot.processor.Utilities;
 import bot.schema.Platform;
 import bot.schema.Station;
+import bot.utils.FileHelper;
 import lombok.Getter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,13 +24,10 @@ public class ZtmDataScraper {
     private List<String> excludedPlatforms;
     private List<String> excludedIDs;
 
-    public ZtmDataScraper() {
-    }
-
     public List<Station> getZtmStationList() {
         try {
-            this.excludedPlatforms = Utilities.readFile(Settings.MAIN_DATA_PATH + "excludedPlatforms");
-            this.excludedIDs = Utilities.readFile(Settings.MAIN_DATA_PATH + "excludedIDs");
+            this.excludedPlatforms = FileHelper.readFile(Settings.MAIN_DATA_PATH + "excludedPlatforms");
+            this.excludedIDs = FileHelper.readFile(Settings.MAIN_DATA_PATH + "excludedIDs");
             fillStationList();
             fillPlatformInformation();
         } catch (Exception e) {

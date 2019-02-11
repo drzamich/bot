@@ -6,8 +6,10 @@ import bot.externalservice.siptw.schema.PlatformSipTw;
 import bot.schema.Platform;
 import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
+import bot.utils.FileHelper;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,8 @@ import java.util.*;
 @Getter
 @Setter
 @Service
-public class DataManager extends Settings {
+@Slf4j
+public class DataManager {
 
     private Map<String, Station> stationMap;
     private boolean overwriteWhenPresent = true;
@@ -31,20 +34,21 @@ public class DataManager extends Settings {
     private boolean loadNewData = false;
     private boolean reloadExistingData = true;
 
-    @Autowired
     private SipTwDataCollector sipTwDataCollector;
 
-    @Autowired
     private ZtmDataScraper ztmDataScraper;
 
-    public DataManager() {
+    @Autowired
+    public DataManager(SipTwDataCollector sipTwDataCollector, ZtmDataScraper ztmDataScraper) {
+        this.sipTwDataCollector = sipTwDataCollector;
+        this.ztmDataScraper = ztmDataScraper;
     }
 
     Map<String, Station> getFinalMap() {
-        if (!Utilities.objectExists(Settings.PATH_FINAL_MAP)) {
+        if (!FileHelper.fileExists(Settings.PATH_FINAL_MAP)) {
             prepareData();
         }
-        return Utilities.deserializeObject(Settings.PATH_FINAL_MAP);
+        return FileHelper.deserializeObject(Settings.PATH_FINAL_MAP);
     }
 
     public void prepareData() {
@@ -59,25 +63,22 @@ public class DataManager extends Settings {
         convertStationListToMap();
     }
 
-
     private void fetchLists() {
-        if (loadNewData || !Utilities.objectExists(Settings.PATH_LIST_ZTM)) {
+        if (loadNewData || !FileHelper.fileExists(Settings.PATH_LIST_ZTM)) {
             this.ztmStationList = ztmDataScraper.getZtmStationList();
-            Utilities.serializeObject(ztmStationList, Settings.PATH_LIST_ZTM);
+            FileHelper.serializeObject(ztmStationList, Settings.PATH_LIST_ZTM);
         } else {
-            this.ztmStationList = Utilities.deserializeObject(Settings.PATH_LIST_ZTM);
+            this.ztmStationList = FileHelper.deserializeObject(Settings.PATH_LIST_ZTM);
         }
-
-        if (loadNewData || !Utilities.objectExists(Settings.PATH_MAP_SIPTW)) {
+        if (loadNewData || !FileHelper.fileExists(Settings.PATH_MAP_SIPTW)) {
             sipTwPlatformMap = sipTwDataCollector.fetchPlatformMap();
-            Utilities.serializeObject(sipTwPlatformMap, Settings.PATH_MAP_SIPTW);
+            FileHelper.serializeObject(sipTwPlatformMap, Settings.PATH_MAP_SIPTW);
         } else {
-            this.sipTwPlatformMap = Utilities.deserializeObject(Settings.PATH_MAP_SIPTW);
+            this.sipTwPlatformMap = FileHelper.deserializeObject(Settings.PATH_MAP_SIPTW);
         }
-
         if (overwriteWhenPresent) {
-            Utilities.serializeObject(ztmStationList, PATH_LIST_ZTM);
-            Utilities.serializeObject(sipTwPlatformMap, PATH_MAP_SIPTW);
+            FileHelper.serializeObject(ztmStationList, Settings.PATH_LIST_ZTM);
+            FileHelper.serializeObject(sipTwPlatformMap, Settings.PATH_MAP_SIPTW);
         }
     }
 
@@ -95,8 +96,8 @@ public class DataManager extends Settings {
                     }
                 }
                 integratedList.add(station);
-            }catch (Exception e) {
-                System.out.println("No platforms for station:" +stationName);
+            } catch (Exception e) {
+                System.out.println("No platforms for station:" + stationName);
             }
         }
     }
@@ -108,7 +109,7 @@ public class DataManager extends Settings {
             NameProcessor nameProcessor = new NameProcessor(name);
             List<String> acceptedNames = nameProcessor.getAcceptedNames();
             if (!Collections.disjoint(acceptedNamesBase, acceptedNames)) {
-                System.out.println("Repeated names for station: " + name);
+                log.debug("Repeated names for station: " + name);
             }
             station.setAcceptedNames(acceptedNames);
             acceptedNamesBase.addAll(acceptedNames);
@@ -116,19 +117,19 @@ public class DataManager extends Settings {
     }
 
     private void saveIntegratedList() {
-        Utilities.serializeObject(integratedList, PATH_INTEGRATED_LIST);
+        FileHelper.serializeObject(integratedList, Settings.PATH_INTEGRATED_LIST);
     }
 
     private void loadIntegratedList() {
-        if (integratedList.size() <= 1) {
-            integratedList = Utilities.deserializeObject(PATH_INTEGRATED_LIST);
+        if (integratedList.isEmpty()) {
+            integratedList = FileHelper.deserializeObject(Settings.PATH_INTEGRATED_LIST);
         }
     }
 
     private void processInExcel() {
         ExcelProcessor excelProcessor = new ExcelProcessor(integratedList);
         this.finalList = excelProcessor.getIntegratedList();
-        Utilities.serializeObject(this.finalList, PATH_FINAL_LIST);
+        FileHelper.serializeObject(this.finalList, Settings.PATH_FINAL_LIST);
     }
 
     private void convertStationListToMap() {
@@ -138,6 +139,6 @@ public class DataManager extends Settings {
                 res.put(accName, s);
             }
         }
-        Utilities.serializeObject(res, PATH_FINAL_MAP);
+        FileHelper.serializeObject(res, Settings.PATH_FINAL_MAP);
     }
 }

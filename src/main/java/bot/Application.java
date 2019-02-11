@@ -1,35 +1,29 @@
 package bot;
 
-
-import bot.messenger.User;
-import com.github.messenger4j.Messenger;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.util.Arrays;
 
 @SpringBootApplication
 @EnableScheduling
+@Slf4j
 public class Application {
 
-    @Bean
-    public Messenger messenger(@Value("${messenger4j.pageAccessToken}") String pageAccessToken,
-                               @Value("${messenger4j.appSecret}") final String appSecret,
-                               @Value("${messenger4j.verifyToken}") final String verifyToken) {
-        return Messenger.create(pageAccessToken, appSecret, verifyToken);
+    private Environment environment;
+
+    @Autowired
+    public Application(Environment environment) {
+        this.environment = environment;
+        log.info("Running Bot with profile: " + Arrays.toString(this.environment.getActiveProfiles()));
     }
 
     public static void main(String[] args) {
-
-        int devMode = 0;
-
-        if (devMode == 1) {
-
-        } else {
-            SpringApplication.run(Application.class, args);
-        }
+        SpringApplication.run(Application.class, args);
     }
 }
 

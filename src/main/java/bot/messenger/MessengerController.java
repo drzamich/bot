@@ -96,13 +96,13 @@ public class MessengerController {
     private int maxRequestsPerDay = 66;
     private int numberOfWarnings = 2;
 
-    @Autowired
-    public MessengerController(final Messenger messenger) {
-        this.messenger = messenger;
-    }
+    private QueryProcessor queryProcessor;
 
     @Autowired
-    QueryProcessor queryProcessor;
+    public MessengerController(final Messenger messenger, QueryProcessor queryProcessor) {
+        this.messenger = messenger;
+        this.queryProcessor = queryProcessor;
+    }
 
     /**
      * Webhook verification endpoint. <p> The passed verification token (as query parameter) must match the configured
@@ -257,8 +257,7 @@ public class MessengerController {
 
     private void respondToRequest(String senderId, String messageText) {
         System.out.println(messageText);
-        queryProcessor.parseQuery(messageText);
-        Response response = queryProcessor.getFullResponse();
+        Response response = queryProcessor.getFullResponse(messageText);
         List<String> messages = response.getMessages();
 
         messages.forEach(s -> sendTextMessage(senderId, s));

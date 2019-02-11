@@ -7,11 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-
 @Data
 public class Response {
+    public static final int MULTIPLE_STATIONS_THRESHOLD = 12;
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private List<Station> stations;
     private List<Platform> platforms;
     private Optional<List<Departure>> departures;
@@ -22,8 +21,7 @@ public class Response {
 
     private List<QuickReply> quickReplies;
 
-    //How many (max) departures will be displayed in the response (
-    private int maxDepartures = 7;
+    private int maxDeparturesShown = 7;
 
     public Response(List<Station> stations, List<Platform> platforms, Optional<List<Departure>> departures,
                     String responseType) {
@@ -35,51 +33,42 @@ public class Response {
     }
 
     public void prepareMsg() {
-        if (this.stations.size() < 1) {
-            this.messages.add("Wrong station name.");
+        int noOfStations = stations.size();
+        if (noOfStations == 0) {
+            messages.add("Wrong station name.");
             return;
-        } else if (this.stations.size() > 1 && this.stations.size() < 12) {
-            this.quickRepliesObject = new QuickReplies(this.stations, "Multiple matching stations. " +
+        } else if (noOfStations > 1 && noOfStations <= MULTIPLE_STATIONS_THRESHOLD) {
+            quickRepliesObject = new QuickReplies(stations, "Multiple matching stations. " +
                     "Select the proper one.");
             return;
-        } else if (this.stations.size() > 11) {
-            this.messages.add("Too many station matching the provided name. Please be more specific.");
+        } else if (noOfStations > MULTIPLE_STATIONS_THRESHOLD) {
+            messages.add("Too many station matching the provided name. Please be more specific.");
             return;
         }
-
         String stationName = stations.get(0).getMainName();
-
         messages.add("Departures for: " + stationName);
-
-
-        if (this.platforms.size() != 1) {
-            this.quickRepliesObject = new QuickReplies(this.stations.get(0), "Choose platform:");
+        if (platforms.size() != 1) {
+            quickRepliesObject = new QuickReplies(stations.get(0), "Choose platform:");
             return;
         }
-
-        Platform pl = this.platforms.get(0);
+        Platform pl = platforms.get(0);
         messages.add("Leaving from platform " + pl.getNumber() + ". Direction: " + pl.getMainDirection()
-                + System.getProperty("line.separator") + responseType);
-
+                + LINE_SEPARATOR + responseType);
         String depInfo = createDepartureMsg(departures);
-
-        this.quickRepliesObject = new QuickReplies(depInfo, stationName, pl.getNumber());
+        quickRepliesObject = new QuickReplies(depInfo, stationName, pl.getNumber());
     }
-
 
     private String createDepartureMsg(Optional<List<Departure>> deps) {
         if (deps.isPresent()) {
-
-            if (deps.get().size() < this.maxDepartures) {
-                this.maxDepartures = deps.get().size() - 1;
+            if (deps.get().size() < maxDeparturesShown) {
+                maxDeparturesShown = deps.get().size() - 1;
             }
-
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i <= this.maxDepartures; i++) {
+            for (int i = 0; i <= maxDeparturesShown; i++) {
                 Departure departure = deps.get().get(i);
-                sb.append(departure.getLine() + " | " + departure.getDirection() + " | " + departure.getTime());
-                if (i <= this.maxDepartures - 1) {
-                    sb.append(System.getProperty("line.separator"));
+                sb.append(departure.getLine()).append(" | ").append(departure.getDirection()).append(" | ").append(departure.getTime());
+                if (i <= maxDeparturesShown - 1) {
+                    sb.append(LINE_SEPARATOR);
                 }
             }
             return sb.toString();
@@ -88,21 +77,18 @@ public class Response {
         }
     }
 
-
     public String consoleInfo() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < this.messages.size(); i++) {
-            sb.append(this.messages.get(i));
-            if (i < this.messages.size() - 1) {
-                sb.append(System.getProperty("line.separator"));
+        //todo simplify
+        for (int i = 0; i < messages.size(); i++) {
+            sb.append(messages.get(i));
+            if (i < messages.size() - 1) {
+                sb.append(LINE_SEPARATOR);
             }
         }
-
-        if(this.quickRepliesObject != null) {
-            sb.append(System.getProperty("line.separator") + quickRepliesObject.toString());
+        if (quickRepliesObject != null) {
+            sb.append(LINE_SEPARATOR).append(quickRepliesObject.toString());
         }
-
         return sb.toString();
     }
-
 }

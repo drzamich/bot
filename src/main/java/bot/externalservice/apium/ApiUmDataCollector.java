@@ -2,8 +2,11 @@ package bot.externalservice.apium;
 
 import bot.Settings;
 import bot.processor.DataManager;
-import bot.processor.Utilities;
 import bot.schema.Station;
+import bot.utils.FileHelper;
+import bot.utils.StringHelper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -14,12 +17,20 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ApiUmDataCollector {
+
     private List<String> fetchedStations;
+
     private List<Station> stationList;
 
-    public ApiUmDataCollector() {
+    private ApiUmTimetableGenerator apiUmTimetableGenerator;
+    private DataManager dataManager;
 
+    @Autowired
+    public ApiUmDataCollector(ApiUmTimetableGenerator apiUmTimetableGenerator, DataManager dataManager) {
+        this.apiUmTimetableGenerator = apiUmTimetableGenerator;
+        this.dataManager = dataManager;
     }
 
     public void doWork() {
@@ -32,12 +43,11 @@ public class ApiUmDataCollector {
         File folder = new File(Settings.PATH_SAVED_TIMETABLES);
         File[] files = folder.listFiles();
 
-        Arrays.stream(files).filter(f-> !f.getName().contains(Utilities.getTime(Settings.DATE_PATTERN))).forEach(File::delete);
+        Arrays.stream(files).filter(f-> !f.getName().contains(StringHelper.getTime(Settings.DATE_PATTERN))).forEach(File::delete);
     }
 
     private void prepareData() {
-        this.fetchedStations = Utilities.readFile(Settings.MAIN_DATA_PATH + "fetchedStations");
-        DataManager dataManager = new DataManager();
+        this.fetchedStations = FileHelper.readFile(Settings.MAIN_DATA_PATH + "fetchedStations");
         dataManager.prepareData();
         stationList = dataManager.getIntegratedList();
 
@@ -51,32 +61,23 @@ public class ApiUmDataCollector {
 
     private void generateTimetables() {
         final int parallelism = 100;
-
         ForkJoinPool forkJoinPool = null;
-
         try {
             forkJoinPool = new ForkJoinPool(parallelism);
             forkJoinPool.submit(() ->
-
                     stationList.parallelStream()
-                            .forEach(ApiUmDataCollector::getTimetable)
-
+                            .forEach(this::getTimetable)
             ).get();
-
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            log.error("Cannot generate timetable", e);
         } finally {
             if (forkJoinPool != null) {
                 forkJoinPool.shutdown();
             }
         }
-
-
     }
-
-    private static void getTimetable(Station station) {
-        ApiUmTimetableGenerator apiUmTimetableGenerator = new ApiUmTimetableGenerator(station);
-        apiUmTimetableGenerator.generateTimetables();
-        System.out.println("Fetched timetable for " + station.getMainName());
+    private void getTimetable(Station station) {
+        apiUmTimetableGenerator.generateTimetablesForStation(station);
+        log.info("Fetched timetable for " + station.getMainName());
     }
 }
