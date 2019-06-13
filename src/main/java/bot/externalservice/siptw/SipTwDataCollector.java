@@ -1,9 +1,9 @@
 package bot.externalservice.siptw;
 
-import bot.externalservice.siptw.response.SipServicePlatformResponse;
-import bot.externalservice.siptw.schema.PlatformSipTw;
+import bot.externalservice.siptw.response.SipTwPlatform;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +15,6 @@ import java.util.TreeMap;
 @Service
 @Slf4j
 public class SipTwDataCollector {
-    private List<PlatformSipTw> platformSipTwList;
-    private Map<String, PlatformSipTw> platformMap;
-
 
     private SipService sipService;
 
@@ -26,31 +23,17 @@ public class SipTwDataCollector {
         this.sipService = sipService;
     }
 
-    public Map<String, PlatformSipTw> fetchPlatformMap() {
-        getPlatformsList();
-        parsePlatformsList();
-        return this.platformMap;
-    }
-
-    private void getPlatformsList() {
-        try {
-            SipServicePlatformResponse sipServiceDepartureResponse = sipService.getPlatforms();
-            this.platformSipTwList = sipServiceDepartureResponse.getPlatformSipTws();
-        } catch (Exception e) {
-            log.error("Not able to fetch platforms from SIP TW", e);
+    public Map<String, SipTwPlatform> fetchPlatformMap() {
+        List<SipTwPlatform> sipTwPlatforms = sipService.getPlatforms().getSipTwPlatforms();
+        Map<String, SipTwPlatform> platformMap = new TreeMap<>(); //TODO czemu treemapa?
+        for (SipTwPlatform sipTwPlatform : sipTwPlatforms) {
+            String name = sipTwPlatform.getPlatformName();
+            String platformNumber = StringUtils.substringBetween(name, "[", "]");
+            name = name.substring(0, name.indexOf(" ["));
+            String lifelikePlatformName = name + StringUtils.SPACE + platformNumber;
+            platformMap.put(lifelikePlatformName, sipTwPlatform);
         }
+        return platformMap;
     }
-
-    private void parsePlatformsList() {
-        platformMap = new TreeMap<>();
-        for (PlatformSipTw platformSipTw : this.platformSipTwList) {
-            String name = platformSipTw.getName();
-            String platformNumber = name.substring(name.length() - 3, name.length() - 1);
-            name = name.substring(0, name.length() - 4);
-            String entity = name + platformNumber;
-            platformMap.put(entity, platformSipTw);
-        }
-    }
-
 
 }

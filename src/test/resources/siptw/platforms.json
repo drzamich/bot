@@ -1,0 +1,23 @@
+[
+  {
+    "StopId": "100103",
+    "Name": "KIJOWSKA [03]",
+    "Direction": "KINO FEMINA",
+    "GpsX": 21.0439835,
+    "GpsY": 52.2489967
+  },
+  {
+    "StopId": "100104",
+    "Name": "KIJOWSKA [04]",
+    "Direction": "ZĄBKOWSKA",
+    "GpsX": 21.0417252,
+    "GpsY": 52.2499046
+  },
+  {
+    "StopId": "100303",
+    "Name": "DWORZEC WILEŃSKI [03]",
+    "Direction": "PARK PRASKI",
+    "GpsX": 21.0337143,
+    "GpsY": 52.25436
+  }
+]

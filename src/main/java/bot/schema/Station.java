@@ -1,6 +1,7 @@
 package bot.schema;
 
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.util.List;
 
 @Data
 @Component
+@ToString
 public class Station implements Serializable {
     private String id;
     private String mainName;

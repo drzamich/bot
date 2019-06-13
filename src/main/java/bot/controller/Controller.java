@@ -1,4 +1,4 @@
-package bot;
+package bot.controller;
 
 import bot.processor.DataManager;
 import bot.processor.QueryProcessor;

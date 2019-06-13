@@ -1,6 +1,5 @@
-package bot.externalservice.apium.schema;
+package bot.schema;
 
-import bot.schema.Departure;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.collections4.MultiValuedMap;
