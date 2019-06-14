@@ -6,8 +6,10 @@ import bot.externalservice.siptw.response.SipTwPlatform;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -34,18 +36,23 @@ public class SipTwServiceTest {
     @Autowired
     private RestTemplate restTemplate;
 
+    @MockBean
+    private SipTwConfiguration sipTwConfiguration;
+
     private MockRestServiceServer mockServer;
 
     @Before
     public void init() {
+        Mockito.when(sipTwConfiguration.getKey()).thenReturn("fakeKey");
         mockServer = MockRestServiceServer.createServer(restTemplate);
     }
 
     @Test
     public void testSipServiceDeparturesResponse() throws IOException, URISyntaxException {
         String json = fromFile("/siptw/departures.json");
-        mockServer.expect(MockRestRequestMatchers.anything()).
-                andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON)); //TODO przerobić na MediaType.TEXT_HTML tak jak naprawdę zwraca serwis. ale jest jakiś problem że customowy konwerter się nie rejestruje w teście
+        mockServer.expect(MockRestRequestMatchers
+                .requestTo("https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userApiKey=fakeKey&stopId=323904&userCode=WWW"))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
         assertThat(sipService.getTimetableForPlatform(323904).getDepartures()).
                 isEqualTo(mockExternalServiceDeparturesResponseList());
     }
@@ -53,8 +60,9 @@ public class SipTwServiceTest {
     @Test
     public void testSipServicePlatformsResponse() throws IOException, URISyntaxException {
         String json = fromFile("/siptw/platforms.json");
-        mockServer.expect(MockRestRequestMatchers.anything()).
-                andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        mockServer.expect(MockRestRequestMatchers
+                .requestTo("https://public-sip-api.tw.waw.pl/api/GetStops?userApiKey=fakeKey&userCode=WWW"))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
         assertThat(sipService.getPlatforms().getSipTwPlatforms())
                 .isEqualTo(mockExternalServicePlatformsResponseList());
     }

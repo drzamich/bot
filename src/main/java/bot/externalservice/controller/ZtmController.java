@@ -1,4 +1,4 @@
-package bot.controller.temporary;
+package bot.externalservice.controller;
 
 import bot.externalservice.ztm.ZtmScraper;
 import bot.externalservice.ztm.response.ZtmStation;

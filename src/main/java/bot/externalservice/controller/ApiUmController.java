@@ -1,4 +1,4 @@
-package bot.controller.temporary;
+package bot.externalservice.controller;
 
 import bot.externalservice.apium.ApiUmService;
 import bot.externalservice.apium.response.ApiUmResponse;

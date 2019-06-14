@@ -1,14 +1,15 @@
 package bot.externalservice.apium;
 
-import bot.configuration.ApiUmConfiguration;
+import bot.externalservice.apium.configuration.ApiUmConfiguration;
 import bot.externalservice.apium.response.ApiUmDeparture;
 import bot.externalservice.apium.response.ApiUmResponse;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -36,18 +37,23 @@ public class ApiUmServiceTest {
     @Autowired
     private RestTemplate restTemplate;
 
+    @MockBean
+    private ApiUmConfiguration apiUmConfiguration;
+
     private MockRestServiceServer mockServer;
 
     @Before
     public void init() {
+        Mockito.when(apiUmConfiguration.getKey()).thenReturn("fakeKey");
         mockServer = MockRestServiceServer.createServer(restTemplate);
     }
 
     @Test
     public void testApiUmServiceResponse_whenExternalServiceRespondsWithData() throws IOException, URISyntaxException {
         String json = fromFile("/apium/fabrykaPomp.json");
-        mockServer.expect(MockRestRequestMatchers.anything()).
-                andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        mockServer.expect(MockRestRequestMatchers
+                .requestTo("https://api.um.warszawa.pl/api/action/dbtimetable_get/?id=e923fa0e-d96c-43f9-ae6e-60518c9f3238&busstopId=1092&busstopNr=01&line=N64&apikey=fakeKey"))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
         assertThat(apiUmService.getDepartureDetails("1092", "01", "N64").getDepartures()).
                 isEqualTo(mockExternalServiceDeparturesResponseList());
     }
@@ -55,8 +61,9 @@ public class ApiUmServiceTest {
     @Test
     public void testApiUmServiceResponse_whenExternalServiceRespondsWithEmptyArray() throws IOException, URISyntaxException {
         String json = fromFile("/apium/emptyResponse.json");
-        mockServer.expect(MockRestRequestMatchers.anything()).
-                andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        mockServer.expect(MockRestRequestMatchers
+                .requestTo("https://api.um.warszawa.pl/api/action/dbtimetable_get/?id=e923fa0e-d96c-43f9-ae6e-60518c9f3238&busstopId=1092&busstopNr=01&line=N64&apikey=fakeKey"))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
         assertThat(apiUmService.getDepartureDetails("1092", "01", "N64").getDepartures()).
                 isEqualTo(Collections.emptyList());
     }
@@ -64,8 +71,9 @@ public class ApiUmServiceTest {
     @Test
     public void testApiUmServiceResponse_whenInvalidApiKeyIsSent() throws IOException, URISyntaxException {
         String json = fromFile("/apium/wrongApiKey.json");
-        mockServer.expect(MockRestRequestMatchers.anything()).
-                andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        mockServer.expect(MockRestRequestMatchers
+                .requestTo("https://api.um.warszawa.pl/api/action/dbtimetable_get/?id=e923fa0e-d96c-43f9-ae6e-60518c9f3238&busstopId=1092&busstopNr=01&line=N64&apikey=fakeKey"))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
         ApiUmResponse apiUmServiceResponse = apiUmService.getDepartureDetails("1092", "01", "N64");
         assertThat(apiUmServiceResponse.isSuccess()).isEqualTo(false);
         assertThat(apiUmServiceResponse.getDepartures()).isEqualTo(Collections.emptyList());
@@ -74,8 +82,9 @@ public class ApiUmServiceTest {
     @Test
     public void testApiUmServiceResponse_whenInvalidRequestIsSent() throws IOException, URISyntaxException {
         String json = fromFile("/apium/missingParameter.json");
-        mockServer.expect(MockRestRequestMatchers.anything()).
-                andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        mockServer.expect(MockRestRequestMatchers
+                .requestTo("https://api.um.warszawa.pl/api/action/dbtimetable_get/?id=e923fa0e-d96c-43f9-ae6e-60518c9f3238&busstopId=1092&busstopNr=01&line=N64&apikey=fakeKey"))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
         ApiUmResponse apiUmServiceResponse = apiUmService.getDepartureDetails("1092", "01", "N64");
         assertThat(apiUmServiceResponse.isSuccess()).isEqualTo(false);
         assertThat(apiUmServiceResponse.getDepartures()).isEqualTo(Collections.emptyList());

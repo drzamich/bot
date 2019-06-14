@@ -1,6 +1,6 @@
 package bot.externalservice.apium;
 
-import bot.configuration.ApiUmConfiguration;
+import bot.externalservice.apium.configuration.ApiUmConfiguration;
 import bot.externalservice.apium.dto.ApiUmResponseDtoWrapper;
 import bot.externalservice.apium.response.ApiUmResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +32,8 @@ public class ApiUmService {
                 .queryParam("line", line)
                 .queryParam("apikey", apiUmConfiguration.getKey())
                 .toUriString();
+
+        log.info("Calling API UM at " + uri + " for departure details");
         ApiUmResponseDtoWrapper apiUmResponseDtoWrapper = restTemplate.getForObject(uri, ApiUmResponseDtoWrapper.class);
 
         ApiUmResponse response = ApiUmResponse.failed();

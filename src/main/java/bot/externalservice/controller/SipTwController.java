@@ -1,4 +1,4 @@
-package bot.controller.temporary;
+package bot.externalservice.controller;
 
 import bot.externalservice.siptw.SipService;
 import bot.externalservice.siptw.response.SipTwDeparturesResponse;

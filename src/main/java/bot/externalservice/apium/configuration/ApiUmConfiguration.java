@@ -1,4 +1,4 @@
-package bot.configuration;
+package bot.externalservice.apium.configuration;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

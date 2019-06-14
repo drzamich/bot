@@ -52,7 +52,7 @@ public class SipService {
         parameters.add("userApiKey", sipTwConfiguration.getKey());
         URI uri = configureRequestUrl(endpoint, parameters);
 
-        log.info("Calling SIP at " + uri.toString() + " for details about platformSipTws");
+        log.info("Calling SIP at " + uri.toString() + " for details about platforms");
 
         SipTwPlatformDto[] sipTwPlatformDtos = restTemplate.getForObject(uri, SipTwPlatformDto[].class);
         return new SipTwPlatformsResponse(sipTwPlatformDtos);
