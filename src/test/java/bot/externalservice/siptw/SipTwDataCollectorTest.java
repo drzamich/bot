@@ -1,6 +1,8 @@
 package bot.externalservice.siptw;
 
 import bot.externalservice.siptw.dto.SipTwPlatformDto;
+import bot.externalservice.siptw.impl.SipServiceImpl;
+import bot.externalservice.siptw.impl.SipTwDataCollectorImpl;
 import bot.externalservice.siptw.response.SipTwPlatform;
 import bot.externalservice.siptw.response.SipTwPlatformsResponse;
 import org.junit.Before;
@@ -26,7 +28,7 @@ public class SipTwDataCollectorTest {
     @Before
     public void setUp() {
         Mockito.when(sipService.getPlatforms()).thenReturn(mockExternalServicePlatformsResponse());
-        sipTwDataCollector = new SipTwDataCollector(sipService);
+        sipTwDataCollector = new SipTwDataCollectorImpl(sipService);
     }
 
     @Test

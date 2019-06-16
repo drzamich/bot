@@ -30,10 +30,4 @@ public class Controller {
         return info;
     }
 
-    @RequestMapping(value= "lists", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public void giveInfo(){
-        dataManager.prepareData();
-    }
-
 }

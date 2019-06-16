@@ -1,6 +1,7 @@
 package bot.externalservice.apium;
 
 import bot.externalservice.apium.configuration.ApiUmConfiguration;
+import bot.externalservice.apium.impl.ApiUmServiceImpl;
 import bot.externalservice.apium.response.ApiUmDeparture;
 import bot.externalservice.apium.response.ApiUmResponse;
 import org.junit.Before;
@@ -28,7 +29,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {RestTemplate.class, ApiUmService.class, ApiUmConfiguration.class})
+@SpringBootTest(classes = {RestTemplate.class, ApiUmServiceImpl.class, ApiUmConfiguration.class})
 public class ApiUmServiceTest {
 
     @Autowired

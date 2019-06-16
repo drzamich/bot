@@ -1,11 +1,8 @@
 package bot.externalservice.siptw.response;
 
 import bot.externalservice.siptw.dto.SipTwDepartureDto;
-import bot.schema.Departure;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.util.List;
 import java.util.stream.Collectors;

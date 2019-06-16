@@ -1,6 +1,6 @@
 package bot.processor;
 
-import bot.externalservice.siptw.SipService;
+import bot.externalservice.siptw.impl.SipServiceImpl;
 import bot.externalservice.siptw.response.SipTwDeparture;
 import bot.schema.Departure;
 import bot.service.TimetableGenerator;
@@ -25,15 +25,15 @@ public class TimetableProcessor {
     private String responseType;
     private int platformNumber;
 
-    private SipService sipService;
+    private SipServiceImpl sipServiceImpl;
 
     private DataManager dataManager;
 
     private TimetableGenerator timetableGenerator;
 
     @Autowired
-    public TimetableProcessor(SipService sipService, DataManager dataManager, TimetableGenerator timetableGenerator) {
-        this.sipService = sipService;
+    public TimetableProcessor(SipServiceImpl sipServiceImpl, DataManager dataManager, TimetableGenerator timetableGenerator) {
+        this.sipServiceImpl = sipServiceImpl;
         this.dataManager = dataManager;
         this.timetableGenerator = timetableGenerator;
     }
@@ -111,7 +111,7 @@ public class TimetableProcessor {
 
     private Optional<List<Departure>> getInfoFromSipTw() {
         // TODO
-        return Optional.of(sipService
+        return Optional.of(sipServiceImpl
                 .getTimetableForPlatform(platforms.get(0).getSipTwID())
                 .getDepartures()
         .stream()

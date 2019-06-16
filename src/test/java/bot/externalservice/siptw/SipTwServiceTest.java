@@ -1,6 +1,7 @@
 package bot.externalservice.siptw;
 
 import bot.externalservice.siptw.configuration.SipTwConfiguration;
+import bot.externalservice.siptw.impl.SipServiceImpl;
 import bot.externalservice.siptw.response.SipTwDeparture;
 import bot.externalservice.siptw.response.SipTwPlatform;
 import org.junit.Before;
@@ -27,7 +28,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {RestTemplate.class, SipService.class, SipTwConfiguration.class})
+@SpringBootTest(classes = {RestTemplate.class, SipServiceImpl.class, SipTwConfiguration.class})
 public class SipTwServiceTest {
 
     @Autowired

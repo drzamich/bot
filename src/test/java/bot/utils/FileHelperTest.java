@@ -16,12 +16,4 @@ public class FileHelperTest {
         List<String> result = FileHelper.readFile("src/test/resources/filehelper/fetchedStations");
         assertEquals(expected, result);
     }
-
-    @Test
-    public void whenFileDoesNotExist_expectEmptyContent() {
-        List<String> expected = Collections.emptyList();
-        List<String> result = FileHelper.readFile("src/test/resources/filehelper/nonExistingFile");
-        assertEquals(expected, result);
-    }
-
 }
