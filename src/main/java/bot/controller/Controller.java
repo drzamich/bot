@@ -1,4 +1,4 @@
-package bot;
+package bot.controller;
 
 import bot.processor.DataManager;
 import bot.processor.QueryProcessor;
@@ -28,12 +28,6 @@ public class Controller {
         String info = response.consoleInfo();
         System.out.println(info);
         return info;
-    }
-
-    @RequestMapping(value= "lists", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public void giveInfo(){
-        dataManager.prepareData();
     }
 
 }

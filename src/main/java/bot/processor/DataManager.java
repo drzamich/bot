@@ -1,8 +1,8 @@
 package bot.processor;
 
 import bot.Settings;
-import bot.externalservice.apium.ZtmDataScraper;
-import bot.externalservice.siptw.schema.PlatformSipTw;
+import bot.externalservice.siptw.response.SipTwPlatform;
+import bot.externalservice.ztm.ZtmScraper;
 import bot.schema.Platform;
 import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,7 +26,7 @@ public class DataManager {
     private boolean overwriteWhenPresent = true;
     private boolean fetchNewListOnEveryRun = false;
     private List<Station> ztmStationList;
-    private Map<String, PlatformSipTw> sipTwPlatformMap;
+    private Map<String, SipTwPlatform> sipTwPlatformMap; // powinno tutaj być już generyczne Platform, nie SipTwPlatform - TODO
     private List<Station> integratedList = new ArrayList<>();
     private List<Station> finalList;
     private Map<String, Station> finalStationMap;
@@ -36,10 +37,10 @@ public class DataManager {
 
     private SipTwDataCollector sipTwDataCollector;
 
-    private ZtmDataScraper ztmDataScraper;
+    private ZtmScraper ztmDataScraper;
 
     @Autowired
-    public DataManager(SipTwDataCollector sipTwDataCollector, ZtmDataScraper ztmDataScraper) {
+    public DataManager(SipTwDataCollector sipTwDataCollector, @Qualifier("productionZtm") ZtmScraper ztmDataScraper) {
         this.sipTwDataCollector = sipTwDataCollector;
         this.ztmDataScraper = ztmDataScraper;
     }
@@ -65,7 +66,7 @@ public class DataManager {
 
     private void fetchLists() {
         if (loadNewData || !FileHelper.fileExists(Settings.PATH_LIST_ZTM)) {
-            this.ztmStationList = ztmDataScraper.getZtmStationList();
+//            this.ztmStationList = ztmDataScraper.getZtmStationList();
             FileHelper.serializeObject(ztmStationList, Settings.PATH_LIST_ZTM);
         } else {
             this.ztmStationList = FileHelper.deserializeObject(Settings.PATH_LIST_ZTM);
@@ -90,9 +91,9 @@ public class DataManager {
                     String number = platform.getNumber();
                     String validator = stationName + " " + number;
                     if (sipTwPlatformMap.containsKey(validator)) {
-                        int SipTwId = Integer.valueOf(sipTwPlatformMap.get(validator).getInnerId());
+                        int sipTwId = sipTwPlatformMap.get(validator).getPlatformId(); //TODO czy innerId nie było jednak krytyczne?
                         platform.setAtSipTw(true);
-                        platform.setSipTwID(SipTwId);
+                        platform.setSipTwID(sipTwId);
                     }
                 }
                 integratedList.add(station);

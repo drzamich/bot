@@ -1,4 +1,4 @@
-package bot.externalservice.apium;
+package bot.service;
 
 import bot.Settings;
 import bot.processor.DataManager;
@@ -18,18 +18,18 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class ApiUmDataCollector {
+public class TimetableDataCollector {
 
     private List<String> fetchedStations;
 
     private List<Station> stationList;
 
-    private ApiUmTimetableGenerator apiUmTimetableGenerator;
+    private TimetableGenerator timetableGenerator;
     private DataManager dataManager;
 
     @Autowired
-    public ApiUmDataCollector(ApiUmTimetableGenerator apiUmTimetableGenerator, DataManager dataManager) {
-        this.apiUmTimetableGenerator = apiUmTimetableGenerator;
+    public TimetableDataCollector(TimetableGenerator timetableGenerator, DataManager dataManager) {
+        this.timetableGenerator = timetableGenerator;
         this.dataManager = dataManager;
     }
 
@@ -40,13 +40,22 @@ public class ApiUmDataCollector {
     }
 
     private void clearOldData() {
+
+//        timetableRepository.deleteAll();
+
         File folder = new File(Settings.PATH_SAVED_TIMETABLES);
         File[] files = folder.listFiles();
 
-        Arrays.stream(files).filter(f-> !f.getName().contains(StringHelper.getTime(Settings.DATE_PATTERN))).forEach(File::delete);
+
+
+        Arrays.stream(files)
+                .filter(f-> !f.getName().contains(StringHelper.getTime(Settings.DATE_PATTERN)))
+                .forEach(File::delete);
     }
 
     private void prepareData() {
+//        timetableRepository.getStations();
+
         this.fetchedStations = FileHelper.readFile(Settings.MAIN_DATA_PATH + "fetchedStations");
         dataManager.prepareData();
         stationList = dataManager.getIntegratedList();
@@ -77,7 +86,7 @@ public class ApiUmDataCollector {
         }
     }
     private void getTimetable(Station station) {
-        apiUmTimetableGenerator.generateTimetablesForStation(station);
+        timetableGenerator.generateTimetablesForStation(station);
         log.info("Fetched timetable for " + station.getMainName());
     }
 }

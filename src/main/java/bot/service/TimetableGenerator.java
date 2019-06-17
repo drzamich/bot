@@ -1,8 +1,10 @@
-package bot.externalservice.apium;
+package bot.service;
 
 import bot.Settings;
+import bot.externalservice.apium.ApiUmService;
+import bot.externalservice.apium.response.ApiUmDeparture;
 import bot.schema.Departure;
-import bot.externalservice.apium.schema.DeparturesListWithTimes;
+import bot.schema.DeparturesListWithTimes;
 import bot.schema.Platform;
 import bot.schema.Station;
 import bot.utils.FileHelper;
@@ -16,21 +18,22 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 @Data
 @Service
-public class ApiUmTimetableGenerator {
+public class TimetableGenerator {
 
     private ApiUmService apiUmService;
 
     @Autowired
-    public ApiUmTimetableGenerator(ApiUmService apiUmService) {
+    public TimetableGenerator(ApiUmService apiUmService) {
         this.apiUmService = apiUmService;
     }
 
-    void generateTimetablesForStation(Station station){
+    public void generateTimetablesForStation(Station station){
         station.getPlatforms().parallelStream()
                 .forEach(p -> getDeparturesForPlatform(p, station));
     }
@@ -72,7 +75,8 @@ public class ApiUmTimetableGenerator {
 
         List<List<Departure>> departures =
                 lines.parallelStream()
-                        .map(l -> apiUmService.getDepartureDetails(station.getId(), platformNumber, l))
+                        .map(l -> apiUmService.getDepartureDetails(station.getId(), platformNumber, l).getDepartures())
+                        .map(this::convertToCommonDepartureFormat)
                         .collect(toList());
 
         for (List<Departure> list : departures) {
@@ -89,6 +93,12 @@ public class ApiUmTimetableGenerator {
         DeparturesListWithTimes departuresListWithTimes = new DeparturesListWithTimes(times, mappedDepartures);
         FileHelper.serializeObject(departuresListWithTimes, path);
         return calculateDeparturesList(departuresListWithTimes);
+    }
+
+    private List<Departure> convertToCommonDepartureFormat(List<ApiUmDeparture> apiUmDepartures) {
+        return apiUmDepartures.stream()
+                .map(apiUmDeparture -> new Departure(apiUmDeparture.getLine(), apiUmDeparture.getDestination(), apiUmDeparture.getDepartureTime()))
+                .collect(Collectors.toList());
     }
 }
 

@@ -1,8 +1,9 @@
 package bot.processor;
 
-import bot.externalservice.siptw.SipService;
+import bot.externalservice.siptw.impl.SipServiceImpl;
+import bot.externalservice.siptw.response.SipTwDeparture;
 import bot.schema.Departure;
-import bot.externalservice.apium.ApiUmTimetableGenerator;
+import bot.service.TimetableGenerator;
 import bot.schema.Platform;
 import bot.schema.Response;
 import bot.schema.Station;
@@ -24,17 +25,17 @@ public class TimetableProcessor {
     private String responseType;
     private int platformNumber;
 
-    private SipService sipService;
+    private SipServiceImpl sipServiceImpl;
 
     private DataManager dataManager;
 
-    private ApiUmTimetableGenerator apiUmTimetableGenerator;
+    private TimetableGenerator timetableGenerator;
 
     @Autowired
-    public TimetableProcessor(SipService sipService, DataManager dataManager, ApiUmTimetableGenerator apiUmTimetableGenerator) {
-        this.sipService = sipService;
+    public TimetableProcessor(SipServiceImpl sipServiceImpl, DataManager dataManager, TimetableGenerator timetableGenerator) {
+        this.sipServiceImpl = sipServiceImpl;
         this.dataManager = dataManager;
-        this.apiUmTimetableGenerator = apiUmTimetableGenerator;
+        this.timetableGenerator = timetableGenerator;
     }
 
     public Response processQuery(List<String> msg, int platformNumber) {
@@ -68,7 +69,9 @@ public class TimetableProcessor {
             if (!list.isEmpty()) {
                 res = list;
             }
-            if (i < msg.size() - 1) sb.append(" ").append(msg.get(i + 1));
+            if (i < msg.size() - 1) {
+                sb.append(" ").append(msg.get(i + 1));
+            }
         }
         return res;
     }
@@ -90,10 +93,10 @@ public class TimetableProcessor {
     private Optional<List<Departure>> getDepartureInfo() {
         Optional<List<Departure>> res = Optional.empty();
         if (this.platforms.size() == 1) {
-            if (this.platforms.get(0).isAtSipTw()) {
+//            if (this.platforms.get(0).isAtSipTw()) {
                 this.responseType = "<LIVE>";
                 res = getInfoFromSipTw();
-            }
+//            }
             if (!res.isPresent() || res.get().isEmpty()) {
                 this.responseType = "<TIMETABLE>";
                 return getInfoFromApiUm();
@@ -103,10 +106,20 @@ public class TimetableProcessor {
     }
 
     private Optional<List<Departure>> getInfoFromApiUm() {
-        return Optional.of(apiUmTimetableGenerator.getDeparturesForPlatform(platforms.get(0), stations.get(0)));
+        return Optional.of(timetableGenerator.getDeparturesForPlatform(platforms.get(0), stations.get(0)));
     }
 
     private Optional<List<Departure>> getInfoFromSipTw() {
-        return Optional.ofNullable(sipService.getTimetableForPlatform(platforms.get(0).getSipTwID()).getDepartures());
+        // TODO
+        return Optional.of(sipServiceImpl
+                .getTimetableForPlatform(platforms.get(0).getSipTwID())
+                .getDepartures()
+        .stream()
+        .map(this::toDeparture)
+        .collect(Collectors.toList()));
+    }
+
+    private Departure toDeparture(SipTwDeparture sipTwDeparture) {
+        return new Departure(sipTwDeparture.getLine(), sipTwDeparture.getDestination(), sipTwDeparture.getTimeToArrivalInMinutes());
     }
 }

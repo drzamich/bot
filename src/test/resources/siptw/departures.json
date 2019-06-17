@@ -1,0 +1,44 @@
+[
+  {
+    "Id": 126714695,
+    "Timestamp": "2019-06-09T16:45:08.4367698",
+    "Line": "1",
+    "SideNumber": "0000",
+    "StopId": "410803",
+    "Destination": "ANNOPOL",
+    "Arrival": 0,
+    "ArrivalAcurate": "00:00:05",
+    "FromSchedule": false,
+    "LowFloor": true,
+    "OnStop": false,
+    "Disruption": false
+  },
+  {
+    "Id": 126714694,
+    "Timestamp": "2019-06-09T16:45:08.4367698",
+    "Line": "14",
+    "SideNumber": "0000",
+    "StopId": "410803",
+    "Destination": "METRO WILANOWSKA",
+    "Arrival": 1,
+    "ArrivalAcurate": "00:01:05",
+    "FromSchedule": false,
+    "LowFloor": true,
+    "OnStop": false,
+    "Disruption": false
+  },
+  {
+    "Id": 126714693,
+    "Timestamp": "2019-06-09T16:45:08.4367698",
+    "Line": "25",
+    "SideNumber": "0000",
+    "StopId": "410803",
+    "Destination": "ANNOPOL",
+    "Arrival": 5,
+    "ArrivalAcurate": "00:05:05",
+    "FromSchedule": false,
+    "LowFloor": true,
+    "OnStop": false,
+    "Disruption": false
+  }
+]
