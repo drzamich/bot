@@ -7,6 +7,7 @@ import bot.schema.Platform;
 import bot.schema.Station;
 import bot.externalservice.siptw.SipTwDataCollector;
 import bot.utils.FileHelper;
+import bot.utils.NameProcessor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -107,8 +108,7 @@ public class DataManager {
         acceptedNamesBase = new TreeSet<>();
         for (Station station : integratedList) {
             String name = station.getMainName();
-            NameProcessor nameProcessor = new NameProcessor(name);
-            List<String> acceptedNames = nameProcessor.getAcceptedNames();
+            List<String> acceptedNames = NameProcessor.generateAcceptedNames(name);
             if (!Collections.disjoint(acceptedNamesBase, acceptedNames)) {
                 log.debug("Repeated names for station: " + name);
             }
