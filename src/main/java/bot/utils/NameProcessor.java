@@ -7,54 +7,66 @@ import java.util.*;
 
 @Data
 public class NameProcessor {
-    private NameProcessor() {}
+    private NameProcessor() {
+    }
+
+    private static Map<String, String> s;
+    private static Map<String, String> n;
+
+    static {
+        s = new HashMap<>();
+        s.put("al", "aleja");
+        s.put("cm", "cmentarz");
+        s.put("dw", "dworzec");
+        s.put("gen", "generala");
+        s.put("im", "imienia");
+        s.put("ks", "ksiedza");
+        s.put("os", "osiedle");
+        s.put("pl", "plac");
+        s.put("pld", "poludnie");
+        s.put("pln", "polnoc");
+        s.put("wsch", "wschod");
+        s.put("zach", "zachod");
+    }
+
+    static {
+        n = new HashMap<>();
+        n.put("i", "1");
+        n.put("ii", "2");
+        n.put("iii", "3");
+        n.put("iv", "4");
+        n.put("v", "5");
+        n.put("vi", "6");
+        n.put("vii", "7");
+        n.put("viii", "8");
+        n.put("ix", "9");
+        n.put("x", "10");
+    }
 
     public static List<String> generateAcceptedNames(String str) {
-        List<String> shortcutsShort = Arrays.asList("^al", "^os", "^gen", "im", "^dw", "^zaj", "^ks", "pld", "pln",
-                "zach", "wsch ", "^pl", "^zajezdnia", "^cm");
-        List<String> shortcutsLong = Arrays.asList("aleja", "osiedle", "generala", "imienia", "dworzec", "zajezdnia",
-                "ksiedza", "poludnie", "polnoc", "zachodni", "wschodni", "plac", "zaj", "cmentarz");
-        List<String> repetitiveNames = Arrays.asList("metro", "pl", "al", "plac", "dworzec", "dw", "im");
-
-        List<String> extrasSource = Arrays.asList(" ii", "jana pawla ii", "wschodni");
-        List<String> extrasGoal = Arrays.asList(" 2", "jp2", "wsch");
-
+        Set<String> set = new HashSet<>();
         str = StringHelper.sanitizeInput(str);
 
+        set.add(str);
+
+        for (Map.Entry<String, String> item : s.entrySet()) {
+            String regex = "\\b" + item.getKey() + "\\b";
+            String newStr = str.replaceAll(regex, item.getValue());
+            set.add(newStr);
+        }
+
+        for(int i = 0; i<set.size(); i++) {
+            str = set.
+            for (Map.Entry<String, String> item : n.entrySet()) {
+                String regex = "\\b" + item.getKey() + "$";
+                String newStr = str.replaceAll(regex, item.getValue());
+                set.add(newStr);
+            }
+        }
+
+
         List<String> res = new ArrayList<>();
-        res.add(str);
-
-        int len = shortcutsLong.size();
-        for (int i = 0; i < len; i++) {
-            String key = shortcutsShort.get(i);
-            String val = shortcutsLong.get(i);
-            String str2 = str.replaceAll(key + " ", val + " ");
-            if (!res.contains(str2)) {
-                res.add(str2);
-            }
-        }
-
-        len = repetitiveNames.size();
-        for (int i = 0; i < len; i++) {
-            String key = repetitiveNames.get(i);
-            String str2 = str.replaceAll(key + " ", "");
-            if (!res.contains(str2)) {
-                res.add(str2);
-            }
-        }
-
-        for (ListIterator<String> iterator = res.listIterator(); iterator.hasNext();) {
-            String a = iterator.next();
-            len = extrasSource.size();
-            for (int i = 0; i < len; i++) {
-                String key = extrasSource.get(i);
-                String val = extrasGoal.get(i);
-                String str2 = a.replaceAll(key, val);
-                if (!res.contains(str2)) {
-                    iterator.add(str2);
-                }
-            }
-        }
+        res.addAll(set);
         return res;
     }
 }
