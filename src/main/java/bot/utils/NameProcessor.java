@@ -1,72 +1,65 @@
 package bot.utils;
 
-import bot.utils.StringHelper;
-import lombok.Data;
-
 import java.util.*;
 
-@Data
 public class NameProcessor {
-    private NameProcessor() {
-    }
+    private NameProcessor() {}
 
     private static Map<String, String> s;
-    private static Map<String, String> n;
 
     static {
         s = new HashMap<>();
-        s.put("al", "aleja");
-        s.put("cm", "cmentarz");
-        s.put("dw", "dworzec");
-        s.put("gen", "generala");
-        s.put("im", "imienia");
-        s.put("ks", "ksiedza");
-        s.put("os", "osiedle");
-        s.put("pl", "plac");
-        s.put("pld", "poludnie");
-        s.put("pln", "polnoc");
-        s.put("wsch", "wschod");
-        s.put("zach", "zachod");
-    }
-
-    static {
-        n = new HashMap<>();
-        n.put("i", "1");
-        n.put("ii", "2");
-        n.put("iii", "3");
-        n.put("iv", "4");
-        n.put("v", "5");
-        n.put("vi", "6");
-        n.put("vii", "7");
-        n.put("viii", "8");
-        n.put("ix", "9");
-        n.put("x", "10");
+        s.put("\\bal\\b", "aleja");
+        s.put("\\bcm\\b", "cmentarz");
+        s.put("\\bch\\b", "centrum handlowe");
+        s.put("\\bdw\\b", "dworzec");
+        s.put("\\bgen\\b", "generala");
+        s.put("\\bgl\\b", "glowna");
+        s.put("\\bim\\b", "imienia");
+        s.put("\\bks\\b", "ksiedza");
+        s.put("\\bos\\b", "osiedle");
+        s.put("\\bpl\\b", "plac");
+        s.put("\\bpld\\b", "poludnie");
+        s.put("\\bpln\\b", "polnoc");
+        s.put("\\bwsch\\b", "wschod");
+        s.put("\\bsw\\b", "swietego");
+        s.put("\\bzach\\b", "zachod");
+        s.put("\\bi$", "1");
+        s.put("\\bii$", "2");
+        s.put("\\biii$", "3");
+        s.put("\\biv$", "4");
+        s.put("\\bv$", "5");
+        s.put("\\bvi$", "6");
+        s.put("\\bvii$", "7");
+        s.put("\\bviii$", "8");
+        s.put("\\bix$", "9");
+        s.put("\\bx$", "10");
+        s.put("\\bmetro\\s", "");
     }
 
     public static List<String> generateAcceptedNames(String str) {
         Set<String> set = new HashSet<>();
         str = StringHelper.sanitizeInput(str);
-
         set.add(str);
+        Set<String> newSet;
 
-        for (Map.Entry<String, String> item : s.entrySet()) {
-            String regex = "\\b" + item.getKey() + "\\b";
-            String newStr = str.replaceAll(regex, item.getValue());
-            set.add(newStr);
+        while(true) {
+            newSet = addAcceptedNames(set);
+            if(set.containsAll(newSet)) break;
+            set = newSet;
         }
 
-        for(int i = 0; i<set.size(); i++) {
-            str = set.
-            for (Map.Entry<String, String> item : n.entrySet()) {
-                String regex = "\\b" + item.getKey() + "$";
-                String newStr = str.replaceAll(regex, item.getValue());
-                set.add(newStr);
+        return new ArrayList<>(set);
+    }
+
+    private static Set<String> addAcceptedNames(Set<String> baseSet) {
+        Set<String> newSet = new HashSet<>(baseSet);
+        for(String str: baseSet) {
+            for (Map.Entry<String, String> item : s.entrySet()) {
+                String newStr = str.replaceAll(item.getKey(),  item.getValue());
+                newSet.add(newStr);
             }
         }
-
-
-        List<String> res = new ArrayList<>();
-        res.addAll(set);
-        return res;
+        return newSet;
     }
 }
