@@ -43,7 +43,7 @@ public class ExcelProcessor {
         for (int i = 0; i < this.stationList.size(); i++) {
             Station s = this.stationList.get(i);
             if (this.customAcceptedNames.containsKey(s.getMainName())) {
-                List<String> accNames = s.getAcceptedNames();
+                Set<String> accNames = s.getAcceptedNames();
                 accNames.addAll(this.customAcceptedNames.get(s.getMainName()));
                 s.setAcceptedNames(accNames);
             }
