@@ -1,10 +1,11 @@
 package bot.utils;
 
+import org.hamcrest.collection.IsIterableContainingInAnyOrder;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -12,14 +13,11 @@ public class NameProcessorTest {
 
     private String input;
     private List<String> expected;
-    private List<String> output;
+    private Set<String> output;
 
     private void runTest() {
         output = NameProcessor.generateAcceptedNames(input);
-        Collections.sort(expected);
-        Collections.sort(output);
-        assertEquals(output.containsAll(expected), expected.containsAll(output));
-//        assertEquals(expected, output);
+        assertThat(output, IsIterableContainingInAnyOrder.containsInAnyOrder(expected.toArray()));
     }
 
     @Test
@@ -81,7 +79,7 @@ public class NameProcessorTest {
     @Test
     public void givenSampleName_expectArrayOfStrings009() {
         input = "Al.Jana Pawła II";
-        expected = Arrays.asList("al jana pawla ii, al jana pawla 2, aleja jana pawla 2, aleja jana pawla ii");
+        expected = Arrays.asList("al jana pawla ii", "al jana pawla 2", "aleja jana pawla 2", "aleja jana pawla ii");
         runTest();
     }
 

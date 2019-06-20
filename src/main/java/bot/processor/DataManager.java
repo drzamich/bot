@@ -108,7 +108,7 @@ public class DataManager {
         acceptedNamesBase = new TreeSet<>();
         for (Station station : integratedList) {
             String name = station.getMainName();
-            List<String> acceptedNames = NameProcessor.generateAcceptedNames(name);
+            Set<String> acceptedNames = NameProcessor.generateAcceptedNames(name);
             if (!Collections.disjoint(acceptedNamesBase, acceptedNames)) {
                 log.debug("Repeated names for station: " + name);
             }

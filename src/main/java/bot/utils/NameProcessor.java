@@ -1,43 +1,43 @@
 package bot.utils;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.util.*;
 
 public class NameProcessor {
+
     private NameProcessor() {}
 
-    private static Map<String, String> s;
+    private static ImmutableMap<String, String> s = ImmutableMap.<String,String>builder()
+                                                    .put("\\bal\\b", "aleja")
+                                                    .put("\\bcm\\b", "cmentarz")
+                                                    .put("\\bch\\b", "centrum handlowe")
+                                                    .put("\\bdw\\b", "dworzec")
+                                                    .put("\\bgen\\b", "generala")
+                                                    .put("\\bgl\\b", "glowna")
+                                                    .put("\\bim\\b", "imienia")
+                                                    .put("\\bks\\b", "ksiedza")
+                                                    .put("\\bos\\b", "osiedle")
+                                                    .put("\\bpl\\b", "plac")
+                                                    .put("\\bpld\\b", "poludnie")
+                                                    .put("\\bpln\\b", "polnoc")
+                                                    .put("\\bwch\\b", "wchod")
+                                                    .put("\\bsw\\b", "swietego")
+                                                    .put("\\bzach\\b", "zachod")
+                                                    .put("\\bi$", "1")
+                                                    .put("\\bii$", "2")
+                                                    .put("\\biii$", "3")
+                                                    .put("\\biv$", "4")
+                                                    .put("\\bv$", "5")
+                                                    .put("\\bvi$", "6")
+                                                    .put("\\bvii$", "7")
+                                                    .put("\\bviii$", "8")
+                                                    .put("\\bix$", "9")
+                                                    .put("\\bx$", "10")
+                                                    .put("\\bmetro\\s", "")
+                                                    .build();
 
-    static {
-        s = new HashMap<>();
-        s.put("\\bal\\b", "aleja");
-        s.put("\\bcm\\b", "cmentarz");
-        s.put("\\bch\\b", "centrum handlowe");
-        s.put("\\bdw\\b", "dworzec");
-        s.put("\\bgen\\b", "generala");
-        s.put("\\bgl\\b", "glowna");
-        s.put("\\bim\\b", "imienia");
-        s.put("\\bks\\b", "ksiedza");
-        s.put("\\bos\\b", "osiedle");
-        s.put("\\bpl\\b", "plac");
-        s.put("\\bpld\\b", "poludnie");
-        s.put("\\bpln\\b", "polnoc");
-        s.put("\\bwsch\\b", "wschod");
-        s.put("\\bsw\\b", "swietego");
-        s.put("\\bzach\\b", "zachod");
-        s.put("\\bi$", "1");
-        s.put("\\bii$", "2");
-        s.put("\\biii$", "3");
-        s.put("\\biv$", "4");
-        s.put("\\bv$", "5");
-        s.put("\\bvi$", "6");
-        s.put("\\bvii$", "7");
-        s.put("\\bviii$", "8");
-        s.put("\\bix$", "9");
-        s.put("\\bx$", "10");
-        s.put("\\bmetro\\s", "");
-    }
-
-    public static List<String> generateAcceptedNames(String str) {
+    public static Set<String> generateAcceptedNames(String str) {
         Set<String> set = new HashSet<>();
         str = StringHelper.sanitizeInput(str);
         set.add(str);
@@ -45,11 +45,9 @@ public class NameProcessor {
 
         while(true) {
             newSet = addAcceptedNames(set);
-            if(set.containsAll(newSet)) break;
+            if(set.containsAll(newSet)) return newSet;
             set = newSet;
         }
-
-        return new ArrayList<>(set);
     }
 
     private static Set<String> addAcceptedNames(Set<String> baseSet) {
