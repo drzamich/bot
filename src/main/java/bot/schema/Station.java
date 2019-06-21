@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Component
@@ -13,7 +14,7 @@ import java.util.List;
 public class Station implements Serializable {
     private String id;
     private String mainName;
-    private List<String> acceptedNames;
+    private Set<String> acceptedNames;
     private List<Platform> platforms;
     private String urlToPlatforms;
 
