@@ -1,6 +1,7 @@
 package bot.externalservice.ztm.impl;
 
 import bot.externalservice.ztm.ZtmScraper;
+import bot.externalservice.ztm.response.ZtmDeparture;
 import bot.externalservice.ztm.response.ZtmPlatform;
 import bot.externalservice.ztm.response.ZtmStation;
 import bot.service.PlatformService;
@@ -16,18 +17,24 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service("productionZtm")
 @Slf4j
 public class ZtmScraperImpl implements ZtmScraper {
 
-    private static final String BASE_URL = "http://www.ztm.waw.pl/";
+    private static final String BASE_URL = "https://www.ztm.waw.pl/";
     private static final String AGGREGATE_PAGE_PATH = "rozklad_nowy.php?c=183&l=1";
-    private static final int JSOUP_TIMEOUT_MILLIS = 3000;
+    private static final int JSOUP_TIMEOUT_MILLIS = 100000;
+    private static final String TIME_ZONE = "CET";
 
     private PlatformService platformService;
+
 
     @Autowired
     public ZtmScraperImpl(PlatformService platformService) {
@@ -57,49 +64,72 @@ public class ZtmScraperImpl implements ZtmScraper {
             String id = parameters.getFirst("a");
             List<String> excludedIDs = platformService.getExcludedStationIDs();
             if (!excludedIDs.contains(id)) {
-                createStation(stationList, stationName, url, id);
+                List<ZtmPlatform> platforms = generatePlatforms(url, stationName);
+                ZtmStation station = new ZtmStation(id, stationName, url, platforms);
+                stationList.add(station);
             }
         }
         return stationList;
     }
 
-    private void createStation(List<ZtmStation> stationList, String stationName, String url, String id) {
-        ZtmStation station = new ZtmStation(id, stationName, url);
-        stationList.add(station);
-        String urlToPlatforms = station.getUrlToPlatforms();
+    private List<ZtmPlatform> generatePlatforms(String stationUrl, String stationName) {
+        List<ZtmPlatform> ztmPlatforms = new ArrayList<>();
         try {
-            Document doc = Jsoup.parse(new URL(urlToPlatforms), JSOUP_TIMEOUT_MILLIS);
-            Elements linksToPlatforms = doc.select(".PrzystanekKierunek p:contains(przystanek)>a>strong");
-            Elements directions = doc.select(".PrzystanekKierunek p:contains(przystanek)>strong");
-            Elements linesContainers = doc.select(".PrzystanekLineList");
-            List<ZtmPlatform> platforms = generatePlatformList(linksToPlatforms, directions, linesContainers, station);
-            if (!platforms.isEmpty()) {
-                station.setPlatforms(platforms);
-                log.debug("Station {} fetched from url: {}" + station.toString(), urlToPlatforms);
+            Document doc = Jsoup.parse(new URL(stationUrl), JSOUP_TIMEOUT_MILLIS);
+            Elements platformElements = doc.select(".PrzystanekKierunek");
+            for(Element el: platformElements) {
+                String[] numberWrapper = el.select("strong:nth-child(1)").text().split(" ");
+                String number = numberWrapper[numberWrapper.length - 1];
+                String platformIdentifier = stationName + " " + number;
+                if (platformService.getExcludedPlatformNames().contains(platformIdentifier)) {
+                    continue;
+                }
+                String direction = el.select("strong:nth-child(2)").text();
+                List<String> lines = el.select(".PrzystanekLineList a").stream().map(Element::text).collect(Collectors.toList());
+                String url = BASE_URL + el.select("a").attr("href");
+                List<ZtmDeparture> departures = generateDepartures(url, stationName, number);
+                ztmPlatforms.add(new ZtmPlatform(number, direction, lines, url, departures));
             }
+
         } catch (IOException e) {
-            log.error("Could not scrape ZTM details of station {} at url {}", station.toString(), urlToPlatforms, e);
+            log.error("Could not scrape ZTM details of station {} at url {}", stationName, stationUrl, e);
         }
+        return ztmPlatforms;
     }
 
-    private List<ZtmPlatform> generatePlatformList(Elements links, Elements directions, Elements linesContainers, ZtmStation station) {
-        List<ZtmPlatform> res = new ArrayList<>();
-        for (int i = 0; i < links.size(); i++) {
-            String[] platformNumberWrapper = links.get(i).text().split(" ");
-            String platformNumber = platformNumberWrapper[platformNumberWrapper.length - 1];
-            List<String> directs = new ArrayList<>();
-            directs.add(directions.get(i).text());
-            Elements linesLinks = linesContainers.get(i).select("a");
-            List<String> lines = linesLinks
-                    .stream()
-                    .map(Element::text)
-                    .collect(Collectors.toList());
-            String platformName = station.getMainName() + " " + platformNumber;
-            List<String> excludedPlatforms = platformService.getExcludedPlatformNames();
-            if (!excludedPlatforms.contains(platformName) && !lines.isEmpty()) {
-                res.add(new ZtmPlatform(platformNumber, directs.get(0), directs, lines));
+    private List<ZtmDeparture> generateDepartures(String platformUrl, String stationName, String platformNumber) {
+        List<ZtmDeparture> ztmDepartures = new ArrayList<>();
+        try {
+            Document doc = Jsoup.parse(new URL(platformUrl), JSOUP_TIMEOUT_MILLIS);
+            Elements times = doc.select("#PrzystanekRozklad .wwgodz");
+            Elements lines = doc.select("#PrzystanekRozklad div strong");
+            Elements directions = doc.select("#PrzystanekRozklad div a");
+            Elements lastStops = doc.select("#PrzystanekRozklad div a span");
+
+            int maxHour = 0;
+
+            for(int i =0; i<times.size(); i++) {
+                String line = lines.get(i).text();
+                String direction = directions.get(i).text();
+                String lastStopInfo = lastStops.get(i).text();
+                direction = direction.replace(lastStopInfo, "").trim();
+                LocalDateTime time = generateTime(times.get(i).text(), maxHour);
+                int realHour = time.getHour();
+                if(realHour > maxHour) {
+                    maxHour = realHour;
+                }
+                ztmDepartures.add(new ZtmDeparture(time, line, direction));
             }
+        } catch (IOException e) {
+            log.error("Could not scrape ZTM departures for platform {} of station {} at url {}", platformNumber, stationName, platformUrl);
         }
-        return res;
+        return ztmDepartures;
+    }
+
+    private LocalDateTime generateTime(String time, int maxHour) {
+        int hour = Integer.valueOf(time.split(":")[0]);
+        int minute = Integer.valueOf(time.split(":")[1]);
+        int plusDays = hour < maxHour ? 1 : 0;
+        return LocalDateTime.now(ZoneId.of(TIME_ZONE)).withHour(hour).withMinute(minute).withSecond(0).withNano(0).plusDays(plusDays);
     }
 }
