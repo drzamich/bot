@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {RestTemplate.class, SipServiceImpl.class, SipTwConfiguration.class})
@@ -52,17 +54,35 @@ public class SipTwServiceTest {
     public void testSipServiceDeparturesResponse() throws IOException, URISyntaxException {
         String json = fromFile("/siptw/departures.json");
         mockServer.expect(MockRestRequestMatchers
-                .requestTo("https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userApiKey=fakeKey&stopId=323904&userCode=WWW"))
+                .requestTo("https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?stopId=323904&userCode=WWW&userApiKey=fakeKey"))
                 .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
         assertThat(sipService.getTimetableForPlatform(323904).getDepartures()).
                 isEqualTo(mockExternalServiceDeparturesResponseList());
     }
 
     @Test
+    public void testSipServiceDeparturesResponseValidStatus() throws IOException, URISyntaxException {
+        String json = fromFile("/siptw/departures.json");
+        mockServer.expect(MockRestRequestMatchers
+                .requestTo("https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?stopId=323904&userCode=WWW&userApiKey=fakeKey"))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        assertTrue(sipService.getTimetableForPlatform(323904).isValid());
+    }
+
+    @Test
+    public void testSipServiceDeparturesResponseInvalidStatus() throws IOException, URISyntaxException {
+        String json = fromFile("/siptw/emptyDepartures.json");
+        mockServer.expect(MockRestRequestMatchers
+                .requestTo("https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?stopId=323904&userCode=WWW&userApiKey=fakeKey"))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        assertFalse(sipService.getTimetableForPlatform(323904).isValid());
+    }
+
+    @Test
     public void testSipServicePlatformsResponse() throws IOException, URISyntaxException {
         String json = fromFile("/siptw/platforms.json");
         mockServer.expect(MockRestRequestMatchers
-                .requestTo("https://public-sip-api.tw.waw.pl/api/GetStops?userApiKey=fakeKey&userCode=WWW"))
+                .requestTo("https://public-sip-api.tw.waw.pl/api/GetStops?userCode=WWW&userApiKey=fakeKey"))
                 .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
         assertThat(sipService.getPlatforms().getSipTwPlatforms())
                 .isEqualTo(mockExternalServicePlatformsResponseList());

@@ -5,7 +5,7 @@ import bot.externalservice.siptw.response.SipTwDeparture;
 import bot.schema.Departure;
 import bot.service.TimetableGenerator;
 import bot.schema.Platform;
-import bot.schema.Response;
+import bot.schema.LegacyResponse;
 import bot.schema.Station;
 import bot.utils.StringHelper;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,7 +38,7 @@ public class TimetableProcessor {
         this.timetableGenerator = timetableGenerator;
     }
 
-    public Response processQuery(List<String> msg, int platformNumber) {
+    public LegacyResponse processQuery(List<String> msg, int platformNumber) {
         this.stationMap = dataManager.getFinalMap();
         this.msg = msg;
         this.platformNumber = platformNumber;
@@ -49,7 +49,7 @@ public class TimetableProcessor {
         if (this.platforms.size() == 1) {
             this.departures = getDepartureInfo();
         }
-        return new Response(stations, platforms, departures, responseType);
+        return new LegacyResponse(stations, platforms, departures, responseType);
     }
 
     private List<Station> findStations() {

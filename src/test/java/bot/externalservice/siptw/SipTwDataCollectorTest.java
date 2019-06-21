@@ -1,7 +1,6 @@
 package bot.externalservice.siptw;
 
-import bot.externalservice.siptw.dto.SipTwPlatformDto;
-import bot.externalservice.siptw.impl.SipServiceImpl;
+import bot.externalservice.siptw.dto.GetStopsResponse;
 import bot.externalservice.siptw.impl.SipTwDataCollectorImpl;
 import bot.externalservice.siptw.response.SipTwPlatform;
 import bot.externalservice.siptw.response.SipTwPlatformsResponse;
@@ -41,21 +40,21 @@ public class SipTwDataCollectorTest {
     }
 
     private SipTwPlatformsResponse mockExternalServicePlatformsResponse() {
-        SipTwPlatformDto sipTwPlatformDto = new SipTwPlatformDto();
-        sipTwPlatformDto.setId(100103);
-        sipTwPlatformDto.setName("KIJOWSKA [03]");
-        sipTwPlatformDto.setDirection("KINO FEMINA");
+        GetStopsResponse getStopsResponse = new GetStopsResponse();
+        getStopsResponse.setId(100103);
+        getStopsResponse.setName("KIJOWSKA [03]");
+        getStopsResponse.setDirection("KINO FEMINA");
 
-        SipTwPlatformDto sipTwPlatformDto2 = new SipTwPlatformDto();
-        sipTwPlatformDto2.setId(100104);
-        sipTwPlatformDto2.setName("KIJOWSKA [04]");
-        sipTwPlatformDto2.setDirection("ZĄBKOWSKA");
+        GetStopsResponse getStopsResponse2 = new GetStopsResponse();
+        getStopsResponse2.setId(100104);
+        getStopsResponse2.setName("KIJOWSKA [04]");
+        getStopsResponse2.setDirection("ZĄBKOWSKA");
 
-        SipTwPlatformDto sipTwPlatformDto3 = new SipTwPlatformDto();
-        sipTwPlatformDto3.setId(100303);
-        sipTwPlatformDto3.setName("DWORZEC WILEŃSKI [03]");
-        sipTwPlatformDto3.setDirection("PARK PRASKI");
+        GetStopsResponse getStopsResponse3 = new GetStopsResponse();
+        getStopsResponse3.setId(100303);
+        getStopsResponse3.setName("DWORZEC WILEŃSKI [03]");
+        getStopsResponse3.setDirection("PARK PRASKI");
 
-        return new SipTwPlatformsResponse(new SipTwPlatformDto[]{sipTwPlatformDto, sipTwPlatformDto2, sipTwPlatformDto3});
+        return new SipTwPlatformsResponse(new GetStopsResponse[]{getStopsResponse, getStopsResponse2, getStopsResponse3});
     }
 }

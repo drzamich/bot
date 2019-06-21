@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Data
-public class Response {
+public class LegacyResponse {
     public static final int MULTIPLE_STATIONS_THRESHOLD = 12;
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private List<Station> stations;
@@ -23,8 +23,8 @@ public class Response {
 
     private int maxDeparturesShown = 7;
 
-    public Response(List<Station> stations, List<Platform> platforms, Optional<List<Departure>> departures,
-                    String responseType) {
+    public LegacyResponse(List<Station> stations, List<Platform> platforms, Optional<List<Departure>> departures,
+                          String responseType) {
         this.stations = stations;
         this.platforms = platforms;
         this.departures = departures;

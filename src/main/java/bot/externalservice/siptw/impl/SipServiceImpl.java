@@ -2,8 +2,8 @@ package bot.externalservice.siptw.impl;
 
 import bot.externalservice.siptw.SipService;
 import bot.externalservice.siptw.configuration.SipTwConfiguration;
-import bot.externalservice.siptw.dto.SipTwDepartureDto;
-import bot.externalservice.siptw.dto.SipTwPlatformDto;
+import bot.externalservice.siptw.dto.GetLatestPanelPredictionsResponse;
+import bot.externalservice.siptw.dto.GetStopsResponse;
 import bot.externalservice.siptw.response.SipTwDeparturesResponse;
 import bot.externalservice.siptw.response.SipTwPlatformsResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Optional;
 
 @Slf4j
 @EnableRetry
@@ -39,30 +40,38 @@ public class SipServiceImpl implements SipService {
     public SipTwDeparturesResponse getTimetableForPlatform(int platformID) {
         String endpoint = "GetLatestPanelPredictions";
         LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-        parameters.add("userApiKey", sipTwConfiguration.getKey());
         parameters.add("stopId", String.valueOf(platformID));
         URI uri = configureRequestUrl(endpoint, parameters);
+
         log.info("Calling SIP at " + uri.toString() + " for details about platform with ID: " + platformID);
-        SipTwDepartureDto[] departures = restTemplate.getForObject(uri, SipTwDepartureDto[].class);
-        return new SipTwDeparturesResponse(departures);
+        return Optional.ofNullable(restTemplate.getForObject(uri, GetLatestPanelPredictionsResponse[].class))
+                .map(SipTwDeparturesResponse::new)
+                .orElse(SipTwDeparturesResponse.INVALID);
     }
 
     @Retryable
     @Override
     public SipTwPlatformsResponse getPlatforms() {
         String endpoint = "GetStops";
-        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-        parameters.add("userApiKey", sipTwConfiguration.getKey());
-        URI uri = configureRequestUrl(endpoint, parameters);
+        URI uri = configureRequestUrl(endpoint, null);
 
         log.info("Calling SIP at " + uri.toString() + " for details about platforms");
-
-        SipTwPlatformDto[] sipTwPlatformDtos = restTemplate.getForObject(uri, SipTwPlatformDto[].class);
-        return new SipTwPlatformsResponse(sipTwPlatformDtos);
+        return Optional.ofNullable(restTemplate.getForObject(uri, GetStopsResponse[].class))
+                .map(SipTwPlatformsResponse::new)
+                .orElse(SipTwPlatformsResponse.INVALID);
     }
 
-    private URI configureRequestUrl(String endpointPath, MultiValueMap<String, String> map) {
-        map.add("userCode", "WWW");
-        return UriComponentsBuilder.fromHttpUrl(SIP_SERVICE_URL).path(endpointPath).queryParams(map).build(true).toUri();
+    private URI configureRequestUrl(String endpointPath, MultiValueMap<String, String> additionalParameters) {
+        if (additionalParameters == null) {
+            additionalParameters = new LinkedMultiValueMap<>();
+        }
+        additionalParameters.add("userCode", "WWW");
+        additionalParameters.add("userApiKey", sipTwConfiguration.getKey());
+
+        return UriComponentsBuilder.fromHttpUrl(SIP_SERVICE_URL)
+                .path(endpointPath)
+                .queryParams(additionalParameters)
+                .build(true)
+                .toUri();
     }
 }

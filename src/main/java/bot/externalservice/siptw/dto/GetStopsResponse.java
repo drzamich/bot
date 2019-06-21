@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data
 @Component
-public class SipTwPlatformDto implements Serializable {
+public class GetStopsResponse implements Serializable {
 
     @JsonProperty("StopId")
     private int id;

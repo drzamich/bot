@@ -1,8 +1,6 @@
 package bot.controller;
 
-import bot.processor.DataManager;
-import bot.processor.QueryProcessor;
-import bot.schema.Response;
+import bot.service.ResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -11,23 +9,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class Controller {
 
-    private DataManager dataManager;
-
-    private QueryProcessor queryProcessor;
+    private ResponseService responseService;
 
     @Autowired
-    public Controller(DataManager dataManager, QueryProcessor queryProcessor) {
-        this.dataManager = dataManager;
-        this.queryProcessor = queryProcessor;
+    public Controller(ResponseService responseService) {
+        this.responseService = responseService;
     }
 
-    @GetMapping(value= "msg/{msg}")
+    @GetMapping(value= "{station}")
     @ResponseStatus(value = HttpStatus.OK)
-    public String giveInfo(@PathVariable("msg") String msg){
-        Response response = queryProcessor.getFullResponse(msg);
-        String info = response.consoleInfo();
-        System.out.println(info);
-        return info;
+    public String getResponse(@PathVariable("station") String stationRequest){
+        return responseService.getResponse(stationRequest).getMessage();
     }
 
 }

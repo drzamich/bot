@@ -1,6 +1,6 @@
 package bot.externalservice.apium.response;
 
-import bot.externalservice.apium.dto.ApiUmResponseDtoWrapper;
+import bot.externalservice.apium.dto.GetTimetableResponseWrapper;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ public class ApiUmResponse {
         return FAILED;
     }
 
-    public ApiUmResponse(ApiUmResponseDtoWrapper apiUmResponseDtoWrapper, String line) {
-        if (apiUmResponseDtoWrapper.isSuccess()) {
+    public ApiUmResponse(GetTimetableResponseWrapper getTimetableResponseWrapper, String line) {
+        if (getTimetableResponseWrapper.isSuccess()) {
             success = true;
             departures = new ArrayList<>();
-            for (Map<String, List<Map<String, String>>> map : apiUmResponseDtoWrapper.getData().getResult()) {
+            for (Map<String, List<Map<String, String>>> map : getTimetableResponseWrapper.getData().getResult()) {
                 String dest = map.get("values").get(3).get("value");
                 String time = map.get("values").get(5).get("value");
                 departures.add(new ApiUmDeparture(line, dest, time));

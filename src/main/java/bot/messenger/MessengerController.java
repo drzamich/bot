@@ -12,7 +12,7 @@ import static java.util.Optional.*;
 
 import bot.processor.QueryProcessor;
 import bot.schema.QuickReplies;
-import bot.schema.Response;
+import bot.schema.LegacyResponse;
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.common.WebviewHeightRatio;
 import com.github.messenger4j.exception.MessengerApiException;
@@ -257,7 +257,7 @@ public class MessengerController {
 
     private void respondToRequest(String senderId, String messageText) {
         System.out.println(messageText);
-        Response response = queryProcessor.getFullResponse(messageText);
+        LegacyResponse response = queryProcessor.getFullResponse(messageText);
         List<String> messages = response.getMessages();
 
         messages.forEach(s -> sendTextMessage(senderId, s));

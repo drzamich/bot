@@ -1,6 +1,6 @@
 package bot.processor;
 
-import bot.schema.Response;
+import bot.schema.LegacyResponse;
 import bot.utils.StringHelper;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class QueryProcessor {
         this.timetableProcessor = timetableProcessor;
     }
 
-    public Response getFullResponse(String messageText) {
+    public LegacyResponse getFullResponse(String messageText) {
         String body = StringHelper.sanitizeInput(messageText);
         List<String> bodyExploded = Arrays.asList(body.split(" "));
 

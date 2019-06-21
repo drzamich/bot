@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class SipTwDepartureDto {
+public class GetLatestPanelPredictionsResponse {
 
     @JsonProperty("Id")
     private String id;

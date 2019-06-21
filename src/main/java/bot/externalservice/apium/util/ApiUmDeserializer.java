@@ -1,7 +1,7 @@
 package bot.externalservice.apium.util;
 
-import bot.externalservice.apium.dto.ApiUmResponseDto;
-import bot.externalservice.apium.dto.ApiUmResponseDtoWrapper;
+import bot.externalservice.apium.dto.GetTimetableResponse;
+import bot.externalservice.apium.dto.GetTimetableResponseWrapper;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -11,9 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
-public class ApiUmDeserializer extends JsonDeserializer<ApiUmResponseDtoWrapper> {
+public class ApiUmDeserializer extends JsonDeserializer<GetTimetableResponseWrapper> {
     @Override
-    public ApiUmResponseDtoWrapper deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
+    public GetTimetableResponseWrapper deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
         String message = "OK";
@@ -26,10 +26,10 @@ public class ApiUmDeserializer extends JsonDeserializer<ApiUmResponseDtoWrapper>
             message = result.asText();
         }
         if (dataIsReturned) {
-            ApiUmResponseDto data = node.traverse(oc).readValueAs(ApiUmResponseDto.class);
-            return new ApiUmResponseDtoWrapper(true, message, data);
+            GetTimetableResponse data = node.traverse(oc).readValueAs(GetTimetableResponse.class);
+            return new GetTimetableResponseWrapper(true, message, data);
         } else {
-            return new ApiUmResponseDtoWrapper(false, message, null);
+            return new GetTimetableResponseWrapper(false, message, null);
         }
 
     }

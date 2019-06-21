@@ -33,4 +33,8 @@ public class Station implements Serializable {
     public void addPlatform(Platform platform){
         this.platforms.add(platform);
     }
+
+    public boolean isAtSipTw() {
+        return false;
+    }
 }

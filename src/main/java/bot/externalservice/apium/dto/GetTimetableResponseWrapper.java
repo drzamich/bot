@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode
 @JsonDeserialize(using = ApiUmDeserializer.class)
-public class ApiUmResponseDtoWrapper {
+public class GetTimetableResponseWrapper {
 
     private boolean success;
 
     private String message;
 
-    private ApiUmResponseDto data;
+    private GetTimetableResponse data;
 
 }
 

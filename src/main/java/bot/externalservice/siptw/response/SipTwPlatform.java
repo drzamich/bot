@@ -1,6 +1,6 @@
 package bot.externalservice.siptw.response;
 
-import bot.externalservice.siptw.dto.SipTwPlatformDto;
+import bot.externalservice.siptw.dto.GetStopsResponse;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class SipTwPlatform {
 
     private String direction;
 
-    public static SipTwPlatform fromSipTwPlatformDto(SipTwPlatformDto sipTwPlatformDto) {
-        return new SipTwPlatform(sipTwPlatformDto.getId(), sipTwPlatformDto.getName(), sipTwPlatformDto.getDirection());
+    public static SipTwPlatform fromStopsResponse(GetStopsResponse getStopsResponse) {
+        return new SipTwPlatform(getStopsResponse.getId(), getStopsResponse.getName(), getStopsResponse.getDirection());
     }
 }

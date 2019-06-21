@@ -12,7 +12,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class ApiUmResponseDto {
+public class GetTimetableResponse {
 
     private List<Map<String, List<Map<String, String>>>> result;
 }

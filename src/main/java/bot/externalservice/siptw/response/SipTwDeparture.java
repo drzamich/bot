@@ -1,6 +1,6 @@
 package bot.externalservice.siptw.response;
 
-import bot.externalservice.siptw.dto.SipTwDepartureDto;
+import bot.externalservice.siptw.dto.GetLatestPanelPredictionsResponse;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,7 +16,7 @@ public class SipTwDeparture {
 
     private String timeToArrivalInMinutes;
 
-    public static SipTwDeparture fromSipTwDepartureDto(SipTwDepartureDto sipTwDepartureDto) {
-        return new SipTwDeparture(sipTwDepartureDto.getDestination(), sipTwDepartureDto.getLine(), sipTwDepartureDto.getArrival());
+    public static SipTwDeparture fromLatestPanelPredictionsResponse(GetLatestPanelPredictionsResponse getLatestPanelPredictionsResponse) {
+        return new SipTwDeparture(getLatestPanelPredictionsResponse.getDestination(), getLatestPanelPredictionsResponse.getLine(), getLatestPanelPredictionsResponse.getArrival());
     }
 }

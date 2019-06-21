@@ -2,7 +2,7 @@ package bot.externalservice.apium.impl;
 
 import bot.externalservice.apium.ApiUmService;
 import bot.externalservice.apium.configuration.ApiUmConfiguration;
-import bot.externalservice.apium.dto.ApiUmResponseDtoWrapper;
+import bot.externalservice.apium.dto.GetTimetableResponseWrapper;
 import bot.externalservice.apium.response.ApiUmResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +36,14 @@ public class ApiUmServiceImpl implements ApiUmService {
                 .toUriString();
 
         log.info("Calling API UM at " + uri + " for departure details");
-        ApiUmResponseDtoWrapper apiUmResponseDtoWrapper = restTemplate.getForObject(uri, ApiUmResponseDtoWrapper.class);
+        GetTimetableResponseWrapper getTimetableResponseWrapper = restTemplate.getForObject(uri, GetTimetableResponseWrapper.class);
 
         ApiUmResponse response = ApiUmResponse.failed();
-        if (apiUmResponseDtoWrapper != null) {
-            if (apiUmResponseDtoWrapper.isSuccess()) {
-                response = new ApiUmResponse(apiUmResponseDtoWrapper, line);
+        if (getTimetableResponseWrapper != null) {
+            if (getTimetableResponseWrapper.isSuccess()) {
+                response = new ApiUmResponse(getTimetableResponseWrapper, line);
             } else {
-                log.error("API UM responded with error. Reason: " + apiUmResponseDtoWrapper.getMessage());
+                log.error("API UM responded with error. Reason: " + getTimetableResponseWrapper.getMessage());
             }
         }
         return response;
