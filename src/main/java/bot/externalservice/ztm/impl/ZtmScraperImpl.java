@@ -27,9 +27,8 @@ import java.util.stream.Collectors;
 @Service("productionZtm")
 @Slf4j
 public class ZtmScraperImpl implements ZtmScraper {
-
-    private static final String BASE_URL = "https://www.ztm.waw.pl/";
-    private static final String AGGREGATE_PAGE_PATH = "rozklad_nowy.php?c=183&l=1";
+    private static final String BASE_URL = ZtmConstants.BASE_URL;
+    private static final String AGGREGATE_PAGE_PATH = ZtmConstants.AGGREGATE_PAGE_URL;
     private static final int JSOUP_TIMEOUT_MILLIS = 100000;
     private static final String TIME_ZONE = "CET";
 
@@ -45,7 +44,7 @@ public class ZtmScraperImpl implements ZtmScraper {
         String aggregatePage = BASE_URL + AGGREGATE_PAGE_PATH;
         List<ZtmStation> stations = Collections.emptyList();
         try {
-            Document doc = Jsoup.parse(new URL(BASE_URL + AGGREGATE_PAGE_PATH), JSOUP_TIMEOUT_MILLIS);
+            Document doc = Jsoup.parse(new URL(AGGREGATE_PAGE_PATH), JSOUP_TIMEOUT_MILLIS);
             Elements stationLinks = doc.select("a:contains(Warszawa)");
             stations = populateStations(stationLinks);
         } catch (IOException e) {

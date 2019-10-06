@@ -1,5 +1,6 @@
 package bot.externalservice.ztm;
 
+import bot.externalservice.ztm.impl.ZtmConstants;
 import bot.externalservice.ztm.impl.ZtmScraperImpl;
 import bot.externalservice.ztm.response.ZtmDeparture;
 import bot.externalservice.ztm.response.ZtmPlatform;
@@ -37,9 +38,8 @@ import static org.hamcrest.core.Is.is;
 @PrepareForTest(Jsoup.class)
 @RunWith(PowerMockRunner.class)
 public class ZtmScraperTest {
-
-    private static final String BASE_URL = "https://www.ztm.waw.pl/";
-    private static final String AGGREGATE_PAGE_URL = BASE_URL + "rozklad_nowy.php?c=183&l=1";
+    private static final String BASE_URL = ZtmConstants.BASE_URL;
+    private static final String AGGREGATE_PAGE_URL = ZtmConstants.AGGREGATE_PAGE_URL;
     private static final String AL_WIELKOPOLSKI_DETAIL_PAGE_URL = BASE_URL + "rozklad_nowy.php?c=183&l=1&a=4122";
     private static final String FABRYCZNA_DETAIL_PAGE_URL = BASE_URL + "rozklad_nowy.php?c=183&l=1&a=2294";
     private static final String FABRYKA_POMP_DETAIL_PAGE_URL = BASE_URL + "rozklad_nowy.php?c=183&l=1&a=1092";
