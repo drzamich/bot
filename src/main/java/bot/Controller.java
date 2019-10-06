@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.*;
 public class Controller {
 
     @Autowired
-    private DataManager dataManager;
-
-    @Autowired
     QueryProcessor queryProcessor;
 
     @RequestMapping(value= "msg/{msg}", method = RequestMethod.GET)
