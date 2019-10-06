@@ -16,7 +16,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ public class ZtmScraperImpl implements ZtmScraper {
     public List<ZtmStation> getZtmStationList() {
         List<ZtmStation> stations = Collections.emptyList();
         try {
-            Document doc = Jsoup.parse(new URL(ZtmConstants.AGGREGATE_PAGE_URL), JSOUP_TIMEOUT_MILLIS);
+            Document doc = Jsoup.connect(ZtmConstants.AGGREGATE_PAGE_URL).timeout(JSOUP_TIMEOUT_MILLIS).userAgent("Mozilla").get();
             Elements stationLinks = doc.select(".timetable-stops a:contains(Warszawa)");
             stations = generateStations(stationLinks);
         } catch (IOException e) {
@@ -63,6 +62,7 @@ public class ZtmScraperImpl implements ZtmScraper {
                 List<ZtmPlatform> platforms = generatePlatforms(url, stationName);
                 ZtmStation station = new ZtmStation(id, stationName, url, platforms);
                 stationList.add(station);
+                System.out.println(station);
             }
         }
         return stationList;
@@ -71,7 +71,7 @@ public class ZtmScraperImpl implements ZtmScraper {
     private List<ZtmPlatform> generatePlatforms(String stationUrl, String stationName) {
         List<ZtmPlatform> ztmPlatforms = new ArrayList<>();
         try {
-            Document doc = Jsoup.parse(new URL(stationUrl), JSOUP_TIMEOUT_MILLIS);
+            Document doc = Jsoup.connect(stationUrl).timeout(JSOUP_TIMEOUT_MILLIS).userAgent("Mozilla").get();
             Elements platformElements = doc.select(".timetable-stop-point");
             for(Element el: platformElements) {
                 String[] numberWrapper = el.select(".timetable-stop-point-title-name").text().trim().split(" ");
@@ -96,7 +96,7 @@ public class ZtmScraperImpl implements ZtmScraper {
     private List<ZtmDeparture> generateDepartures(String platformUrl, String stationName, String platformNumber) {
         List<ZtmDeparture> ztmDepartures = new ArrayList<>();
         try {
-            Document doc = Jsoup.parse(new URL(platformUrl), JSOUP_TIMEOUT_MILLIS);
+            Document doc = Jsoup.connect(platformUrl).timeout(JSOUP_TIMEOUT_MILLIS).userAgent("Mozilla").get();
             Elements departureElements = doc.select(".timetable-departures-entry");
             int maxHour = 0;
 
