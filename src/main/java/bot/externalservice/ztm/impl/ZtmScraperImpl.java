@@ -27,10 +27,8 @@ import java.util.stream.Collectors;
 @Service("productionZtm")
 @Slf4j
 public class ZtmScraperImpl implements ZtmScraper {
-    private static final String BASE_URL = ZtmConstants.BASE_URL;
-    private static final String AGGREGATE_PAGE_PATH = ZtmConstants.AGGREGATE_PAGE_URL;
     private static final int JSOUP_TIMEOUT_MILLIS = 100000;
-    private static final String TIME_ZONE = "CET";
+    private static final String TIME_ZONE = ZtmConstants.TIME_ZONE;
 
     private PlatformService platformService;
 
@@ -41,26 +39,25 @@ public class ZtmScraperImpl implements ZtmScraper {
     }
 
     public List<ZtmStation> getZtmStationList() {
-        String aggregatePage = BASE_URL + AGGREGATE_PAGE_PATH;
         List<ZtmStation> stations = Collections.emptyList();
         try {
-            Document doc = Jsoup.parse(new URL(AGGREGATE_PAGE_PATH), JSOUP_TIMEOUT_MILLIS);
-            Elements stationLinks = doc.select("a:contains(Warszawa)");
-            stations = populateStations(stationLinks);
+            Document doc = Jsoup.parse(new URL(ZtmConstants.AGGREGATE_PAGE_URL), JSOUP_TIMEOUT_MILLIS);
+            Elements stationLinks = doc.select(".timetable-stops a:contains(Warszawa)");
+            stations = generateStations(stationLinks);
         } catch (IOException e) {
-            log.error("Could not scrape ZTM at URL: " + aggregatePage, e);
+            log.error("Could not scrape ZTM at URL: " + ZtmConstants.AGGREGATE_PAGE_URL, e);
         }
         return stations;
     }
 
-    private List<ZtmStation> populateStations(Elements links) {
+    private List<ZtmStation> generateStations(Elements links) {
         List<ZtmStation> stationList = new ArrayList<>();
         for (Element link : links) {
-            String stationName = link.text();
-            String url = BASE_URL + link.attr("href");
+            String stationName = link.text().split(" \\(Warszawa\\)")[0];
+            String url = link.attr("href");
             MultiValueMap<String, String> parameters =
                     UriComponentsBuilder.fromUriString(url).build().getQueryParams();
-            String id = parameters.getFirst("a");
+            String id = parameters.getFirst("wtp_st");
             List<String> excludedIDs = platformService.getExcludedStationIDs();
             if (!excludedIDs.contains(id)) {
                 List<ZtmPlatform> platforms = generatePlatforms(url, stationName);
@@ -75,17 +72,17 @@ public class ZtmScraperImpl implements ZtmScraper {
         List<ZtmPlatform> ztmPlatforms = new ArrayList<>();
         try {
             Document doc = Jsoup.parse(new URL(stationUrl), JSOUP_TIMEOUT_MILLIS);
-            Elements platformElements = doc.select(".PrzystanekKierunek");
+            Elements platformElements = doc.select(".timetable-stop-point");
             for(Element el: platformElements) {
-                String[] numberWrapper = el.select("strong:nth-child(1)").text().split(" ");
+                String[] numberWrapper = el.select(".timetable-stop-point-title-name").text().trim().split(" ");
                 String number = numberWrapper[numberWrapper.length - 1];
                 String platformIdentifier = stationName + " " + number;
                 if (platformService.getExcludedPlatformNames().contains(platformIdentifier)) {
                     continue;
                 }
-                String direction = el.select("strong:nth-child(2)").text();
-                List<String> lines = el.select(".PrzystanekLineList a").stream().map(Element::text).collect(Collectors.toList());
-                String url = BASE_URL + el.select("a").attr("href");
+                String direction = el.select(".timetable-stop-point-title-destination span").text();
+                List<String> lines = el.select(".timetable-stop-point-block-items a").stream().map(Element::text).collect(Collectors.toList());
+                String url = el.select(".timetable-stop-point-title a").attr("href");
                 List<ZtmDeparture> departures = generateDepartures(url, stationName, number);
                 ztmPlatforms.add(new ZtmPlatform(number, direction, lines, url, departures));
             }
@@ -100,19 +97,13 @@ public class ZtmScraperImpl implements ZtmScraper {
         List<ZtmDeparture> ztmDepartures = new ArrayList<>();
         try {
             Document doc = Jsoup.parse(new URL(platformUrl), JSOUP_TIMEOUT_MILLIS);
-            Elements times = doc.select("#PrzystanekRozklad .wwgodz");
-            Elements lines = doc.select("#PrzystanekRozklad div strong");
-            Elements directions = doc.select("#PrzystanekRozklad div a");
-            Elements lastStops = doc.select("#PrzystanekRozklad div a span");
-
+            Elements departureElements = doc.select(".timetable-departures-entry");
             int maxHour = 0;
 
-            for(int i =0; i<times.size(); i++) {
-                String line = lines.get(i).text();
-                String direction = directions.get(i).text();
-                String lastStopInfo = lastStops.get(i).text();
-                direction = direction.replace(lastStopInfo, "").trim();
-                LocalDateTime time = generateTime(times.get(i).text(), maxHour);
+            for (Element el: departureElements) {
+                String line = el.select(".timetable-button-tile").text();
+                String direction = el.select(".timetable-departures-entry-direction span:nth-child(2)").text();
+                LocalDateTime time = generateTime(el.select(".timetable-departures-entry-hour").text(), maxHour);
                 int realHour = time.getHour();
                 if(realHour > maxHour) {
                     maxHour = realHour;

@@ -30,52 +30,54 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.*;
 
 @PrepareForTest(Jsoup.class)
 @RunWith(PowerMockRunner.class)
 public class ZtmScraperTest {
-    private static final String BASE_URL = ZtmConstants.BASE_URL;
-    private static final String AGGREGATE_PAGE_URL = ZtmConstants.AGGREGATE_PAGE_URL;
-    private static final String AL_WIELKOPOLSKI_DETAIL_PAGE_URL = BASE_URL + "rozklad_nowy.php?c=183&l=1&a=4122";
-    private static final String FABRYCZNA_DETAIL_PAGE_URL = BASE_URL + "rozklad_nowy.php?c=183&l=1&a=2294";
-    private static final String FABRYKA_POMP_DETAIL_PAGE_URL = BASE_URL + "rozklad_nowy.php?c=183&l=1&a=1092";
-    private static final String SW_A_BOBOLI_DETAIL_PAGE_URL = BASE_URL + "rozklad_nowy.php?c=183&l=1&a=3235";
+    private static String getStationUrl(String stationId) {
+        return ZtmConstants.BASE_URL + "?wtp_md=4&wtp_dt=2019-10-06&wtp_dy=7&wtp_st=" + stationId;
+    }
+
+    private static String getPlatformUrl(String stationId, String platformNumber) {
+        return ZtmConstants.BASE_URL + "?wtp_md=7&wtp_dt=2019-10-06&wtp_st=" + stationId + "&wtp_dy=7&wtp_pt=" + platformNumber;
+    }
+
+    private static final String AL_WIELKOPOLSKI_DETAIL_PAGE_URL = getStationUrl("4122");
+    private static final String FABRYCZNA_DETAIL_PAGE_URL = getStationUrl("2294");
+    private static final String FABRYKA_POMP_DETAIL_PAGE_URL = getStationUrl("1092");
+    private static final String SW_A_BOBOLI_DETAIL_PAGE_URL = getStationUrl("3235");
 
 
-    private static final String AL_WIELKOPOLSKI_PLATFORM_01_URL = BASE_URL + "rozklad_nowy.php?c=182&l=1&n=4122&o=01";
-    private static final String AL_WIELKOPOLSKI_PLATFORM_02_URL = BASE_URL + "rozklad_nowy.php?c=182&l=1&n=4122&o=02";
-    private static final String FABRYCZNA_PLATFORM_01_URL = BASE_URL + "rozklad_nowy.php?c=182&l=1&n=2294&o=01";
-    private static final String FABRYCZNA_PLATFORM_02_URL = BASE_URL + "rozklad_nowy.php?c=182&l=1&n=2294&o=02";
-    private static final String FABRYKA_POMP_PLATFORM_01_URL = BASE_URL + "rozklad_nowy.php?c=182&l=1&n=1092&o=01";
-    private static final String FABRYKA_POMP_PLATFORM_02_URL = BASE_URL + "rozklad_nowy.php?c=182&l=1&n=1092&o=02";
-    private static final String FABRYKA_POMP_PLATFORM_04_URL = BASE_URL + "rozklad_nowy.php?c=182&l=1&n=1092&o=04";
-    private static final String SW_A_BOBOLI_PLATFORM_01_URL = BASE_URL + "rozklad_nowy.php?c=182&l=1&n=3235&o=01";
-
-    private static final String TIME_ZONE = "CET";
+    private static final String AL_WIELKOPOLSKI_PLATFORM_01_URL = getPlatformUrl("4122", "01");
+    private static final String AL_WIELKOPOLSKI_PLATFORM_02_URL = getPlatformUrl("4122", "02");
+    private static final String FABRYCZNA_PLATFORM_01_URL = getPlatformUrl("2294", "01");
+    private static final String FABRYCZNA_PLATFORM_02_URL = getPlatformUrl("2294", "02");
+    private static final String FABRYKA_POMP_PLATFORM_01_URL = getPlatformUrl("1092", "01");;
+    private static final String FABRYKA_POMP_PLATFORM_02_URL = getPlatformUrl("1092", "02");;
+    private static final String FABRYKA_POMP_PLATFORM_04_URL = getPlatformUrl("1092", "04");;
+    private static final String SW_A_BOBOLI_PLATFORM_01_URL = getPlatformUrl("3235", "01");;
 
     @Before
     public void setUp() throws IOException, URISyntaxException {
-        Document mockedAggregatePage = fromFile("/ztm/aggregatePage.html");
-        Document alWielkopolski = fromFile("/ztm/alWielkopolski.html");
-        Document fabryczna = fromFile("/ztm/fabryczna.html");
-        Document fabrykaPomp = fromFile("/ztm/fabrykaPomp.html");
-        Document swABoboli = fromFile("/ztm/swABoboli.html");
+        Document mockedAggregatePage = fromFile("/ztm/aggregatePage.htm");
+        Document alWielkopolski = fromFile("/ztm/alWielkopolski.htm");
+        Document fabryczna = fromFile("/ztm/fabryczna.htm");
+        Document fabrykaPomp = fromFile("/ztm/fabrykaPomp.htm");
+        Document swABoboli = fromFile("/ztm/swABoboli.htm");
         
-        Document alWielkopolskiP01 = fromFile("/ztm/alWielkopolskiP01.html");
-        Document alWielkopolskiP02 = fromFile("/ztm/alWielkopolskiP02.html");
-        Document fabrycznaP01 = fromFile("/ztm/fabrycznaP01.html");
-        Document fabrycznaP02 = fromFile("/ztm/fabrycznaP02.html");
-        Document fabrykaPompP01 = fromFile("/ztm/fabrykaPompP01.html");
-        Document fabrykaPompP02 = fromFile("/ztm/fabrykaPompP02.html");
-        Document fabrykaPompP04 = fromFile("/ztm/fabrykaPompP04.html");
-        Document swABoboliP01 = fromFile("/ztm/swABoboliP01.html");
+        Document alWielkopolskiP01 = fromFile("/ztm/alWielkopolskiP01.htm");
+        Document alWielkopolskiP02 = fromFile("/ztm/alWielkopolskiP02.htm");
+        Document fabrycznaP01 = fromFile("/ztm/fabrycznaP01.htm");
+        Document fabrycznaP02 = fromFile("/ztm/fabrycznaP02.htm");
+        Document fabrykaPompP01 = fromFile("/ztm/fabrykaPompP01.htm");
+        Document fabrykaPompP02 = fromFile("/ztm/fabrykaPompP02.htm");
+        Document fabrykaPompP04 = fromFile("/ztm/fabrykaPompP04.htm");
+        Document swABoboliP01 = fromFile("/ztm/swABoboliP01.htm");
 
-        mockStatic(Jsoup.class);
-        PowerMockito.when(Jsoup.parse(eq(new URL(AGGREGATE_PAGE_URL)), anyInt())).thenReturn(mockedAggregatePage);
+        PowerMockito.mockStatic(Jsoup.class);
+        PowerMockito.when(Jsoup.parse(eq(new URL(ZtmConstants.AGGREGATE_PAGE_URL)), anyInt())).thenReturn(mockedAggregatePage);
         PowerMockito.when(Jsoup.parse(eq(new URL(AL_WIELKOPOLSKI_DETAIL_PAGE_URL)), anyInt())).thenReturn(alWielkopolski);
         PowerMockito.when(Jsoup.parse(eq(new URL(FABRYCZNA_DETAIL_PAGE_URL)), anyInt())).thenReturn(fabryczna);
         PowerMockito.when(Jsoup.parse(eq(new URL(FABRYKA_POMP_DETAIL_PAGE_URL)), anyInt())).thenReturn(fabrykaPomp);
@@ -106,18 +108,40 @@ public class ZtmScraperTest {
     public void whenZtmScraperIsInvoked_stationDetailsAreFilledCorrectly() {
         ZtmScraper ztmScraper = new ZtmScraperImpl(new PlatformService());
         List<ZtmStation> ztmStationList = ztmScraper.getZtmStationList();
-        LocalDateTime time1 = LocalDateTime.now(ZoneId.of(TIME_ZONE)).withHour(4).withMinute(47).withSecond(0).withNano(0).plusDays(0);
-        LocalDateTime time2 = LocalDateTime.now(ZoneId.of(TIME_ZONE)).withHour(4).withMinute(8).withSecond(0).withNano(0).plusDays(0);
-        LocalDateTime time3 = LocalDateTime.now(ZoneId.of(TIME_ZONE)).withHour(4).withMinute(10).withSecond(0).withNano(0).plusDays(0);
+        LocalDateTime departureTime;
+        ZtmDeparture departure;
+        ZtmPlatform platform;
+        List<String> lines;
+        String mainDirection;
 
-        ZtmPlatform platform01 = new ZtmPlatform("01", "1.Praskiego Pułku", Arrays.asList("411","502","704","720","722","730","N21"),"https://www.ztm.waw.pl/rozklad_nowy.php?c=182&l=1&n=2294&o=01",
-                Arrays.asList(new ZtmDeparture(time1, "704", "Wiatraczna")));
+        ZtmStation generatedStation = ztmStationList.get(1);
 
-        ZtmPlatform platform02 = new ZtmPlatform("02", "Nizinna", Arrays.asList("411","502","704","720","722","730"),"https://www.ztm.waw.pl/rozklad_nowy.php?c=182&l=1&n=2294&o=02",
-                Arrays.asList(new ZtmDeparture(time2, "722", "Radiówek"), new ZtmDeparture(time3, "704", "PKP Halinów")));
+        platform = generatedStation.getPlatforms().get(0);
+        lines = Arrays.asList("411","502","704","720","722","730","N21");
+        assertThat(lines, equalTo(platform.getLines()));
 
-        ZtmStation expected = new ZtmStation("2294", "Fabryczna (Warszawa)", "https://www.ztm.waw.pl/rozklad_nowy.php?c=183&l=1&a=2294", Arrays.asList(platform01, platform02));
-        assertThat(expected, equalTo(ztmStationList.get(1)));
+        mainDirection = "1.Praskiego Pułku";
+        assertEquals(mainDirection, platform.getMainDirection());
+
+        departureTime = LocalDateTime.now(ZoneId.of(ZtmConstants.TIME_ZONE)).withHour(4).withMinute(47).withSecond(0).withNano(0).plusDays(0);
+        departure = new ZtmDeparture(departureTime, "704", "Wiatraczna");
+        assertEquals(departure, platform.getDepartures().get(0));
+
+
+        platform = generatedStation.getPlatforms().get(1);
+        lines = Arrays.asList("411","502","704","720","722","730");
+        assertThat(lines, equalTo(platform.getLines()));
+
+        mainDirection = "Nizinna";
+        assertEquals(mainDirection, platform.getMainDirection());
+
+        departureTime = LocalDateTime.now(ZoneId.of(ZtmConstants.TIME_ZONE)).withHour(4).withMinute(3).withSecond(0).withNano(0).plusDays(0);
+        departure = new ZtmDeparture(departureTime, "722", "Radiówek");
+        assertEquals(departure, platform.getDepartures().get(0));
+
+        departureTime = LocalDateTime.now(ZoneId.of(ZtmConstants.TIME_ZONE)).withHour(4).withMinute(10).withSecond(0).withNano(0).plusDays(0);
+        departure = new ZtmDeparture(departureTime, "704", "PKP Halinów");
+        assertEquals(departure, platform.getDepartures().get(01));
     }
 
     @Test
@@ -133,17 +157,11 @@ public class ZtmScraperTest {
     @Test
     public void whenZtmScraperIsInvokedWithExcludedPlatformName_stationDetailsAreFilledCorrectlyExceptExcludedPlatform() {
         PlatformService platformService = PowerMockito.mock(PlatformService.class);
-        PowerMockito.when(platformService.getExcludedPlatformNames()).thenReturn(Collections.singletonList("Fabryczna (Warszawa) 02"));
+        PowerMockito.when(platformService.getExcludedPlatformNames()).thenReturn(Collections.singletonList("Fabryczna 02"));
         ZtmScraper ztmScraper = new ZtmScraperImpl(platformService);
         List<ZtmStation> ztmStationList = ztmScraper.getZtmStationList();
-        LocalDateTime time1 = LocalDateTime.now(ZoneId.of(TIME_ZONE)).withHour(4).withMinute(47).withSecond(0).withNano(0).plusDays(0);
 
-        ZtmPlatform platform01 = new ZtmPlatform("01", "1.Praskiego Pułku", Arrays.asList("411","502","704","720","722","730","N21"),"https://www.ztm.waw.pl/rozklad_nowy.php?c=182&l=1&n=2294&o=01",
-                Arrays.asList(new ZtmDeparture(time1, "704", "Wiatraczna")));
-
-
-        ZtmStation expected = new ZtmStation("2294", "Fabryczna (Warszawa)", "https://www.ztm.waw.pl/rozklad_nowy.php?c=183&l=1&a=2294", Collections.singletonList(platform01));
-        assertThat(expected, equalTo(ztmStationList.get(1)));
+        assertThat(1, equalTo(ztmStationList.get(1).getPlatforms().size()));
     }
 
     @Test
@@ -151,7 +169,7 @@ public class ZtmScraperTest {
         ZtmScraper ztmScraper = new ZtmScraperImpl(new PlatformService());
         List<ZtmStation> ztmStationList = ztmScraper.getZtmStationList();
 
-        assertEquals(78, ztmStationList.get(2).getPlatforms().get(0).getDepartures().size());
+        assertEquals(77, ztmStationList.get(2).getPlatforms().get(0).getDepartures().size());
     }
 
     @Test
@@ -159,7 +177,7 @@ public class ZtmScraperTest {
         ZtmScraper ztmScraper = new ZtmScraperImpl(new PlatformService());
         List<ZtmStation> ztmStationList = ztmScraper.getZtmStationList();
 
-        LocalDateTime expected = LocalDateTime.now(ZoneId.of(TIME_ZONE)).withHour(3).withMinute(57).withSecond(0).withNano(0).plusDays(1);
+        LocalDateTime expected = LocalDateTime.now(ZoneId.of(ZtmConstants.TIME_ZONE)).withHour(3).withMinute(57).withSecond(0).withNano(0).plusDays(1);
         LocalDateTime output = Iterables.getLast(ztmStationList.get(2).getPlatforms().get(0).getDepartures()).getTime();
 
         assertEquals(expected, output);
